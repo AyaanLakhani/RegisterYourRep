@@ -20,3 +20,9 @@ Your Perfect Workout Partner: With Register Your Rep, you have the ideal workout
 Begin your fitness journey today with Register Your Rep and take a step closer to reaching your dream body.
 
 Visit Register Your Rep
+
+TO RUN IT: 
+You will need 2 terminals
+1st terminal: node index.js
+2nd terminal: first cd to client and then use the command npm run dev
+
