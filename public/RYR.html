@@ -1,24 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modern Landing Page</title>
-<link rel="stylesheet" href="RYR.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RegisterYourRep</title>
+    <link rel="stylesheet" href="RYR.css">
+    <style>
+        .hero {
+            text-align: center;
+            padding: 120px 20px 60px;
+        }
+        .hero h1 {
+            font-size: 52px;
+            color: white;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+        .hero p {
+            font-size: 20px;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 36px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta-btn {
+            display: inline-block;
+            background: #ff1e00;
+            color: white;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .cta-btn:hover { background: #cc1800; }
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 60px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(4px);
+            border-radius: 12px;
+            padding: 28px 24px;
+            width: 240px;
+            text-align: center;
+            color: white;
+        }
+        .feature-card .icon { font-size: 36px; margin-bottom: 12px; }
+        .feature-card h3 { margin-bottom: 8px; font-size: 17px; }
+        .feature-card p { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    </style>
 </head>
 <body>
-    <!-- Top bar navigation -->
     <div class="top-bar">
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Services</a>
-        <a href="#">Contact</a>
-        <a href=http://localhost:3000/ class="login-btn">Login</a>
+        <a href="/home">Home</a>
+        <a href="/workout/OwnWorkout.html">Build Workout</a>
+        <a href="/logout" class="login-btn">Logout</a>
     </div>
-    
-    <!-- Main content -->
-    <div class="content">
-    
+
+    <div class="hero">
+        <h1>RegisterYourRep</h1>
+        <p>Design your perfect workout, track your progress, and crush your fitness goals.</p>
+        <a href="/workout/OwnWorkout.html" class="cta-btn">Build Your Workout</a>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <div class="icon">💪</div>
+            <h3>Choose Exercises</h3>
+            <p>Filter by muscle group, workout type, and difficulty level.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">📋</div>
+            <h3>Build Your Plan</h3>
+            <p>Select the exercises you want and create a personalized routine.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">✅</div>
+            <h3>Track & Save</h3>
+            <p>Save workouts to your profile and check off exercises as you go.</p>
+        </div>
     </div>
 </body>
 </html>
