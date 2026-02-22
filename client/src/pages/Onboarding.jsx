@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 
 async function syncSession(getAccessToken) {
@@ -34,7 +33,6 @@ const DURATIONS = [15, 30, 45, 60, 90]
 
 export default function Onboarding() {
   const { user, getAccessToken } = usePrivy()
-  const navigate = useNavigate()
 
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
@@ -84,7 +82,10 @@ export default function Onboarding() {
 
       const data = await res.json()
       if (data.success) {
-        navigate('/dashboard')
+        // Hard redirect so App re-runs session sync before reaching /dashboard.
+        // React Router navigation races with the session state; a full reload
+        // is reliable and matches what a manual refresh does.
+        window.location.href = '/dashboard'
       } else {
         setError('Something went wrong. Please try again.')
       }

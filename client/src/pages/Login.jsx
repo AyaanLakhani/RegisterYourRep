@@ -1,12 +1,9 @@
-import { useEffect, useState } from 'react'
-import { usePrivy, useLoginWithOAuth, useLoginWithEmail } from '@privy-io/react-auth'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useLoginWithOAuth, useLoginWithEmail } from '@privy-io/react-auth'
 import Logo from '../components/Logo'
 
+// Session sync and post-login navigation are handled by AppRoutes in App.jsx.
 export default function Login() {
-  const { authenticated, ready, getAccessToken } = usePrivy()
-  const navigate = useNavigate()
-
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [emailError, setEmailError] = useState('')
@@ -18,38 +15,6 @@ export default function Login() {
   const sendingCode = emailState.status === 'sending-code'
   const submittingCode = emailState.status === 'submitting-code'
   const googleLoading = oauthState.status === 'loading'
-
-  // After Privy authenticates, sync session and navigate
-  useEffect(() => {
-    if (!ready || !authenticated) return
-
-    async function syncSession() {
-      try {
-        const token = await getAccessToken()
-        const res = await fetch('/auth/privy', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
-        })
-        const data = await res.json()
-        if (!data.success) return
-
-        const profileRes = await fetch('/api/user/profile', { credentials: 'include' })
-        const profile = await profileRes.json()
-
-        if (profile.onboardingComplete) {
-          navigate('/dashboard')
-        } else {
-          navigate('/onboarding')
-        }
-      } catch (err) {
-        console.error('Session sync failed:', err)
-      }
-    }
-
-    syncSession()
-  }, [authenticated, ready])
 
   async function handleSendCode(e) {
     e.preventDefault()
