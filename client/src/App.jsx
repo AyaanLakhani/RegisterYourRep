@@ -4,6 +4,7 @@ import { usePrivy } from '@privy-io/react-auth'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
 import Dashboard from './pages/Dashboard'
+import Workcards from './pages/Workcards'
 
 // Wrapper that handles post-login redirect logic
 function AuthGate({ children, requireOnboarded }) {
@@ -79,6 +80,14 @@ function AppRoutes() {
         element={
           <AuthGate requireOnboarded={true}>
             <Dashboard />
+          </AuthGate>
+        }
+      />
+      <Route
+        path="/workcards"
+        element={
+          <AuthGate requireOnboarded={true}>
+            <Workcards />
           </AuthGate>
         }
       />
