@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { usePrivy, useLoginWithOAuth, useLoginWithEmail } from '@privy-io/react-auth'
 import { useNavigate } from 'react-router-dom'
+import Logo from '../components/Logo'
 
 export default function Login() {
   const { authenticated, ready, getAccessToken } = usePrivy()
@@ -79,8 +80,8 @@ export default function Login() {
 
       <div style={s.card}>
         {/* Logo */}
-        <div style={s.logoMark}>
-          <span style={s.logoR}>R</span>
+        <div style={s.logoWrap}>
+          <Logo size={60} />
         </div>
         <h1 style={s.title}>RegisterYourRep</h1>
         <p style={s.subtitle}>Your AI-powered workout companion</p>
@@ -219,22 +220,10 @@ const s = {
     textAlign: 'center',
     boxShadow: '0 0 60px rgba(255,30,0,0.06)',
   },
-  logoMark: {
-    width: '52px',
-    height: '52px',
-    borderRadius: '14px',
-    background: '#ff1e00',
+  logoWrap: {
     display: 'flex',
-    alignItems: 'center',
     justifyContent: 'center',
-    margin: '0 auto 16px',
-    boxShadow: '0 0 24px rgba(255,30,0,0.4)',
-  },
-  logoR: {
-    color: '#fff',
-    fontSize: '26px',
-    fontWeight: '800',
-    lineHeight: 1,
+    marginBottom: '16px',
   },
   title: {
     color: '#fff',
