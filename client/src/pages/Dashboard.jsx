@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
+import Logo from '../components/Logo'
 
 const LEVEL_LABELS = {
   beginner: 'Beginner',
@@ -161,7 +162,10 @@ export default function Dashboard() {
     <div style={s.page}>
       {/* Top bar */}
       <div style={s.topBar}>
-        <span style={s.logo}>RegisterYourRep</span>
+        <div style={s.logoRow}>
+          <Logo size={34} />
+          <span style={s.logoText}>RegisterYourRep</span>
+        </div>
         <button style={s.logoutBtn} onClick={handleLogout}>Logout</button>
       </div>
 
@@ -265,7 +269,8 @@ const s = {
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  logo: { color: '#fff', fontWeight: '700', fontSize: '18px' },
+  logoRow: { display: 'flex', alignItems: 'center', gap: '10px' },
+  logoText: { color: '#fff', fontWeight: '700', fontSize: '18px' },
   logoutBtn: {
     background: 'transparent',
     border: '1px solid #444',
