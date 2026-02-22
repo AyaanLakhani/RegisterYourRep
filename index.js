@@ -17,7 +17,11 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 hours
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        sameSite: 'lax',
+        httpOnly: true,
+    }
 }));
 
 mongoose.connect(process.env.MONGODB_URI, {
@@ -78,23 +82,28 @@ app.get('/home', requireAuthPage, (_req, res) => {
 });
 
 // Exchange Privy access token for a server session
-app.post('/auth/privy', async (req, res) => {
+app.post('/auth/privy', (req, res) => {
     var token = req.body.token;
     if (!token) return res.status(400).json({ error: 'No token provided' });
 
     try {
-        // Verify the token by calling Privy's API
-        var response = await axios.get('https://auth.privy.io/api/v1/users/me', {
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'privy-app-id': process.env.PRIVY_APP_ID
-            }
-        });
-        var privyUserId = response.data.id; // e.g. "did:privy:xxxx"
+        // Privy access tokens are JWTs — decode the payload to get the user's DID
+        var parts = token.split('.');
+        if (parts.length !== 3) throw new Error('Invalid JWT format');
+        var payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+        var privyUserId = payload.sub; // e.g. "did:privy:xxxx"
+        if (!privyUserId) throw new Error('No sub in token');
+
         req.session.privyUserId = privyUserId;
-        res.json({ success: true });
+        req.session.save(function(err) {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Session save failed' });
+            }
+            res.json({ success: true });
+        });
     } catch (err) {
-        console.error('Privy token verification failed:', err.response?.data || err.message);
+        console.error('Token decode error:', err.message);
         res.status(401).json({ error: 'Invalid token' });
     }
 });

@@ -2,6 +2,20 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 
+async function syncSession(getAccessToken) {
+  const token = await getAccessToken()
+  const res = await fetch('/auth/privy', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(`Auth failed (${res.status}): ${data.error || 'unknown'}`)
+  }
+}
+
 const MUSCLES = [
   { id: 'chest', label: 'Chest' },
   { id: 'back', label: 'Back' },
@@ -19,7 +33,7 @@ const MUSCLES = [
 const DURATIONS = [15, 30, 45, 60, 90]
 
 export default function Onboarding() {
-  const { user } = usePrivy()
+  const { user, getAccessToken } = usePrivy()
   const navigate = useNavigate()
 
   const [step, setStep] = useState(1)
@@ -49,19 +63,32 @@ export default function Onboarding() {
     setError('')
     try {
       const email = user?.email?.address || ''
-      const res = await fetch('/api/user/profile', {
+      const body = JSON.stringify({ email, fitnessLevel, targetMuscles, frequency, sessionDuration, preferences })
+
+      let res = await fetch('/api/user/profile', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, fitnessLevel, targetMuscles, frequency, sessionDuration, preferences }),
+        body,
       })
+
+      if (res.status === 401) {
+        await syncSession(getAccessToken)
+        res = await fetch('/api/user/profile', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+        })
+      }
+
       const data = await res.json()
       if (data.success) {
         navigate('/dashboard')
       } else {
         setError('Something went wrong. Please try again.')
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.')
     } finally {
       setSaving(false)
