@@ -10,8 +10,6 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.use('/workout', express.static(path.join(__dirname, 'Workout')));
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -117,13 +115,6 @@ function requireAuth(req, res, next) {
     next();
 }
 
-function requireAuthPage(req, res, next) {
-    if (!req.session.privyUserId) {
-        return res.redirect('/');
-    }
-    next();
-}
-
 function normalizeMuscles(input) {
     if (!Array.isArray(input)) return [];
     return input
@@ -209,8 +200,7 @@ async function generatePlanWithGemini(input) {
     var body = {
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
-            temperature: 0.4,
-            responseMimeType: 'application/json'
+            temperature: 0.4
         }
     };
 
@@ -220,15 +210,6 @@ async function generatePlanWithGemini(input) {
     return parsed;
 }
 
-// Routes
-app.get('/', (req, res) => {
-    if (req.session.privyUserId) return res.redirect('/home');
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/home', requireAuthPage, (_req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'RYR.html'));
-});
 
 // Exchange Privy access token for a server session
 app.post('/auth/privy', (req, res) => {
