@@ -59,58 +59,203 @@ function calcStreak(workouts) {
   return streak
 }
 
-function getLast7Days() {
-  const days = []
-  for (let i = 6; i >= 0; i -= 1) {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    d.setDate(d.getDate() - i)
-    days.push(d)
-  }
-  return days
+function getScoreColor(score) {
+  if (score >= 80) return '#2da25f'
+  if (score >= 50) return '#d6a127'
+  return '#ff1e00'
 }
 
-function ProgressChart({ workouts }) {
-  const days = getLast7Days()
-  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+function toDateKey(date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
 
-  const counts = days.map(day => {
-    const key = day.toDateString()
-    return workouts.filter(w => new Date(w.savedAt).toDateString() === key).length
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+
+function CalendarView({ workouts, workcards }) {
+  const today = new Date()
+  const [viewYear, setViewYear] = useState(today.getFullYear())
+  const [viewMonth, setViewMonth] = useState(today.getMonth())
+  const [selectedKey, setSelectedKey] = useState(null)
+
+  // Build lookup: 'YYYY-MM-DD' -> submitted sessions[]
+  const sessionMap = {}
+  workouts.forEach(w => {
+    if (w.sessionDate) {
+      if (!sessionMap[w.sessionDate]) sessionMap[w.sessionDate] = []
+      sessionMap[w.sessionDate].push(w)
+    }
   })
 
-  const maxCount = Math.max(...counts, 1)
-  const today = new Date().toDateString()
+  // Build lookup: 'YYYY-MM-DD' -> pending workcard (saved but not submitted)
+  const pendingMap = {}
+  workcards.forEach(wc => {
+    if (wc.date && wc.status === 'pending') {
+      pendingMap[wc.date] = wc
+    }
+  })
+
+  // Build grid cells (nulls for leading padding)
+  const firstDay = new Date(viewYear, viewMonth, 1)
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+  const calCells = []
+  for (let i = 0; i < firstDay.getDay(); i++) calCells.push(null)
+  for (let d = 1; d <= daysInMonth; d++) calCells.push(new Date(viewYear, viewMonth, d))
+  while (calCells.length % 7 !== 0) calCells.push(null)
+
+  const todayKey = toDateKey(today)
+  const selectedSessions = selectedKey ? (sessionMap[selectedKey] || []) : []
+  const selectedPending = selectedKey ? (pendingMap[selectedKey] || null) : null
+
+  function prevMonth() {
+    if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11) }
+    else setViewMonth(m => m - 1)
+    setSelectedKey(null)
+  }
+
+  function nextMonth() {
+    if (viewMonth === 11) { setViewYear(y => y + 1); setViewMonth(0) }
+    else setViewMonth(m => m + 1)
+    setSelectedKey(null)
+  }
 
   return (
-    <div style={s.chartCard}>
-      <h2 style={s.sectionTitle}>Last 7 Days</h2>
-      <div style={s.chartBars}>
-        {days.map((day, i) => {
-          const isToday = day.toDateString() === today
-          const hasWorkout = counts[i] > 0
-          const barHeight = Math.max((counts[i] / maxCount) * 80, hasWorkout ? 12 : 4)
+    <div style={s.calCard}>
+      <div style={s.calHeader}>
+        <h2 style={s.sectionTitle}>Calendar</h2>
+        <div style={s.calNav}>
+          <button style={s.calNavBtn} onClick={prevMonth}>‹</button>
+          <span style={s.calMonthLabel}>{MONTH_NAMES[viewMonth]} {viewYear}</span>
+          <button style={s.calNavBtn} onClick={nextMonth}>›</button>
+        </div>
+      </div>
+
+      <div style={s.calGrid}>
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+          <div key={d} style={s.calDayHeader}>{d}</div>
+        ))}
+        {calCells.map((day, i) => {
+          if (!day) return <div key={`pad-${i}`} style={s.calEmpty} />
+          const key = toDateKey(day)
+          const sessions = sessionMap[key] || []
+          const pending = pendingMap[key] || null
+          const hasSubmitted = sessions.length > 0
+          const hasPending = !hasSubmitted && !!pending
+          const hasActivity = hasSubmitted || hasPending
+
+          const avgScore = hasSubmitted
+            ? Math.round(sessions.reduce((sum, s) => sum + (s.completionScore || 0), 0) / sessions.length)
+            : hasPending ? (pending.score || 0) : 0
+
+          const color = hasSubmitted ? getScoreColor(avgScore) : null
+          const isToday = key === todayKey
+          const isSelected = key === selectedKey
 
           return (
-            <div key={day.toISOString()} style={s.chartCol}>
-              <div style={s.barWrapper}>
-                <div
-                  style={{
-                    ...s.bar,
-                    height: `${barHeight}px`,
-                    background: hasWorkout ? '#ff1e00' : '#2a2a2a',
-                    opacity: isToday && !hasWorkout ? 0.5 : 1,
-                  }}
-                />
-              </div>
-              <span style={{ ...s.dayLabel, color: isToday ? '#ff1e00' : '#555' }}>
-                {dayLabels[day.getDay()]}
+            <div
+              key={key}
+              style={{
+                ...s.calCell,
+                background: hasSubmitted ? `${color}20` : hasPending ? '#1e1a10' : '#131313',
+                border: isSelected && hasSubmitted
+                  ? `2px solid ${color}`
+                  : isSelected && hasPending
+                  ? '2px dashed #d6a127'
+                  : isToday
+                  ? '2px solid #ff1e00'
+                  : hasPending
+                  ? '2px dashed #333'
+                  : '2px solid transparent',
+                cursor: hasActivity ? 'pointer' : 'default',
+              }}
+              onClick={() => hasActivity && setSelectedKey(isSelected ? null : key)}
+            >
+              <span style={{ ...s.calDayNum, color: isToday ? '#ff1e00' : hasSubmitted ? '#fff' : hasPending ? '#888' : '#3a3a3a' }}>
+                {day.getDate()}
               </span>
-              {counts[i] > 0 && <span style={s.dayCount}>{counts[i]}</span>}
+              {hasSubmitted && (
+                <span style={{ ...s.calScore, color }}>{avgScore}%</span>
+              )}
+              {hasPending && (
+                <span style={{ ...s.calScore, color: '#555' }}>{avgScore > 0 ? `${avgScore}%` : '···'}</span>
+              )}
+              {sessions.length > 1 && (
+                <span style={s.calMulti}>{sessions.length}×</span>
+              )}
             </div>
           )
         })}
       </div>
+
+      <div style={s.chartLegend}>
+        <span style={s.legendItem}><span style={{ color: '#2da25f' }}>●</span> ≥80% great</span>
+        <span style={s.legendItem}><span style={{ color: '#d6a127' }}>●</span> 50–79% good</span>
+        <span style={s.legendItem}><span style={{ color: '#ff1e00' }}>●</span> &lt;50% keep going</span>
+      </div>
+
+      {(selectedSessions.length > 0 || selectedPending) && (
+        <div style={s.calDetail}>
+          {selectedSessions.map((session, i) => {
+            const scoreColor = getScoreColor(session.completionScore || 0)
+            return (
+              <div key={i} style={s.calDetailItem}>
+                <div style={s.calDetailTop}>
+                  <div>
+                    <p style={s.calDetailTitle}>{session.dayLabel || 'Workout'}</p>
+                    <p style={s.calDetailMeta}>
+                      {selectedKey}{session.sessionWeekday ? ` · ${session.sessionWeekday}` : ''}
+                    </p>
+                  </div>
+                  <span style={{
+                    ...s.calScoreBadge,
+                    background: `${scoreColor}20`,
+                    border: `1px solid ${scoreColor}`,
+                    color: scoreColor,
+                  }}>
+                    {session.completionScore || 0}%
+                  </span>
+                </div>
+                <p style={s.calDetailExCount}>
+                  {session.completedCount || 0}/{session.totalCount || 0} exercises completed
+                </p>
+                {session.exercises?.length > 0 && (
+                  <div style={s.calExList}>
+                    {session.exercises.slice(0, 6).map((ex, j) => (
+                      <span key={j} style={s.calExChip}>{ex}</span>
+                    ))}
+                    {session.exercises.length > 6 && (
+                      <span style={s.calExMore}>+{session.exercises.length - 6} more</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+          {selectedPending && (
+            <div style={{ ...s.calDetailItem, borderStyle: 'dashed' }}>
+              <div style={s.calDetailTop}>
+                <div>
+                  <p style={s.calDetailTitle}>{selectedPending.dayLabel || 'Workout'}</p>
+                  <p style={s.calDetailMeta}>
+                    {selectedKey}{selectedPending.weekday ? ` · ${selectedPending.weekday}` : ''}
+                    {selectedPending.planName ? ` · ${selectedPending.planName}` : ''}
+                  </p>
+                </div>
+                <span style={s.calInProgressBadge}>In Progress</span>
+              </div>
+              <p style={s.calDetailExCount}>
+                {selectedPending.completedCount || 0}/{selectedPending.totalCount || 0} exercises checked
+                {selectedPending.score > 0 ? ` · ${selectedPending.score}%` : ''}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -158,6 +303,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [profile, setProfile] = useState(null)
   const [workouts, setWorkouts] = useState([])
+  const [workcards, setWorkcards] = useState([])
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
   const [plansError, setPlansError] = useState('')
@@ -207,11 +353,13 @@ export default function Dashboard() {
       requestJson('/api/user/profile'),
       requestJson('/api/workouts'),
       requestJson('/api/workout-plans'),
+      requestJson('/api/workcards'),
     ])
-      .then(([prof, wkts, plns]) => {
+      .then(([prof, wkts, plns, wcds]) => {
         setProfile(prof)
         setWorkouts(Array.isArray(wkts) ? wkts : [])
         setPlans(Array.isArray(plns) ? plns : [])
+        setWorkcards(Array.isArray(wcds) ? wcds : [])
       })
       .catch(() => {
         setPlansError('Failed to load workout ideas.')
@@ -323,6 +471,19 @@ export default function Dashboard() {
   const streak = calcStreak(submittedSessions)
   const totalSessions = submittedSessions.length
 
+  const last7DayStrings = new Set()
+  for (let i = 0; i < 7; i++) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    last7DayStrings.add(d.toDateString())
+  }
+  const weekSessions = submittedSessions.filter(w => last7DayStrings.has(new Date(w.savedAt).toDateString()))
+  const weekSessionCount = weekSessions.length
+  const weekExercises = weekSessions.reduce((sum, s) => sum + (s.completedCount || 0), 0)
+  const weekAvgScore = weekSessionCount > 0
+    ? Math.round(weekSessions.reduce((sum, s) => sum + (s.completionScore || 0), 0) / weekSessionCount)
+    : 0
+
   return (
     <div style={s.page}>
       <div style={s.topBar}>
@@ -380,19 +541,32 @@ export default function Dashboard() {
                   </div>
                   <div style={s.statCard}>
                     <span style={s.statNum}>{totalSessions}</span>
-                    <span style={s.statLabel}>Sessions Done</span>
+                    <span style={s.statLabel}>Total Sessions</span>
+                  </div>
+                  <div style={s.statCard}>
+                    <span style={s.statNum}>{weekSessionCount}</span>
+                    <span style={s.statLabel}>This Week</span>
+                  </div>
+                  <div style={s.statCard}>
+                    <span style={{
+                      ...s.statNum,
+                      color: weekAvgScore > 0 ? getScoreColor(weekAvgScore) : '#fff',
+                    }}>
+                      {weekAvgScore > 0 ? `${weekAvgScore}%` : '—'}
+                    </span>
+                    <span style={s.statLabel}>Avg Score</span>
+                  </div>
+                  <div style={s.statCard}>
+                    <span style={s.statNum}>{weekExercises}</span>
+                    <span style={s.statLabel}>Exercises</span>
                   </div>
                   <div style={s.statCard}>
                     <span style={s.statNum}>{LEVEL_LABELS[profile?.fitnessLevel] || '-'}</span>
-                    <span style={s.statLabel}>Fitness Level</span>
-                  </div>
-                  <div style={s.statCard}>
-                    <span style={s.statNum}>{profile?.sessionDuration ? `${profile.sessionDuration}m` : '-'}</span>
-                    <span style={s.statLabel}>Per Session</span>
+                    <span style={s.statLabel}>Level</span>
                   </div>
                 </div>
 
-                <ProgressChart workouts={submittedSessions} />
+                <CalendarView workouts={submittedSessions} workcards={workcards} />
               </>
             )}
 
@@ -717,7 +891,7 @@ const s = {
   },
   statsRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, minmax(120px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
     gap: '14px',
     marginBottom: '24px',
   },
@@ -734,48 +908,168 @@ const s = {
   },
   statNum: { color: '#fff', fontSize: '18px', fontWeight: '700' },
   statLabel: { color: '#666', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' },
-  chartCard: {
+  chartLegend: {
+    display: 'flex',
+    gap: '14px',
+    justifyContent: 'flex-end',
+    marginTop: '14px',
+    flexWrap: 'wrap',
+  },
+  legendItem: {
+    color: '#555',
+    fontSize: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+  },
+  calCard: {
     background: '#1a1a1a',
     border: '1px solid #2a2a2a',
     borderRadius: '12px',
     padding: '20px 24px',
-  },
-  chartBars: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    gap: '8px',
     marginTop: '16px',
   },
-  chartCol: {
-    flex: 1,
+  calHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px',
+    gap: '12px',
+  },
+  calNav: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  calNavBtn: {
+    background: 'transparent',
+    border: '1px solid #333',
+    borderRadius: '6px',
+    color: '#aaa',
+    fontSize: '18px',
+    lineHeight: '1.2',
+    cursor: 'pointer',
+    padding: '2px 10px',
+  },
+  calMonthLabel: {
+    color: '#fff',
+    fontSize: '14px',
+    fontWeight: '700',
+    minWidth: '150px',
+    textAlign: 'center',
+  },
+  calGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, 1fr)',
+    gap: '4px',
+  },
+  calDayHeader: {
+    color: '#444',
+    fontSize: '10px',
+    textAlign: 'center',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.3px',
+    padding: '6px 0',
+  },
+  calEmpty: {
+    aspectRatio: '1',
+    borderRadius: '8px',
+  },
+  calCell: {
+    aspectRatio: '1',
+    borderRadius: '8px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '6px',
-  },
-  barWrapper: {
-    width: '100%',
-    height: '80px',
-    display: 'flex',
-    alignItems: 'flex-end',
     justifyContent: 'center',
+    gap: '2px',
+    padding: '4px',
+    transition: 'border-color 0.15s ease',
   },
-  bar: {
-    width: '100%',
-    borderRadius: '4px 4px 0 0',
-    transition: 'height 0.3s ease',
-    minHeight: '4px',
-  },
-  dayLabel: {
-    fontSize: '11px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.3px',
+  calDayNum: {
+    fontSize: '12px',
     fontWeight: '600',
   },
-  dayCount: {
-    color: '#ff1e00',
+  calScore: {
+    fontSize: '9px',
+    fontWeight: '700',
+  },
+  calMulti: {
+    color: '#555',
+    fontSize: '8px',
+  },
+  calDetail: {
+    marginTop: '14px',
+    borderTop: '1px solid #242424',
+    paddingTop: '14px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  calDetailItem: {
+    background: '#141414',
+    border: '1px solid #2a2a2a',
+    borderRadius: '10px',
+    padding: '12px 14px',
+  },
+  calDetailTop: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '6px',
+    gap: '12px',
+  },
+  calDetailTitle: {
+    color: '#fff',
+    fontSize: '14px',
+    fontWeight: '700',
+    margin: 0,
+  },
+  calDetailMeta: {
+    color: '#555',
+    fontSize: '12px',
+    margin: '3px 0 0',
+  },
+  calScoreBadge: {
+    borderRadius: '999px',
+    padding: '4px 10px',
+    fontSize: '13px',
+    fontWeight: '700',
+    whiteSpace: 'nowrap',
+  },
+  calDetailExCount: {
+    color: '#666',
+    fontSize: '12px',
+    margin: '0 0 10px',
+  },
+  calExList: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+  },
+  calExChip: {
+    background: '#1e1e1e',
+    border: '1px solid #2e2e2e',
+    borderRadius: '6px',
+    color: '#bbb',
+    fontSize: '11px',
+    padding: '3px 8px',
+  },
+  calExMore: {
+    color: '#444',
+    fontSize: '11px',
+    alignSelf: 'center',
+  },
+  calInProgressBadge: {
+    background: '#2a2410',
+    border: '1px solid #d6a127',
+    color: '#f3bc3f',
+    borderRadius: '999px',
+    padding: '4px 10px',
     fontSize: '11px',
     fontWeight: '700',
+    whiteSpace: 'nowrap',
   },
   sectionHeader: {
     display: 'flex',
