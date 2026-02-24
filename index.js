@@ -7,6 +7,7 @@ var axios = require('axios');
 var path = require('path');
 
 const app = express();
+const { buildWorkoutPrompt } = require("./workoutPrompt"); // adjust path if needed
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -188,29 +189,26 @@ function calculateCompletion(checked, totalCount) {
     return { completedCount, score };
 }
 
+//Generate Workout Plan
 async function generatePlanWithGemini(input) {
     if (!process.env.GEMINI_API_KEY) {
-        throw new Error('GEMINI_API_KEY is not configured');
+        throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    var model = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
-    var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + process.env.GEMINI_API_KEY;
+    var model = process.env.GEMINI_MODEL || "gemini-2.5-pro";
+    var endpoint =
+        "https://generativelanguage.googleapis.com/v1beta/models/" +
+        model +
+        ":generateContent?key=" +
+        process.env.GEMINI_API_KEY;
 
-    var prompt = [
-        'Create a personalized workout plan.',
-        'Return JSON only (no markdown, no extra text) with this exact top-level shape:',
-        '{ "title": string, "summary": string, "days": Day[], "notes": string[] }',
-        'Each Day must be: { "day": string, "focus": string[], "durationMinutes": number, "exercises": Exercise[] }',
-        'Each Exercise must be: { "name": string, "sets": number, "reps": string, "restSeconds": number, "notes": string }',
-        'User profile:',
-        JSON.stringify(input, null, 2)
-    ].join('\n');
+    var prompt = buildWorkoutPrompt(input);
 
     var body = {
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
             temperature: 0.4,
-            responseMimeType: 'application/json'
+            responseMimeType: "application/json"
         }
     };
 
