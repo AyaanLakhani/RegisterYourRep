@@ -1,0 +1,169 @@
+/* Auto-generated starter stylesheet from pages/Login.jsx. */
+/* Review values and wire classes in JSX (className) during migration. */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  font-family: Arial, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+.blob1 {
+  position: absolute;
+  top: -120px;
+  left: -120px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,30,0,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.blob2 {
+  position: absolute;
+  bottom: -100px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,30,0,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+.card {
+  position: relative;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 20px;
+  padding: 44px 36px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255,30,0,0.06);
+}
+.logoWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.title {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+.subtitle {
+  color: #555;
+  font-size: 14px;
+  margin: 0;
+}
+.divider {
+  height: 1px;
+  background: #222;
+  margin: 28px 0;
+}
+.googleBtn {
+  width: 100%;
+  padding: 13px 16px;
+  background: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: Arial, sans-serif;
+}
+.orRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+}
+.orLine {
+  flex: 1;
+  height: 1px;
+  background: #222;
+}
+.orText {
+  color: #444;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.input {
+  width: 100%;
+  padding: 13px 14px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  outline: none;
+  box-sizing: border-box;
+}
+.emailBtn {
+  width: 100%;
+  padding: 13px 16px;
+  background: #ff1e00;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+}
+.backBtn {
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: Arial, sans-serif;
+  padding: 0;
+}
+.codeHint {
+  color: #666;
+  font-size: 13px;
+  margin: 0 0 4px;
+  text-align: left;
+}
+.errorText {
+  color: #ff4444;
+  font-size: 13px;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+.footer {
+  color: #444;
+  font-size: 12px;
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+
+.dimmed {
+  opacity: 0.6;
+}
+
+.codeEmail {
+  color: #ccc;
+}
+
+.footerBrand {
+  color: #555;
+  font-weight: 600;
+}

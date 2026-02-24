@@ -199,7 +199,7 @@ async function generatePlanWithGemini(input) {
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
             temperature: 0.4,
-            responseMimeType: 'application/json'
+            responseMimeType: "application/json"
         }
     };
 
@@ -241,12 +241,21 @@ app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));
 });
 
-// Get user profile / onboarding status
+// Get user profile (returns placeholders for new users)
 app.get('/api/user/profile', requireAuth, async (req, res) => {
     try {
         var user = await User.findOne({ privyUserId: req.session.privyUserId });
         if (!user) {
-            return res.json({ onboardingComplete: false });
+            return res.json({
+                privyUserId: req.session.privyUserId,
+                email: '',
+                fitnessLevel: '',
+                targetMuscles: [],
+                frequency: null,
+                sessionDuration: null,
+                preferences: '',
+                onboardingComplete: true
+            });
         }
         res.json(user);
     } catch (err) {
@@ -383,6 +392,44 @@ app.get('/api/workout-plans/:id', requireAuth, async (req, res) => {
     }
 });
 
+// Delete a workout plan and related workcards/workout history
+app.delete('/api/workout-plans/:id', requireAuth, async (req, res) => {
+    try {
+        var plan = await WorkoutPlan.findOne({
+            _id: req.params.id,
+            privyUserId: req.session.privyUserId
+        });
+        if (!plan) return res.status(404).json({ error: 'Workout plan not found' });
+
+        var relatedWorkcards = await Workcard.find({
+            privyUserId: req.session.privyUserId,
+            planId: plan._id
+        }).select({ _id: 1 });
+        var relatedWorkcardIds = relatedWorkcards.map(wc => String(wc._id));
+
+        await Workcard.deleteMany({
+            privyUserId: req.session.privyUserId,
+            planId: plan._id
+        });
+
+        var workoutFilter = {
+            privyUserId: req.session.privyUserId,
+            $or: [{ planId: String(plan._id) }]
+        };
+        if (relatedWorkcardIds.length) {
+            workoutFilter.$or.push({ workcardId: { $in: relatedWorkcardIds } });
+        }
+        await Workout.deleteMany(workoutFilter);
+
+        await plan.deleteOne();
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete workout plan' });
+    }
+});
+
 // Generate workout details for an existing plan card using Gemini
 app.post('/api/workout-plans/:id/generate', requireAuth, async (req, res) => {
     try {
@@ -487,6 +534,28 @@ app.get('/api/workcards', requireAuth, async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to fetch workcards' });
+    }
+});
+
+// Delete a workcard and any linked workout history session
+app.delete('/api/workcards/:id', requireAuth, async (req, res) => {
+    try {
+        var workcard = await Workcard.findOne({
+            _id: req.params.id,
+            privyUserId: req.session.privyUserId
+        });
+        if (!workcard) return res.status(404).json({ error: 'Workcard not found' });
+
+        await Workout.deleteMany({
+            privyUserId: req.session.privyUserId,
+            workcardId: String(workcard._id)
+        });
+
+        await workcard.deleteOne();
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete workcard' });
     }
 });
 

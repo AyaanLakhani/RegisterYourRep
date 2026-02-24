@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 import Logo from '../components/Logo'
+import styles from './Workcards.module.css'
 
 function ensureCheckedLength(checked, total) {
   const next = Array.isArray(checked) ? checked.map(Boolean).slice(0, total) : []
@@ -18,6 +19,7 @@ export default function Workcards() {
   const [workcards, setWorkcards] = useState([])
   const [savingId, setSavingId] = useState('')
   const [submittingId, setSubmittingId] = useState('')
+  const [deletingId, setDeletingId] = useState('')
 
   async function syncSession() {
     const token = await getAccessToken()
@@ -147,6 +149,31 @@ export default function Workcards() {
     }
   }
 
+  async function deleteCard(card) {
+    const cardId = String(card?._id || '')
+    if (!cardId) return
+
+    const confirmed = window.confirm(
+      `Delete "${card.planName || 'Workout Plan'} - ${card.dayLabel || `Day ${card.dayIndex}`}"?`
+    )
+    if (!confirmed) return
+
+    setDeletingId(cardId)
+    setError('')
+    try {
+      const data = await requestJson(`/api/workcards/${cardId}`, {
+        method: 'DELETE',
+      })
+      if (!data?.success) throw new Error(data?.error || 'Failed to delete workcard')
+
+      setWorkcards(prev => prev.filter(c => c._id !== cardId))
+    } catch (err) {
+      setError(err.message || 'Failed to delete workcard.')
+    } finally {
+      setDeletingId('')
+    }
+  }
+
   const pendingCards = useMemo(
     () => workcards.filter(card => card.status !== 'submitted'),
     [workcards]
@@ -157,110 +184,118 @@ export default function Workcards() {
   )
 
   return (
-    <div style={s.page}>
-      <div style={s.topBar}>
-        <div style={s.logoRow}>
+    <div className={styles.page}>
+      <div className={styles.topBar}>
+        <div className={styles.logoRow}>
           <Logo size={34} />
-          <span style={s.logoText}>RegisterYourRep</span>
+          <span className={styles.logoText}>RegisterYourRep</span>
         </div>
-        <div style={s.topActions}>
-          <button style={s.ghostBtn} onClick={() => navigate('/dashboard')}>Dashboard</button>
-          <button style={s.ghostBtn} onClick={handleLogout}>Logout</button>
+        <div className={styles.topActions}>
+          <button className={styles.ghostBtn} onClick={() => navigate('/dashboard')}>Dashboard</button>
+          <button className={styles.ghostBtn} onClick={handleLogout}>Logout</button>
         </div>
       </div>
 
-      <div style={s.content}>
-        <div style={s.pageHeader}>
-          <h1 style={s.heading}>Workcards</h1>
-          <p style={s.sub}>Track each workout day as a checklist and submit your completion score.</p>
+      <div className={styles.content}>
+        <div className={styles.pageHeader}>
+          <h1 className={styles.heading}>Workcards</h1>
+          <p className={styles.sub}>Track each workout day as a checklist and submit your completion score.</p>
         </div>
 
-        {error && <p style={s.error}>{error}</p>}
+        {error && <p className={styles.error}>{error}</p>}
 
         {loading ? (
-          <p style={s.muted}>Loading workcards...</p>
+          <p className={styles.muted}>Loading workcards...</p>
         ) : (
           <>
-            <h2 style={s.sectionTitle}>Pending</h2>
+            <h2 className={styles.sectionTitle}>Pending</h2>
             {pendingCards.length === 0 ? (
-              <div style={s.emptyCard}>
-                <p style={s.muted}>No pending workcards. Generate them from Workout Ideas in Dashboard.</p>
+              <div className={styles.emptyCard}>
+                <p className={styles.muted}>No pending workcards. Generate them from Workout Ideas in Dashboard.</p>
               </div>
             ) : (
-              <div style={s.cardGrid}>
+              <div className={styles.cardGrid}>
                 {pendingCards.map(card => {
                   const total = card.totalCount || (card.exercises?.length || 0)
                   const checked = ensureCheckedLength(card.checked, total)
                   const canCheck = Boolean(card.date && card.weekday)
                   const isSaving = savingId === card._id
                   const isSubmitting = submittingId === card._id
+                  const isDeleting = deletingId === card._id
                   return (
-                    <div key={card._id} style={s.workcard}>
-                      <div style={s.workcardTop}>
-                        <h3 style={s.cardTitle}>{card.planName || 'Workout Plan'}</h3>
-                        <span style={s.pendingBadge}>Pending</span>
+                    <div key={card._id} className={styles.workcard}>
+                      <div className={styles.workcardTop}>
+                        <h3 className={styles.cardTitle}>{card.planName || 'Workout Plan'}</h3>
+                        <span className={styles.pendingBadge}>Pending</span>
                       </div>
-                      <p style={s.dayLabel}>{card.dayLabel || `Day ${card.dayIndex}`}</p>
+                      <p className={styles.dayLabel}>{card.dayLabel || `Day ${card.dayIndex}`}</p>
                       {!!card.focus?.length && (
-                        <p style={s.focusText}>Focus: {card.focus.join(', ')}</p>
+                        <p className={styles.focusText}>Focus: {card.focus.join(', ')}</p>
                       )}
 
-                      <div style={s.fieldsRow}>
-                        <div style={s.fieldCol}>
-                          <label style={s.label}>Date</label>
+                      <div className={styles.fieldsRow}>
+                        <div className={styles.fieldCol}>
+                          <label className={styles.label}>Date</label>
                           <input
                             type="date"
                             value={card.date || ''}
-                            style={s.input}
+                            className={styles.input}
                             onChange={e => onFieldChange(card._id, 'date', e.target.value)}
                           />
                         </div>
-                        <div style={s.fieldCol}>
-                          <label style={s.label}>Day</label>
+                        <div className={styles.fieldCol}>
+                          <label className={styles.label}>Day</label>
                           <input
                             type="text"
                             placeholder="e.g. Monday"
                             value={card.weekday || ''}
-                            style={s.input}
+                            className={styles.input}
                             onChange={e => onFieldChange(card._id, 'weekday', e.target.value)}
                           />
                         </div>
                       </div>
 
-                      <div style={s.exerciseList}>
+                      <div className={styles.exerciseList}>
                         {(card.exercises || []).map((ex, idx) => (
-                          <label key={`${card._id}-${idx}`} style={s.exerciseItem}>
+                          <label key={`${card._id}-${idx}`} className={styles.exerciseItem}>
                             <input
                               type="checkbox"
                               checked={!!checked[idx]}
                               disabled={!canCheck}
                               onChange={() => onToggleExercise(card, idx)}
                             />
-                            <span style={s.exerciseText}>
+                            <span className={styles.exerciseText}>
                               {ex.name}
-                              {(ex.sets && ex.reps) ? <span style={s.exerciseMeta}> - {ex.sets}x{ex.reps}</span> : null}
+                              {(ex.sets && ex.reps) ? <span className={styles.exerciseMeta}> - {ex.sets}x{ex.reps}</span> : null}
                             </span>
                           </label>
                         ))}
                       </div>
 
-                      {!canCheck && <p style={s.hint}>Enter date and day before checking boxes.</p>}
-                      <p style={s.score}>Progress: {checked.filter(Boolean).length}/{total} ({total ? Math.round((checked.filter(Boolean).length / total) * 100) : 0}%)</p>
+                      {!canCheck && <p className={styles.hint}>Enter date and day before checking boxes.</p>}
+                      <p className={styles.score}>Progress: {checked.filter(Boolean).length}/{total} ({total ? Math.round((checked.filter(Boolean).length / total) * 100) : 0}%)</p>
 
-                      <div style={s.actionsRow}>
+                      <div className={styles.actionsRow}>
                         <button
-                          style={{ ...s.ghostBtn, ...(isSaving ? s.btnDisabled : {}) }}
+                          className={`${styles.ghostBtn} ${isSaving ? styles.btnDisabled : ''}`}
                           onClick={() => saveCard(card)}
-                          disabled={isSaving}
+                          disabled={isSaving || isDeleting}
                         >
                           {isSaving ? 'Saving...' : 'Save Progress'}
                         </button>
                         <button
-                          style={{ ...s.primaryBtn, ...((!canCheck || isSubmitting) ? s.btnDisabled : {}) }}
+                          className={`${styles.primaryBtn} ${(!canCheck || isSubmitting) ? styles.btnDisabled : ''}`}
                           onClick={() => canCheck && submitCard(card)}
-                          disabled={!canCheck || isSubmitting}
+                          disabled={!canCheck || isSubmitting || isDeleting}
                         >
                           {isSubmitting ? 'Submitting...' : 'Submit Day'}
+                        </button>
+                        <button
+                          className={`${styles.ghostBtn} ${isDeleting ? styles.btnDisabled : ''}`}
+                          onClick={() => !isDeleting && deleteCard(card)}
+                          disabled={isDeleting || isSaving || isSubmitting}
+                        >
+                          {isDeleting ? 'Deleting...' : 'Delete'}
                         </button>
                       </div>
                     </div>
@@ -269,20 +304,29 @@ export default function Workcards() {
               </div>
             )}
 
-            <h2 style={{ ...s.sectionTitle, marginTop: '28px' }}>Submitted</h2>
+            <h2 className={styles.sectionTitleSubmitted}>Submitted</h2>
             {submittedCards.length === 0 ? (
-              <div style={s.emptyCard}>
-                <p style={s.muted}>No submitted workcards yet.</p>
+              <div className={styles.emptyCard}>
+                <p className={styles.muted}>No submitted workcards yet.</p>
               </div>
             ) : (
-              <div style={s.submittedList}>
+              <div className={styles.submittedList}>
                 {submittedCards.map(card => (
-                  <div key={card._id} style={s.submittedItem}>
+                  <div key={card._id} className={styles.submittedItem}>
                     <div>
-                      <p style={s.submittedTitle}>{card.planName} - {card.dayLabel || `Day ${card.dayIndex}`}</p>
-                      <p style={s.submittedMeta}>{card.date || '-'} | {card.weekday || '-'}</p>
+                      <p className={styles.submittedTitle}>{card.planName} - {card.dayLabel || `Day ${card.dayIndex}`}</p>
+                      <p className={styles.submittedMeta}>{card.date || '-'} | {card.weekday || '-'}</p>
                     </div>
-                    <div style={s.scoreBadge}>{card.score || 0}% ({card.completedCount || 0}/{card.totalCount || 0})</div>
+                    <div className={styles.actionsRow}>
+                      <div className={styles.scoreBadge}>{card.score || 0}% ({card.completedCount || 0}/{card.totalCount || 0})</div>
+                      <button
+                        className={`${styles.ghostBtn} ${deletingId === card._id ? styles.btnDisabled : ''}`}
+                        onClick={() => deletingId !== card._id && deleteCard(card)}
+                        disabled={deletingId === card._id}
+                      >
+                        {deletingId === card._id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -292,154 +336,4 @@ export default function Workcards() {
       </div>
     </div>
   )
-}
-
-const s = {
-  page: {
-    minHeight: '100vh',
-    background: '#0f0f0f',
-    fontFamily: 'Arial, sans-serif',
-  },
-  topBar: {
-    background: '#1a1a1a',
-    borderBottom: '1px solid #2a2a2a',
-    padding: '16px 32px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  logoRow: { display: 'flex', alignItems: 'center', gap: '10px' },
-  logoText: { color: '#fff', fontWeight: '700', fontSize: '18px' },
-  topActions: { display: 'flex', gap: '10px' },
-  content: {
-    maxWidth: '980px',
-    margin: '0 auto',
-    padding: '32px 20px',
-  },
-  pageHeader: { marginBottom: '18px' },
-  heading: { color: '#fff', fontSize: '28px', margin: '0 0 6px' },
-  sub: { color: '#888', margin: 0, fontSize: '14px' },
-  sectionTitle: { color: '#fff', fontSize: '18px', margin: '0 0 12px' },
-  cardGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-    gap: '12px',
-  },
-  workcard: {
-    background: '#171717',
-    border: '1px solid #2d2d2d',
-    borderRadius: '12px',
-    padding: '14px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  workcardTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' },
-  cardTitle: { color: '#fff', fontSize: '16px', margin: 0 },
-  pendingBadge: {
-    background: '#2a2410',
-    border: '1px solid #d6a127',
-    color: '#f3bc3f',
-    borderRadius: '999px',
-    padding: '4px 9px',
-    fontSize: '11px',
-    fontWeight: '700',
-  },
-  dayLabel: { color: '#ddd', margin: 0, fontSize: '14px', fontWeight: '700' },
-  focusText: { color: '#888', margin: 0, fontSize: '12px' },
-  fieldsRow: { display: 'flex', gap: '8px' },
-  fieldCol: { flex: 1 },
-  label: { display: 'block', color: '#bbb', fontSize: '12px', marginBottom: '4px' },
-  input: {
-    width: '100%',
-    background: '#222',
-    border: '1px solid #333',
-    borderRadius: '8px',
-    padding: '8px',
-    color: '#ddd',
-    boxSizing: 'border-box',
-  },
-  exerciseList: {
-    background: '#121212',
-    border: '1px solid #2a2a2a',
-    borderRadius: '10px',
-    padding: '10px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-  },
-  exerciseItem: { display: 'flex', alignItems: 'center', gap: '8px', color: '#ddd' },
-  exerciseText: { fontSize: '13px' },
-  exerciseMeta: { color: '#ff7a67', fontWeight: '700' },
-  hint: { color: '#ddad59', margin: 0, fontSize: '12px' },
-  score: { color: '#9bd19b', margin: 0, fontSize: '12px', fontWeight: '700' },
-  actionsRow: { display: 'flex', justifyContent: 'flex-end', gap: '8px' },
-  primaryBtn: {
-    background: '#ff1e00',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#fff',
-    padding: '9px 12px',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: '700',
-  },
-  ghostBtn: {
-    background: 'transparent',
-    border: '1px solid #444',
-    borderRadius: '8px',
-    color: '#aaa',
-    padding: '9px 12px',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: '700',
-  },
-  btnDisabled: {
-    background: '#444',
-    cursor: 'not-allowed',
-  },
-  submittedList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  submittedItem: {
-    background: '#171717',
-    border: '1px solid #2d2d2d',
-    borderRadius: '10px',
-    padding: '12px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '12px',
-  },
-  submittedTitle: { color: '#fff', margin: 0, fontSize: '14px', fontWeight: '700' },
-  submittedMeta: { color: '#888', margin: '4px 0 0', fontSize: '12px' },
-  scoreBadge: {
-    background: '#102418',
-    border: '1px solid #2da25f',
-    color: '#4fda83',
-    borderRadius: '999px',
-    padding: '5px 10px',
-    fontSize: '12px',
-    fontWeight: '700',
-    whiteSpace: 'nowrap',
-  },
-  emptyCard: {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '12px',
-    padding: '20px',
-    textAlign: 'center',
-  },
-  muted: { color: '#666', fontSize: '14px', margin: 0 },
-  error: {
-    color: '#ff6a6a',
-    background: '#2b1212',
-    border: '1px solid #4d2323',
-    borderRadius: '8px',
-    padding: '10px 12px',
-    marginBottom: '12px',
-    fontSize: '13px',
-  },
 }

@@ -1,0 +1,653 @@
+/* Auto-generated starter stylesheet from pages/Dashboard.jsx. */
+/* Review values and wire classes in JSX (className) during migration. */
+
+.page {
+  min-height: 100vh;
+  background: #0f0f0f;
+  font-family: Arial, sans-serif;
+}
+.topBar {
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logoText {
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+}
+.logoutBtn {
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+}
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 24px;
+}
+.welcome {
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+.tabRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tabBtn {
+  background: #171717;
+  border: 1px solid #2d2d2d;
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+}
+.tabBtnActive {
+  background: #26100d;
+  border: 1px solid #ff1e00;
+  color: #ff6a57;
+}
+.quoteCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-left: 3px solid #ff1e00;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.quoteIcon {
+  color: #ff1e00;
+  font-size: 28px;
+  line-height: 1;
+  font-family: Georgia, serif;
+  flex-shrink: 0;
+}
+.quoteText {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  transition: opacity 0.3s ease;
+  font-style: italic;
+}
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.statCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+.statNum {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+.statLabel {
+  color: #666;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.chartLegend {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.legendItem {
+  color: #555;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.calCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 16px;
+}
+.calHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.calNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.calNavBtn {
+  background: transparent;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #aaa;
+  font-size: 18px;
+  line-height: 1.2;
+  cursor: pointer;
+  padding: 2px 10px;
+}
+.calMonthLabel {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 150px;
+  text-align: center;
+}
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.calDayHeader {
+  color: #444;
+  font-size: 10px;
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 6px 0;
+}
+.calEmpty {
+  aspect-ratio: 1;
+  border-radius: 8px;
+}
+.calCell {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px;
+  transition: border-color 0.15s ease;
+}
+.calDayNum {
+  font-size: 12px;
+  font-weight: 600;
+}
+.calScore {
+  font-size: 9px;
+  font-weight: 700;
+}
+.calMulti {
+  color: #555;
+  font-size: 8px;
+}
+.calDetail {
+  margin-top: 14px;
+  border-top: 1px solid #242424;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.calDetailItem {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.calDetailItemPending {
+  border-style: dashed;
+}
+.calDetailTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+.calDetailTitle {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+.calDetailMeta {
+  color: #555;
+  font-size: 12px;
+  margin: 3px 0 0;
+}
+.calScoreBadge {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.calDetailExCount {
+  color: #666;
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+.calExList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.calExChip {
+  background: #1e1e1e;
+  border: 1px solid #2e2e2e;
+  border-radius: 6px;
+  color: #bbb;
+  font-size: 11px;
+  padding: 3px 8px;
+}
+.calExMore {
+  color: #444;
+  font-size: 11px;
+  align-self: center;
+}
+.calInProgressBadge {
+  background: #2a2410;
+  border: 1px solid #d6a127;
+  color: #f3bc3f;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sectionTitle {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+}
+.ideaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+.ideaCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ideaTopRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+.ideaName {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+.statusBadge {
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.statusDraft {
+  background: #1f1f1f;
+  border: 1px solid #3a3a3a;
+  color: #888;
+}
+.statusGenerating {
+  background: #2a2410;
+  border: 1px solid #d6a127;
+  color: #f3bc3f;
+}
+.statusReady {
+  background: #102418;
+  border: 1px solid #2da25f;
+  color: #4fda83;
+}
+.statusFailed {
+  background: #2b1212;
+  border: 1px solid #c44242;
+  color: #ff6a6a;
+}
+.metaRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.metaText {
+  color: #888;
+  font-size: 12px;
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  border-radius: 7px;
+  padding: 4px 8px;
+}
+.chipsRow {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.muscleTag {
+  background: #23100d;
+  border: 1px solid #4a221d;
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: #ff8a7c;
+  font-size: 12px;
+}
+.planSummary {
+  color: #aaa;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+.previewBox {
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  border-radius: 9px;
+  padding: 10px;
+}
+.previewTitle {
+  color: #ccc;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.previewDay {
+}
+
+.previewExercises {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.previewList {
+  color: #777;
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+.exerciseRow {
+  color: #bbb;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.exerciseSetsReps {
+  color: #ff7a67;
+  font-weight: 600;
+}
+.ideaActions {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.primaryBtn {
+  background: #ff1e00;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ghostBtn {
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #aaa;
+  font-size: 13px;
+  cursor: pointer;
+}
+.btnDisabled {
+  background: #444;
+  cursor: not-allowed;
+}
+.btnDisabledGhost {
+  border: 1px solid #444;
+  color: #666;
+  cursor: not-allowed;
+}
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.historyItem {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.historyLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+.historyDate {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+.historyExercises {
+  color: #666;
+  font-size: 12px;
+}
+.exercisePreview {
+  color: #666;
+  font-size: 13px;
+  flex: 1;
+  text-align: right;
+}
+.emptyCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 28px;
+  text-align: center;
+}
+.overviewGuide {
+  margin-bottom: 24px;
+}
+.overviewGuideHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.guideCloseBtn {
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #aaa;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.muted {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+.error {
+  color: #ff6a6a;
+  background: #2b1212;
+  border: 1px solid #4d2323;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+.errorSmall {
+  color: #ff6a6a;
+  margin: 0;
+  font-size: 12px;
+}
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 1000;
+}
+.modalCard {
+  width: 100%;
+  max-width: 560px;
+  background: #141414;
+  border: 1px solid #2d2d2d;
+  border-radius: 14px;
+  padding: 18px;
+}
+.modalTitle {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 18px;
+}
+.label {
+  display: block;
+  color: #ccc;
+  font-size: 13px;
+  margin: 10px 0 6px;
+}
+.input {
+  width: 100%;
+  background: #1d1d1d;
+  border: 1px solid #343434;
+  border-radius: 8px;
+  color: #ddd;
+  padding: 10px 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.select {
+  width: 100%;
+  background: #1d1d1d;
+  border: 1px solid #343434;
+  border-radius: 8px;
+  color: #ddd;
+  padding: 10px 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.modalMuscleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.muscleChip {
+  background: #222;
+  border: 2px solid #333;
+  border-radius: 20px;
+  padding: 7px 12px;
+  color: #ccc;
+  font-size: 13px;
+  cursor: pointer;
+}
+.muscleChipActive {
+  background: #2a1010;
+  border: 2px solid #ff1e00;
+  color: #ff7a67;
+}
+.durationRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.durationBtn {
+  background: #222;
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #ccc;
+  font-size: 13px;
+  cursor: pointer;
+}
+.durationBtnActive {
+  background: #2a1010;
+  border: 2px solid #ff1e00;
+  color: #ff7a67;
+}
+.slider {
+  width: 100%;
+  accent-color: #ff1e00;
+}
+.sliderHint {
+  margin: 6px 0 0;
+  color: #777;
+  font-size: 12px;
+}
+.textarea {
+  width: 100%;
+  background: #1d1d1d;
+  border: 1px solid #343434;
+  border-radius: 8px;
+  color: #ddd;
+  padding: 10px 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+.modalActions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

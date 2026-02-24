@@ -1,0 +1,13 @@
+/* Auto-generated starter stylesheet from App.jsx. */
+/* Review values and wire classes in JSX (className) during migration. */
+
+.loading {
+  min-height: 100vh;
+  background: #0f0f0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}

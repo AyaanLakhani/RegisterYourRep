@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLoginWithOAuth, useLoginWithEmail } from '@privy-io/react-auth'
 import Logo from '../components/Logo'
+import styles from './Login.module.css'
 
 // Session sync and post-login navigation are handled by AppRoutes in App.jsx.
 export default function Login() {
@@ -39,82 +40,78 @@ export default function Login() {
   }
 
   return (
-    <div style={s.page}>
-      <div style={s.blob1} />
-      <div style={s.blob2} />
+    <div className={styles.page}>
+      <div className={styles.blob1} />
+      <div className={styles.blob2} />
 
-      <div style={s.card}>
-        {/* Logo */}
-        <div style={s.logoWrap}>
+      <div className={styles.card}>
+        <div className={styles.logoWrap}>
           <Logo size={60} />
         </div>
-        <h1 style={s.title}>RegisterYourRep</h1>
-        <p style={s.subtitle}>Your AI-powered workout companion</p>
+        <h1 className={styles.title}>RegisterYourRep</h1>
+        <p className={styles.subtitle}>Your AI-powered workout companion</p>
 
-        <div style={s.divider} />
+        <div className={styles.divider} />
 
-        {/* Google */}
         <button
-          style={{ ...s.googleBtn, opacity: googleLoading ? 0.6 : 1 }}
+          className={`${styles.googleBtn} ${googleLoading ? styles.dimmed : ''}`}
           onClick={() => initOAuth({ provider: 'google' })}
           disabled={googleLoading}
         >
           <GoogleIcon />
-          {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+          {googleLoading ? 'Redirecting...' : 'Continue with Google'}
         </button>
 
-        {/* Divider */}
-        <div style={s.orRow}>
-          <div style={s.orLine} />
-          <span style={s.orText}>or</span>
-          <div style={s.orLine} />
+        <div className={styles.orRow}>
+          <div className={styles.orLine} />
+          <span className={styles.orText}>or</span>
+          <div className={styles.orLine} />
         </div>
 
-        {/* Email flow */}
         {!awaitingCode ? (
-          <form onSubmit={handleSendCode} style={s.form}>
+          <form onSubmit={handleSendCode} className={styles.form}>
             <input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              style={s.input}
+              className={styles.input}
               disabled={sendingCode}
               autoComplete="email"
             />
             <button
               type="submit"
-              style={{ ...s.emailBtn, opacity: sendingCode ? 0.6 : 1 }}
+              className={`${styles.emailBtn} ${sendingCode ? styles.dimmed : ''}`}
               disabled={sendingCode}
             >
-              {sendingCode ? 'Sending…' : 'Continue with Email'}
+              {sendingCode ? 'Sending...' : 'Continue with Email'}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleLoginWithCode} style={s.form}>
-            <p style={s.codeHint}>
-              We sent a code to <strong style={{ color: '#ccc' }}>{email}</strong>
+          <form onSubmit={handleLoginWithCode} className={styles.form}>
+            <p className={styles.codeHint}>
+              We sent a code to <strong className={styles.codeEmail}>{email}</strong>
             </p>
             <input
               type="text"
               placeholder="Enter 6-digit code"
               value={code}
               onChange={e => setCode(e.target.value)}
-              style={s.input}
+              className={styles.input}
               disabled={submittingCode}
               autoComplete="one-time-code"
               maxLength={6}
             />
             <button
               type="submit"
-              style={{ ...s.emailBtn, opacity: submittingCode ? 0.6 : 1 }}
+              className={`${styles.emailBtn} ${submittingCode ? styles.dimmed : ''}`}
               disabled={submittingCode}
             >
-              {submittingCode ? 'Verifying…' : 'Verify Code'}
+              {submittingCode ? 'Verifying...' : 'Verify Code'}
             </button>
             <button
               type="button"
-              style={s.backBtn}
+              className={styles.backBtn}
               onClick={() => { setCode(''); setEmailError('') }}
             >
               Use a different email
@@ -122,10 +119,10 @@ export default function Login() {
           </form>
         )}
 
-        {emailError && <p style={s.errorText}>{emailError}</p>}
+        {emailError && <p className={styles.errorText}>{emailError}</p>}
 
-        <p style={s.footer}>
-          Secured by <span style={{ color: '#555', fontWeight: '600' }}>Privy</span>
+        <p className={styles.footer}>
+          Secured by <span className={styles.footerBrand}>Privy</span>
         </p>
       </div>
     </div>
@@ -141,160 +138,4 @@ function GoogleIcon() {
       <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
     </svg>
   )
-}
-
-const s = {
-  page: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#0a0a0a',
-    fontFamily: 'Arial, sans-serif',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  blob1: {
-    position: 'absolute',
-    top: '-120px',
-    left: '-120px',
-    width: '500px',
-    height: '500px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,30,0,0.15) 0%, transparent 70%)',
-    pointerEvents: 'none',
-  },
-  blob2: {
-    position: 'absolute',
-    bottom: '-100px',
-    right: '-100px',
-    width: '400px',
-    height: '400px',
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,30,0,0.1) 0%, transparent 70%)',
-    pointerEvents: 'none',
-  },
-  card: {
-    position: 'relative',
-    background: '#141414',
-    border: '1px solid #2a2a2a',
-    borderRadius: '20px',
-    padding: '44px 36px',
-    width: '100%',
-    maxWidth: '380px',
-    textAlign: 'center',
-    boxShadow: '0 0 60px rgba(255,30,0,0.06)',
-  },
-  logoWrap: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: '16px',
-  },
-  title: {
-    color: '#fff',
-    fontSize: '22px',
-    fontWeight: '700',
-    margin: '0 0 6px',
-    letterSpacing: '-0.3px',
-  },
-  subtitle: {
-    color: '#555',
-    fontSize: '14px',
-    margin: 0,
-  },
-  divider: {
-    height: '1px',
-    background: '#222',
-    margin: '28px 0',
-  },
-  googleBtn: {
-    width: '100%',
-    padding: '13px 16px',
-    background: '#1e1e1e',
-    color: '#e0e0e0',
-    border: '1px solid #333',
-    borderRadius: '10px',
-    fontSize: '15px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
-    fontFamily: 'Arial, sans-serif',
-  },
-  orRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    margin: '14px 0',
-  },
-  orLine: {
-    flex: 1,
-    height: '1px',
-    background: '#222',
-  },
-  orText: {
-    color: '#444',
-    fontSize: '12px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  input: {
-    width: '100%',
-    padding: '13px 14px',
-    background: '#1a1a1a',
-    border: '1px solid #333',
-    borderRadius: '10px',
-    color: '#fff',
-    fontSize: '15px',
-    fontFamily: 'Arial, sans-serif',
-    outline: 'none',
-    boxSizing: 'border-box',
-  },
-  emailBtn: {
-    width: '100%',
-    padding: '13px 16px',
-    background: '#ff1e00',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: '15px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    fontFamily: 'Arial, sans-serif',
-  },
-  backBtn: {
-    background: 'transparent',
-    border: 'none',
-    color: '#555',
-    fontSize: '13px',
-    cursor: 'pointer',
-    textDecoration: 'underline',
-    fontFamily: 'Arial, sans-serif',
-    padding: 0,
-  },
-  codeHint: {
-    color: '#666',
-    fontSize: '13px',
-    margin: '0 0 4px',
-    textAlign: 'left',
-  },
-  errorText: {
-    color: '#ff4444',
-    fontSize: '13px',
-    marginTop: '10px',
-    marginBottom: 0,
-  },
-  footer: {
-    color: '#444',
-    fontSize: '12px',
-    marginTop: '24px',
-    marginBottom: 0,
-  },
 }

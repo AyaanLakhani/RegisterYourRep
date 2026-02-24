@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
 import { useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
+import styles from './Dashboard.module.css'
 
 const LEVEL_LABELS = {
   beginner: 'Beginner',
@@ -125,22 +126,22 @@ function CalendarView({ workouts, workcards }) {
   }
 
   return (
-    <div style={s.calCard}>
-      <div style={s.calHeader}>
-        <h2 style={s.sectionTitle}>Calendar</h2>
-        <div style={s.calNav}>
-          <button style={s.calNavBtn} onClick={prevMonth}>‹</button>
-          <span style={s.calMonthLabel}>{MONTH_NAMES[viewMonth]} {viewYear}</span>
-          <button style={s.calNavBtn} onClick={nextMonth}>›</button>
+    <div className={styles.calCard}>
+      <div className={styles.calHeader}>
+        <h2 className={styles.sectionTitle}>Calendar</h2>
+        <div className={styles.calNav}>
+          <button className={styles.calNavBtn} onClick={prevMonth}>‹</button>
+          <span className={styles.calMonthLabel}>{MONTH_NAMES[viewMonth]} {viewYear}</span>
+          <button className={styles.calNavBtn} onClick={nextMonth}>›</button>
         </div>
       </div>
 
-      <div style={s.calGrid}>
+      <div className={styles.calGrid}>
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-          <div key={d} style={s.calDayHeader}>{d}</div>
+          <div key={d} className={styles.calDayHeader}>{d}</div>
         ))}
         {calCells.map((day, i) => {
-          if (!day) return <div key={`pad-${i}`} style={s.calEmpty} />
+          if (!day) return <div key={`pad-${i}`} className={styles.calEmpty} />
           const key = toDateKey(day)
           const sessions = sessionMap[key] || []
           const pending = pendingMap[key] || null
@@ -159,8 +160,8 @@ function CalendarView({ workouts, workcards }) {
           return (
             <div
               key={key}
+              className={styles.calCell}
               style={{
-                ...s.calCell,
                 background: hasSubmitted ? `${color}20` : hasPending ? '#1e1a10' : '#131313',
                 border: isSelected && hasSubmitted
                   ? `2px solid ${color}`
@@ -175,44 +176,43 @@ function CalendarView({ workouts, workcards }) {
               }}
               onClick={() => hasActivity && setSelectedKey(isSelected ? null : key)}
             >
-              <span style={{ ...s.calDayNum, color: isToday ? '#ff1e00' : hasSubmitted ? '#fff' : hasPending ? '#888' : '#3a3a3a' }}>
+              <span className={styles.calDayNum} style={{ color: isToday ? '#ff1e00' : hasSubmitted ? '#fff' : hasPending ? '#888' : '#3a3a3a' }}>
                 {day.getDate()}
               </span>
               {hasSubmitted && (
-                <span style={{ ...s.calScore, color }}>{avgScore}%</span>
+                <span className={styles.calScore} style={{ color }}>{avgScore}%</span>
               )}
               {hasPending && (
-                <span style={{ ...s.calScore, color: '#555' }}>{avgScore > 0 ? `${avgScore}%` : '···'}</span>
+                <span className={styles.calScore} style={{ color: '#555' }}>{avgScore > 0 ? `${avgScore}%` : '···'}</span>
               )}
               {sessions.length > 1 && (
-                <span style={s.calMulti}>{sessions.length}×</span>
+                <span className={styles.calMulti}>{sessions.length}×</span>
               )}
             </div>
           )
         })}
       </div>
 
-      <div style={s.chartLegend}>
-        <span style={s.legendItem}><span style={{ color: '#2da25f' }}>●</span> ≥80% great</span>
-        <span style={s.legendItem}><span style={{ color: '#d6a127' }}>●</span> 50–79% good</span>
-        <span style={s.legendItem}><span style={{ color: '#ff1e00' }}>●</span> &lt;50% keep going</span>
+      <div className={styles.chartLegend}>
+        <span className={styles.legendItem}><span style={{ color: '#2da25f' }}>●</span> ≥80% great</span>
+        <span className={styles.legendItem}><span style={{ color: '#d6a127' }}>●</span> 50–79% good</span>
+        <span className={styles.legendItem}><span style={{ color: '#ff1e00' }}>●</span> &lt;50% keep going</span>
       </div>
 
       {(selectedSessions.length > 0 || selectedPending) && (
-        <div style={s.calDetail}>
+        <div className={styles.calDetail}>
           {selectedSessions.map((session, i) => {
             const scoreColor = getScoreColor(session.completionScore || 0)
             return (
-              <div key={i} style={s.calDetailItem}>
-                <div style={s.calDetailTop}>
+              <div key={i} className={styles.calDetailItem}>
+                <div className={styles.calDetailTop}>
                   <div>
-                    <p style={s.calDetailTitle}>{session.dayLabel || 'Workout'}</p>
-                    <p style={s.calDetailMeta}>
+                    <p className={styles.calDetailTitle}>{session.dayLabel || 'Workout'}</p>
+                    <p className={styles.calDetailMeta}>
                       {selectedKey}{session.sessionWeekday ? ` · ${session.sessionWeekday}` : ''}
                     </p>
                   </div>
-                  <span style={{
-                    ...s.calScoreBadge,
+                  <span className={styles.calScoreBadge} style={{
                     background: `${scoreColor}20`,
                     border: `1px solid ${scoreColor}`,
                     color: scoreColor,
@@ -220,16 +220,16 @@ function CalendarView({ workouts, workcards }) {
                     {session.completionScore || 0}%
                   </span>
                 </div>
-                <p style={s.calDetailExCount}>
+                <p className={styles.calDetailExCount}>
                   {session.completedCount || 0}/{session.totalCount || 0} exercises completed
                 </p>
                 {session.exercises?.length > 0 && (
-                  <div style={s.calExList}>
+                  <div className={styles.calExList}>
                     {session.exercises.slice(0, 6).map((ex, j) => (
-                      <span key={j} style={s.calExChip}>{ex}</span>
+                      <span key={j} className={styles.calExChip}>{ex}</span>
                     ))}
                     {session.exercises.length > 6 && (
-                      <span style={s.calExMore}>+{session.exercises.length - 6} more</span>
+                      <span className={styles.calExMore}>+{session.exercises.length - 6} more</span>
                     )}
                   </div>
                 )}
@@ -237,18 +237,18 @@ function CalendarView({ workouts, workcards }) {
             )
           })}
           {selectedPending && (
-            <div style={{ ...s.calDetailItem, borderStyle: 'dashed' }}>
-              <div style={s.calDetailTop}>
+            <div className={`${styles.calDetailItem} ${styles.calDetailItemPending}`}>
+              <div className={styles.calDetailTop}>
                 <div>
-                  <p style={s.calDetailTitle}>{selectedPending.dayLabel || 'Workout'}</p>
-                  <p style={s.calDetailMeta}>
+                  <p className={styles.calDetailTitle}>{selectedPending.dayLabel || 'Workout'}</p>
+                  <p className={styles.calDetailMeta}>
                     {selectedKey}{selectedPending.weekday ? ` · ${selectedPending.weekday}` : ''}
                     {selectedPending.planName ? ` · ${selectedPending.planName}` : ''}
                   </p>
                 </div>
-                <span style={s.calInProgressBadge}>In Progress</span>
+                <span className={styles.calInProgressBadge}>In Progress</span>
               </div>
-              <p style={s.calDetailExCount}>
+              <p className={styles.calDetailExCount}>
                 {selectedPending.completedCount || 0}/{selectedPending.totalCount || 0} exercises checked
                 {selectedPending.score > 0 ? ` · ${selectedPending.score}%` : ''}
               </p>
@@ -280,9 +280,9 @@ function QuoteCard() {
   }, [])
 
   return (
-    <div style={s.quoteCard}>
-      <span style={s.quoteIcon}>"</span>
-      <p style={{ ...s.quoteText, opacity: visible ? 1 : 0 }}>
+    <div className={styles.quoteCard}>
+      <span className={styles.quoteIcon}>"</span>
+      <p className={styles.quoteText} style={{ opacity: visible ? 1 : 0 }}>
         {QUOTES[idx].text}
       </p>
     </div>
@@ -290,10 +290,10 @@ function QuoteCard() {
 }
 
 function statusStyle(status) {
-  if (status === 'ready') return s.statusReady
-  if (status === 'generating') return s.statusGenerating
-  if (status === 'failed') return s.statusFailed
-  return s.statusDraft
+  if (status === 'ready') return styles.statusReady
+  if (status === 'generating') return styles.statusGenerating
+  if (status === 'failed') return styles.statusFailed
+  return styles.statusDraft
 }
 
 export default function Dashboard() {
@@ -308,9 +308,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [plansError, setPlansError] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showOverviewGuide, setShowOverviewGuide] = useState(true)
   const [creatingPlan, setCreatingPlan] = useState(false)
   const [generatingPlanId, setGeneratingPlanId] = useState('')
   const [generatingWorkcardsPlanId, setGeneratingWorkcardsPlanId] = useState('')
+  const [deletingPlanId, setDeletingPlanId] = useState('')
   const [newPlan, setNewPlan] = useState({
     name: '',
     fitnessLevel: '',
@@ -465,6 +467,39 @@ export default function Dashboard() {
     }
   }
 
+  async function deletePlan(plan) {
+    const planId = String(plan?._id || '')
+    if (!planId) return
+
+    const confirmed = window.confirm(
+      `Delete "${plan.name || 'Workout Plan'}"? This will also delete related workcards and workout history from those workcards.`
+    )
+    if (!confirmed) return
+
+    setDeletingPlanId(planId)
+    setPlansError('')
+    try {
+      const data = await requestJson(`/api/workout-plans/${planId}`, {
+        method: 'DELETE',
+      })
+      if (!data?.success) throw new Error(data?.error || 'Failed to delete workout plan')
+
+      setPlans(prev => prev.filter(p => p._id !== planId))
+
+      // Keep dashboard stats/calendar in sync after cascade delete.
+      const [wkts, wcds] = await Promise.all([
+        requestJson('/api/workouts'),
+        requestJson('/api/workcards'),
+      ])
+      setWorkouts(Array.isArray(wkts) ? wkts : [])
+      setWorkcards(Array.isArray(wcds) ? wcds : [])
+    } catch (err) {
+      setPlansError(err.message || 'Failed to delete workout plan.')
+    } finally {
+      setDeletingPlanId('')
+    }
+  }
+
   const email = user?.email?.address || user?.google?.email || ''
   const firstName = email ? email.split('@')[0] : 'there'
   const submittedSessions = submittedWorkcardSessions(workouts)
@@ -483,86 +518,109 @@ export default function Dashboard() {
   const weekAvgScore = weekSessionCount > 0
     ? Math.round(weekSessions.reduce((sum, s) => sum + (s.completionScore || 0), 0) / weekSessionCount)
     : 0
+  const latestPlanLevel = plans.find(p => typeof p?.fitnessLevel === 'string' && p.fitnessLevel.trim())?.fitnessLevel
+  const overviewLevel = LEVEL_LABELS[latestPlanLevel] || LEVEL_LABELS[profile?.fitnessLevel] || 'Not set'
 
   return (
-    <div style={s.page}>
-      <div style={s.topBar}>
-        <div style={s.logoRow}>
+    <div className={styles.page}>
+      <div className={styles.topBar}>
+        <div className={styles.logoRow}>
           <Logo size={34} />
-          <span style={s.logoText}>RegisterYourRep</span>
+          <span className={styles.logoText}>RegisterYourRep</span>
         </div>
-        <button style={s.logoutBtn} onClick={handleLogout}>Logout</button>
+        <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
       </div>
 
-      <div style={s.content}>
+      <div className={styles.content}>
         {loading ? (
-          <p style={s.muted}>Loading...</p>
+          <p className={styles.muted}>Loading...</p>
         ) : (
           <>
-            <h1 style={s.welcome}>Welcome back, {firstName}</h1>
+            <h1 className={styles.welcome}>Welcome back, {firstName}</h1>
 
-            <div style={s.tabRow}>
+            <div className={styles.tabRow}>
               <button
-                style={{ ...s.tabBtn, ...(activeTab === 'overview' ? s.tabBtnActive : {}) }}
+                className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.tabBtnActive : ''}`}
                 onClick={() => setActiveTab('overview')}
               >
                 Overview
               </button>
               <button
-                style={{ ...s.tabBtn, ...(activeTab === 'workout_ideas' ? s.tabBtnActive : {}) }}
+                className={`${styles.tabBtn} ${activeTab === 'workout_ideas' ? styles.tabBtnActive : ''}`}
                 onClick={() => setActiveTab('workout_ideas')}
               >
                 Workout Ideas
               </button>
               <button
-                style={{ ...s.tabBtn, ...(activeTab === 'history' ? s.tabBtnActive : {}) }}
+                className={`${styles.tabBtn} ${activeTab === 'history' ? styles.tabBtnActive : ''}`}
                 onClick={() => setActiveTab('history')}
               >
                 History
               </button>
               <button
-                style={s.tabBtn}
+                className={styles.tabBtn}
                 onClick={() => navigate('/workcards')}
               >
                 Workcards
               </button>
             </div>
 
-            {plansError && <p style={s.error}>{plansError}</p>}
+            {plansError && <p className={styles.error}>{plansError}</p>}
 
             {activeTab === 'overview' && (
               <>
                 <QuoteCard />
+                {showOverviewGuide && (
+                  <div className={`${styles.emptyCard} ${styles.overviewGuide}`}>
+                    <div className={styles.overviewGuideHeader}>
+                      <p className={styles.muted}>
+                        New here? Go to <strong>Workout Ideas</strong> to create your first plan and begin your workout tracking journey.
+                      </p>
+                      <button
+                        className={styles.guideCloseBtn}
+                        onClick={() => setShowOverviewGuide(false)}
+                        aria-label="Close guide"
+                      >
+                        Close
+                      </button>
+                    </div>
+                    <div style={{ marginTop: '12px' }}>
+                      <button
+                        className={styles.primaryBtn}
+                        onClick={() => setActiveTab('workout_ideas')}
+                      >
+                        Go To Workout Ideas
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-                <div style={s.statsRow}>
-                  <div style={s.statCard}>
-                    <span style={s.statNum}>{streak}</span>
-                    <span style={s.statLabel}>Day Streak</span>
+                <div className={styles.statsRow}>
+                  <div className={styles.statCard}>
+                    <span className={styles.statNum}>{streak}</span>
+                    <span className={styles.statLabel}>Day Streak</span>
                   </div>
-                  <div style={s.statCard}>
-                    <span style={s.statNum}>{totalSessions}</span>
-                    <span style={s.statLabel}>Total Sessions</span>
+                  <div className={styles.statCard}>
+                    <span className={styles.statNum}>{totalSessions}</span>
+                    <span className={styles.statLabel}>Total Sessions</span>
                   </div>
-                  <div style={s.statCard}>
-                    <span style={s.statNum}>{weekSessionCount}</span>
-                    <span style={s.statLabel}>This Week</span>
+                  <div className={styles.statCard}>
+                    <span className={styles.statNum}>{weekSessionCount}</span>
+                    <span className={styles.statLabel}>This Week</span>
                   </div>
-                  <div style={s.statCard}>
-                    <span style={{
-                      ...s.statNum,
-                      color: weekAvgScore > 0 ? getScoreColor(weekAvgScore) : '#fff',
-                    }}>
+                  <div className={styles.statCard}>
+                    <span className={styles.statNum} style={{ color: weekAvgScore > 0 ? getScoreColor(weekAvgScore) : '#fff' }}>
                       {weekAvgScore > 0 ? `${weekAvgScore}%` : '—'}
                     </span>
-                    <span style={s.statLabel}>Avg Score</span>
+                    <span className={styles.statLabel}>Avg Score</span>
                   </div>
-                  <div style={s.statCard}>
-                    <span style={s.statNum}>{weekExercises}</span>
-                    <span style={s.statLabel}>Exercises</span>
+                  <div className={styles.statCard}>
+                    <span className={styles.statNum}>{weekExercises}</span>
+                    <span className={styles.statLabel}>Exercises</span>
                   </div>
-                  <div style={s.statCard}>
-                    <span style={s.statNum}>{LEVEL_LABELS[profile?.fitnessLevel] || '-'}</span>
-                    <span style={s.statLabel}>Level</span>
+                  <div className={styles.statCard}>
+                    <span className={styles.statNum}>{overviewLevel}</span>
+                    <span className={styles.statLabel}>Level</span>
                   </div>
                 </div>
 
@@ -572,10 +630,10 @@ export default function Dashboard() {
 
             {activeTab === 'workout_ideas' && (
               <>
-                <div style={s.sectionHeader}>
-                  <h2 style={s.sectionTitle}>Workout Ideas</h2>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>Workout Ideas</h2>
                   <button
-                    style={s.primaryBtn}
+                    className={styles.primaryBtn}
                     onClick={() => setShowCreateModal(true)}
                   >
                     + New Workout Plan
@@ -583,52 +641,53 @@ export default function Dashboard() {
                 </div>
 
                 {plans.length === 0 ? (
-                  <div style={s.emptyCard}>
-                    <p style={s.muted}>No workout ideas yet. Create your first plan to start generating workouts.</p>
+                  <div className={styles.emptyCard}>
+                    <p className={styles.muted}>No workout ideas yet. Create your first plan to start generating workouts.</p>
                   </div>
                 ) : (
-                  <div style={s.ideaGrid}>
+                  <div className={styles.ideaGrid}>
                     {plans.map(plan => {
                       const isGenerating = generatingPlanId === plan._id || plan.status === 'generating'
                       const canGenerate = !isGenerating
                       const isGeneratingWorkcards = generatingWorkcardsPlanId === plan._id
                       const canGenerateWorkcards = plan.status === 'ready' && !isGeneratingWorkcards
+                      const isDeleting = deletingPlanId === plan._id
                       return (
-                        <div key={plan._id} style={s.ideaCard}>
-                          <div style={s.ideaTopRow}>
-                            <h3 style={s.ideaName}>{plan.name || 'Workout Plan'}</h3>
-                            <span style={{ ...s.statusBadge, ...statusStyle(plan.status) }}>
+                        <div key={plan._id} className={styles.ideaCard}>
+                          <div className={styles.ideaTopRow}>
+                            <h3 className={styles.ideaName}>{plan.name || 'Workout Plan'}</h3>
+                            <span className={`${styles.statusBadge} ${statusStyle(plan.status)}`}>
                               {plan.status || 'draft'}
                             </span>
                           </div>
 
-                          <div style={s.metaRow}>
-                            <span style={s.metaText}>{LEVEL_LABELS[plan.fitnessLevel] || 'Not set'}</span>
-                            <span style={s.metaText}>{plan.sessionDuration ? `${plan.sessionDuration} min` : 'Duration not set'}</span>
-                            <span style={s.metaText}>{plan.frequency ? `${plan.frequency}x / week` : 'Frequency not set'}</span>
+                          <div className={styles.metaRow}>
+                            <span className={styles.metaText}>{LEVEL_LABELS[plan.fitnessLevel] || 'Not set'}</span>
+                            <span className={styles.metaText}>{plan.sessionDuration ? `${plan.sessionDuration} min` : 'Duration not set'}</span>
+                            <span className={styles.metaText}>{plan.frequency ? `${plan.frequency}x / week` : 'Frequency not set'}</span>
                           </div>
 
-                          <div style={s.chipsRow}>
+                          <div className={styles.chipsRow}>
                             {(plan.targetMuscles || []).map(m => (
-                              <span key={`${plan._id}-${m}`} style={s.muscleTag}>{MUSCLE_LABELS[m] || m}</span>
+                              <span key={`${plan._id}-${m}`} className={styles.muscleTag}>{MUSCLE_LABELS[m] || m}</span>
                             ))}
                           </div>
 
                           {plan.generatedPlan?.summary && (
-                            <p style={s.planSummary}>{plan.generatedPlan.summary}</p>
+                            <p className={styles.planSummary}>{plan.generatedPlan.summary}</p>
                           )}
 
                           {plan.generatedPlan?.days?.length > 0 && (
-                            <div style={s.previewBox}>
+                            <div className={styles.previewBox}>
                               {plan.generatedPlan.days.map((day, dayIdx) => (
-                                <div key={dayIdx} style={{ marginBottom: dayIdx < plan.generatedPlan.days.length - 1 ? '12px' : 0 }}>
-                                  <span style={s.previewTitle}>{day.day || `Day ${dayIdx + 1}`}{day.focus?.length > 0 ? ` — ${day.focus.join(', ')}` : ''}</span>
-                                  <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                <div key={dayIdx} className={styles.previewDay} style={{ marginBottom: dayIdx < plan.generatedPlan.days.length - 1 ? '12px' : 0 }}>
+                                  <span className={styles.previewTitle}>{day.day || `Day ${dayIdx + 1}`}{day.focus?.length > 0 ? ` — ${day.focus.join(', ')}` : ''}</span>
+                                  <div className={styles.previewExercises}>
                                     {(day.exercises || []).map((ex, exIdx) => (
-                                      <span key={exIdx} style={s.exerciseRow}>
+                                      <span key={exIdx} className={styles.exerciseRow}>
                                         {ex.name}
                                         {ex.sets && ex.reps ? (
-                                          <span style={s.exerciseSetsReps}> — {ex.sets}×{ex.reps} reps</span>
+                                          <span className={styles.exerciseSetsReps}> — {ex.sets}×{ex.reps} reps</span>
                                         ) : null}
                                       </span>
                                     ))}
@@ -638,22 +697,29 @@ export default function Dashboard() {
                             </div>
                           )}
 
-                          {plan.lastError && <p style={s.errorSmall}>{plan.lastError}</p>}
+                          {plan.lastError && <p className={styles.errorSmall}>{plan.lastError}</p>}
 
-                          <div style={s.ideaActions}>
+                          <div className={styles.ideaActions}>
                             <button
-                              style={{ ...s.primaryBtn, ...(canGenerate ? {} : s.btnDisabled) }}
+                              className={`${styles.primaryBtn} ${canGenerate ? '' : styles.btnDisabled}`}
                               onClick={() => canGenerate && generatePlan(plan._id)}
                               disabled={!canGenerate}
                             >
                               {isGenerating ? 'Generating...' : plan.status === 'ready' ? 'Regenerate Workout' : 'Generate Workout'}
                             </button>
                             <button
-                              style={{ ...s.ghostBtn, ...(canGenerateWorkcards ? {} : s.btnDisabledGhost) }}
+                              className={`${styles.ghostBtn} ${canGenerateWorkcards ? '' : styles.btnDisabledGhost}`}
                               onClick={() => canGenerateWorkcards && generateWorkcards(plan._id)}
                               disabled={!canGenerateWorkcards}
                             >
                               {isGeneratingWorkcards ? 'Generating Cards...' : 'Generate Workcards'}
+                            </button>
+                            <button
+                              className={`${styles.ghostBtn} ${isDeleting ? styles.btnDisabledGhost : ''}`}
+                              onClick={() => !isDeleting && deletePlan(plan)}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? 'Deleting...' : 'Delete Plan'}
                             </button>
                           </div>
                         </div>
@@ -666,30 +732,30 @@ export default function Dashboard() {
 
             {activeTab === 'history' && (
               <>
-                <h2 style={s.sectionTitle}>Workout History</h2>
+                <h2 className={styles.sectionTitle}>Workout History</h2>
                 {workouts.length === 0 ? (
-                  <div style={s.emptyCard}>
-                    <p style={s.muted}>No workouts logged yet. Complete your first session to see history here.</p>
+                  <div className={styles.emptyCard}>
+                    <p className={styles.muted}>No workouts logged yet. Complete your first session to see history here.</p>
                   </div>
                 ) : (
-                  <div style={s.historyList}>
+                  <div className={styles.historyList}>
                     {workouts.map((w, i) => (
-                      <div key={w._id || i} style={s.historyItem}>
-                        <div style={s.historyLeft}>
-                          <span style={s.historyDate}>
+                      <div key={w._id || i} className={styles.historyItem}>
+                        <div className={styles.historyLeft}>
+                          <span className={styles.historyDate}>
                             {new Date(w.savedAt).toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
                               year: 'numeric',
                             })}
                           </span>
-                          <span style={s.historyExercises}>
+                          <span className={styles.historyExercises}>
                             {w.source === 'workcard'
                               ? `${w.completedCount || 0}/${w.totalCount || 0} complete (${w.completionScore || 0}%)`
                               : `${w.exercises?.length || 0} exercise${(w.exercises?.length || 0) !== 1 ? 's' : ''}`}
                           </span>
                         </div>
-                        <div style={s.exercisePreview}>
+                        <div className={styles.exercisePreview}>
                           {w.source === 'workcard'
                             ? `${w.dayLabel || 'Workout Day'}${w.sessionWeekday ? ` | ${w.sessionWeekday}` : ''}${w.sessionDate ? ` | ${w.sessionDate}` : ''}`
                             : `${w.exercises?.slice(0, 3).join(' | ')}${w.exercises?.length > 3 ? ` +${w.exercises.length - 3} more` : ''}`}
@@ -705,21 +771,21 @@ export default function Dashboard() {
       </div>
 
       {showCreateModal && (
-        <div style={s.modalBackdrop} onClick={() => !creatingPlan && setShowCreateModal(false)}>
-          <div style={s.modalCard} onClick={e => e.stopPropagation()}>
-            <h3 style={s.modalTitle}>New Workout Plan</h3>
+        <div className={styles.modalBackdrop} onClick={() => !creatingPlan && setShowCreateModal(false)}>
+          <div className={styles.modalCard} onClick={e => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>New Workout Plan</h3>
 
-            <label style={s.label}>Plan name</label>
+            <label className={styles.label}>Plan name</label>
             <input
-              style={s.input}
+              className={styles.input}
               value={newPlan.name}
               onChange={e => setNewPlan(prev => ({ ...prev, name: e.target.value }))}
               placeholder="e.g. Upper Body Focus"
             />
 
-            <label style={s.label}>Fitness level</label>
+            <label className={styles.label}>Fitness level</label>
             <select
-              style={s.select}
+              className={styles.select}
               value={newPlan.fitnessLevel}
               onChange={e => setNewPlan(prev => ({ ...prev, fitnessLevel: e.target.value }))}
             >
@@ -730,16 +796,13 @@ export default function Dashboard() {
               <option value="unsure">Not Sure Yet</option>
             </select>
 
-            <label style={s.label}>Target muscles</label>
-            <div style={s.modalMuscleGrid}>
+            <label className={styles.label}>Target muscles</label>
+            <div className={styles.modalMuscleGrid}>
               {MUSCLES.map(m => (
                 <button
                   type="button"
                   key={m.id}
-                  style={{
-                    ...s.muscleChip,
-                    ...(newPlan.targetMuscles.includes(m.id) ? s.muscleChipActive : {}),
-                  }}
+                  className={`${styles.muscleChip} ${newPlan.targetMuscles.includes(m.id) ? styles.muscleChipActive : ''}`}
                   onClick={() => toggleNewPlanMuscle(m.id)}
                 >
                   {m.label}
@@ -747,13 +810,13 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <label style={s.label}>Session length</label>
-            <div style={s.durationRow}>
+            <label className={styles.label}>Session length</label>
+            <div className={styles.durationRow}>
               {DURATIONS.map(d => (
                 <button
                   type="button"
                   key={d}
-                  style={{ ...s.durationBtn, ...(newPlan.sessionDuration === d ? s.durationBtnActive : {}) }}
+                  className={`${styles.durationBtn} ${newPlan.sessionDuration === d ? styles.durationBtnActive : ''}`}
                   onClick={() => setNewPlan(prev => ({ ...prev, sessionDuration: d }))}
                 >
                   {d}m
@@ -761,39 +824,36 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <label style={s.label}>Days per week</label>
+            <label className={styles.label}>Days per week</label>
             <input
-              style={s.slider}
+              className={styles.slider}
               type="range"
               min={1}
               max={7}
               value={newPlan.frequency}
               onChange={e => setNewPlan(prev => ({ ...prev, frequency: Number(e.target.value) }))}
             />
-            <p style={s.sliderHint}>{newPlan.frequency} days / week</p>
+            <p className={styles.sliderHint}>{newPlan.frequency} days / week</p>
 
-            <label style={s.label}>Preferences</label>
+            <label className={styles.label}>Preferences</label>
             <textarea
-              style={s.textarea}
+              className={styles.textarea}
               rows={3}
               value={newPlan.preferences}
               onChange={e => setNewPlan(prev => ({ ...prev, preferences: e.target.value }))}
               placeholder="Any injuries, equipment limits, or constraints"
             />
 
-            <div style={s.modalActions}>
+            <div className={styles.modalActions}>
               <button
-                style={s.ghostBtn}
+                className={styles.ghostBtn}
                 onClick={() => !creatingPlan && setShowCreateModal(false)}
                 disabled={creatingPlan}
               >
                 Cancel
               </button>
               <button
-                style={{
-                  ...s.primaryBtn,
-                  ...((creatingPlan || !newPlan.targetMuscles.length) ? s.btnDisabled : {}),
-                }}
+                className={`${styles.primaryBtn} ${(creatingPlan || !newPlan.targetMuscles.length) ? styles.btnDisabled : ''}`}
                 onClick={createPlan}
                 disabled={creatingPlan || !newPlan.targetMuscles.length}
               >
@@ -807,598 +867,3 @@ export default function Dashboard() {
   )
 }
 
-const s = {
-  page: {
-    minHeight: '100vh',
-    background: '#0f0f0f',
-    fontFamily: 'Arial, sans-serif',
-  },
-  topBar: {
-    background: '#1a1a1a',
-    borderBottom: '1px solid #2a2a2a',
-    padding: '16px 32px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  logoRow: { display: 'flex', alignItems: 'center', gap: '10px' },
-  logoText: { color: '#fff', fontWeight: '700', fontSize: '18px' },
-  logoutBtn: {
-    background: 'transparent',
-    border: '1px solid #444',
-    borderRadius: '8px',
-    padding: '8px 16px',
-    color: '#888',
-    fontSize: '14px',
-    cursor: 'pointer',
-  },
-  content: {
-    maxWidth: '900px',
-    margin: '0 auto',
-    padding: '36px 24px',
-  },
-  welcome: {
-    color: '#fff',
-    fontSize: '26px',
-    fontWeight: '700',
-    margin: '0 0 16px',
-  },
-  tabRow: {
-    display: 'flex',
-    gap: '10px',
-    marginBottom: '20px',
-    flexWrap: 'wrap',
-  },
-  tabBtn: {
-    background: '#171717',
-    border: '1px solid #2d2d2d',
-    borderRadius: '999px',
-    padding: '8px 14px',
-    color: '#999',
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-  tabBtnActive: {
-    background: '#26100d',
-    border: '1px solid #ff1e00',
-    color: '#ff6a57',
-  },
-  quoteCard: {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderLeft: '3px solid #ff1e00',
-    borderRadius: '10px',
-    padding: '16px 20px',
-    marginBottom: '24px',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '10px',
-  },
-  quoteIcon: {
-    color: '#ff1e00',
-    fontSize: '28px',
-    lineHeight: '1',
-    fontFamily: 'Georgia, serif',
-    flexShrink: 0,
-  },
-  quoteText: {
-    color: '#aaa',
-    fontSize: '14px',
-    lineHeight: '1.6',
-    margin: 0,
-    transition: 'opacity 0.3s ease',
-    fontStyle: 'italic',
-  },
-  statsRow: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-    gap: '14px',
-    marginBottom: '24px',
-  },
-  statCard: {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '12px',
-    padding: '20px 16px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    gap: '4px',
-  },
-  statNum: { color: '#fff', fontSize: '18px', fontWeight: '700' },
-  statLabel: { color: '#666', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' },
-  chartLegend: {
-    display: 'flex',
-    gap: '14px',
-    justifyContent: 'flex-end',
-    marginTop: '14px',
-    flexWrap: 'wrap',
-  },
-  legendItem: {
-    color: '#555',
-    fontSize: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-  },
-  calCard: {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '12px',
-    padding: '20px 24px',
-    marginTop: '16px',
-  },
-  calHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '16px',
-    gap: '12px',
-  },
-  calNav: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-  },
-  calNavBtn: {
-    background: 'transparent',
-    border: '1px solid #333',
-    borderRadius: '6px',
-    color: '#aaa',
-    fontSize: '18px',
-    lineHeight: '1.2',
-    cursor: 'pointer',
-    padding: '2px 10px',
-  },
-  calMonthLabel: {
-    color: '#fff',
-    fontSize: '14px',
-    fontWeight: '700',
-    minWidth: '150px',
-    textAlign: 'center',
-  },
-  calGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(7, 1fr)',
-    gap: '4px',
-  },
-  calDayHeader: {
-    color: '#444',
-    fontSize: '10px',
-    textAlign: 'center',
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: '0.3px',
-    padding: '6px 0',
-  },
-  calEmpty: {
-    aspectRatio: '1',
-    borderRadius: '8px',
-  },
-  calCell: {
-    aspectRatio: '1',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '2px',
-    padding: '4px',
-    transition: 'border-color 0.15s ease',
-  },
-  calDayNum: {
-    fontSize: '12px',
-    fontWeight: '600',
-  },
-  calScore: {
-    fontSize: '9px',
-    fontWeight: '700',
-  },
-  calMulti: {
-    color: '#555',
-    fontSize: '8px',
-  },
-  calDetail: {
-    marginTop: '14px',
-    borderTop: '1px solid #242424',
-    paddingTop: '14px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  calDetailItem: {
-    background: '#141414',
-    border: '1px solid #2a2a2a',
-    borderRadius: '10px',
-    padding: '12px 14px',
-  },
-  calDetailTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '6px',
-    gap: '12px',
-  },
-  calDetailTitle: {
-    color: '#fff',
-    fontSize: '14px',
-    fontWeight: '700',
-    margin: 0,
-  },
-  calDetailMeta: {
-    color: '#555',
-    fontSize: '12px',
-    margin: '3px 0 0',
-  },
-  calScoreBadge: {
-    borderRadius: '999px',
-    padding: '4px 10px',
-    fontSize: '13px',
-    fontWeight: '700',
-    whiteSpace: 'nowrap',
-  },
-  calDetailExCount: {
-    color: '#666',
-    fontSize: '12px',
-    margin: '0 0 10px',
-  },
-  calExList: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '6px',
-  },
-  calExChip: {
-    background: '#1e1e1e',
-    border: '1px solid #2e2e2e',
-    borderRadius: '6px',
-    color: '#bbb',
-    fontSize: '11px',
-    padding: '3px 8px',
-  },
-  calExMore: {
-    color: '#444',
-    fontSize: '11px',
-    alignSelf: 'center',
-  },
-  calInProgressBadge: {
-    background: '#2a2410',
-    border: '1px solid #d6a127',
-    color: '#f3bc3f',
-    borderRadius: '999px',
-    padding: '4px 10px',
-    fontSize: '11px',
-    fontWeight: '700',
-    whiteSpace: 'nowrap',
-  },
-  sectionHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: '14px',
-    gap: '12px',
-    flexWrap: 'wrap',
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: '17px',
-    fontWeight: '700',
-    margin: 0,
-  },
-  ideaGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: '12px',
-  },
-  ideaCard: {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '12px',
-    padding: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  ideaTopRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: '10px',
-    alignItems: 'flex-start',
-  },
-  ideaName: {
-    color: '#fff',
-    fontSize: '16px',
-    fontWeight: '700',
-    margin: 0,
-  },
-  statusBadge: {
-    borderRadius: '999px',
-    padding: '4px 9px',
-    fontSize: '11px',
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: '0.3px',
-  },
-  statusDraft: {
-    background: '#1f1f1f',
-    border: '1px solid #3a3a3a',
-    color: '#888',
-  },
-  statusGenerating: {
-    background: '#2a2410',
-    border: '1px solid #d6a127',
-    color: '#f3bc3f',
-  },
-  statusReady: {
-    background: '#102418',
-    border: '1px solid #2da25f',
-    color: '#4fda83',
-  },
-  statusFailed: {
-    background: '#2b1212',
-    border: '1px solid #c44242',
-    color: '#ff6a6a',
-  },
-  metaRow: {
-    display: 'flex',
-    gap: '10px',
-    flexWrap: 'wrap',
-  },
-  metaText: {
-    color: '#888',
-    fontSize: '12px',
-    background: '#151515',
-    border: '1px solid #2a2a2a',
-    borderRadius: '7px',
-    padding: '4px 8px',
-  },
-  chipsRow: {
-    display: 'flex',
-    gap: '7px',
-    flexWrap: 'wrap',
-  },
-  muscleTag: {
-    background: '#23100d',
-    border: '1px solid #4a221d',
-    borderRadius: '999px',
-    padding: '4px 10px',
-    color: '#ff8a7c',
-    fontSize: '12px',
-  },
-  planSummary: {
-    color: '#aaa',
-    fontSize: '13px',
-    margin: 0,
-    lineHeight: 1.5,
-  },
-  previewBox: {
-    background: '#151515',
-    border: '1px solid #2a2a2a',
-    borderRadius: '9px',
-    padding: '10px',
-  },
-  previewTitle: {
-    color: '#ccc',
-    fontSize: '12px',
-    fontWeight: '600',
-  },
-  previewList: {
-    color: '#777',
-    margin: '6px 0 0',
-    fontSize: '12px',
-  },
-  exerciseRow: {
-    color: '#bbb',
-    fontSize: '12px',
-    lineHeight: '1.5',
-  },
-  exerciseSetsReps: {
-    color: '#ff7a67',
-    fontWeight: '600',
-  },
-  ideaActions: {
-    marginTop: '4px',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '8px',
-    flexWrap: 'wrap',
-  },
-  primaryBtn: {
-    background: '#ff1e00',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '10px 14px',
-    color: '#fff',
-    fontSize: '13px',
-    fontWeight: '700',
-    cursor: 'pointer',
-  },
-  ghostBtn: {
-    background: 'transparent',
-    border: '1px solid #444',
-    borderRadius: '8px',
-    padding: '10px 14px',
-    color: '#aaa',
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-  btnDisabled: {
-    background: '#444',
-    cursor: 'not-allowed',
-  },
-  btnDisabledGhost: {
-    border: '1px solid #444',
-    color: '#666',
-    cursor: 'not-allowed',
-  },
-  historyList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  historyItem: {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '10px',
-    padding: '16px 20px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '12px',
-  },
-  historyLeft: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
-    minWidth: '120px',
-  },
-  historyDate: { color: '#fff', fontSize: '14px', fontWeight: '600' },
-  historyExercises: { color: '#666', fontSize: '12px' },
-  exercisePreview: {
-    color: '#666',
-    fontSize: '13px',
-    flex: 1,
-    textAlign: 'right',
-  },
-  emptyCard: {
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '12px',
-    padding: '28px',
-    textAlign: 'center',
-  },
-  muted: {
-    color: '#666',
-    fontSize: '14px',
-    margin: 0,
-  },
-  error: {
-    color: '#ff6a6a',
-    background: '#2b1212',
-    border: '1px solid #4d2323',
-    borderRadius: '8px',
-    padding: '10px 12px',
-    marginBottom: '14px',
-    fontSize: '13px',
-  },
-  errorSmall: {
-    color: '#ff6a6a',
-    margin: 0,
-    fontSize: '12px',
-  },
-  modalBackdrop: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.7)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '18px',
-    zIndex: 1000,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: '560px',
-    background: '#141414',
-    border: '1px solid #2d2d2d',
-    borderRadius: '14px',
-    padding: '18px',
-  },
-  modalTitle: {
-    margin: '0 0 14px',
-    color: '#fff',
-    fontSize: '18px',
-  },
-  label: {
-    display: 'block',
-    color: '#ccc',
-    fontSize: '13px',
-    margin: '10px 0 6px',
-  },
-  input: {
-    width: '100%',
-    background: '#1d1d1d',
-    border: '1px solid #343434',
-    borderRadius: '8px',
-    color: '#ddd',
-    padding: '10px 12px',
-    fontSize: '14px',
-    boxSizing: 'border-box',
-  },
-  select: {
-    width: '100%',
-    background: '#1d1d1d',
-    border: '1px solid #343434',
-    borderRadius: '8px',
-    color: '#ddd',
-    padding: '10px 12px',
-    fontSize: '14px',
-    boxSizing: 'border-box',
-  },
-  modalMuscleGrid: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '8px',
-    marginBottom: '8px',
-  },
-  muscleChip: {
-    background: '#222',
-    border: '2px solid #333',
-    borderRadius: '20px',
-    padding: '7px 12px',
-    color: '#ccc',
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-  muscleChipActive: {
-    background: '#2a1010',
-    border: '2px solid #ff1e00',
-    color: '#ff7a67',
-  },
-  durationRow: {
-    display: 'flex',
-    gap: '8px',
-    marginBottom: '8px',
-    flexWrap: 'wrap',
-  },
-  durationBtn: {
-    background: '#222',
-    border: '2px solid #333',
-    borderRadius: '8px',
-    padding: '8px 12px',
-    color: '#ccc',
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-  durationBtnActive: {
-    background: '#2a1010',
-    border: '2px solid #ff1e00',
-    color: '#ff7a67',
-  },
-  slider: {
-    width: '100%',
-    accentColor: '#ff1e00',
-  },
-  sliderHint: {
-    margin: '6px 0 0',
-    color: '#777',
-    fontSize: '12px',
-  },
-  textarea: {
-    width: '100%',
-    background: '#1d1d1d',
-    border: '1px solid #343434',
-    borderRadius: '8px',
-    color: '#ddd',
-    padding: '10px 12px',
-    fontSize: '14px',
-    boxSizing: 'border-box',
-    resize: 'vertical',
-  },
-  modalActions: {
-    marginTop: '14px',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '10px',
-  },
-}
