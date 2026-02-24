@@ -10,6 +10,13 @@ function ensureCheckedLength(checked, total) {
   return next
 }
 
+function getWeekdayFromDate(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('en-US', { weekday: 'long' })
+}
+
 export default function Workcards() {
   const navigate = useNavigate()
   const { getAccessToken, logout } = usePrivy()
@@ -240,21 +247,26 @@ export default function Workcards() {
                             type="date"
                             value={card.date || ''}
                             className={styles.input}
-                            onChange={e => onFieldChange(card._id, 'date', e.target.value)}
+                            onChange={e => {
+                              const date = e.target.value
+                              onFieldChange(card._id, 'date', date)
+                              const weekday = getWeekdayFromDate(date)
+                              onFieldChange(card._id, 'weekday', weekday)
+                            }}
                           />
                         </div>
                         <div className={styles.fieldCol}>
                           <label className={styles.label}>Day</label>
                           <input
                             type="text"
-                            placeholder="e.g. Monday"
+                            placeholder="Auto-filled"
                             value={card.weekday || ''}
                             className={styles.input}
-                            onChange={e => onFieldChange(card._id, 'weekday', e.target.value)}
+                            readOnly
                           />
                         </div>
                       </div>
-
+                      
                       <div className={styles.exerciseList}>
                         {(card.exercises || []).map((ex, idx) => (
                           <label key={`${card._id}-${idx}`} className={styles.exerciseItem}>

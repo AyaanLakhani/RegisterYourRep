@@ -224,21 +224,36 @@ app.post('/auth/privy', (req, res) => {
         if (!privyUserId) throw new Error('No sub in token');
 
         req.session.privyUserId = privyUserId;
-        req.session.save(function(err) {
+        req.session.save(async function(err) {
             if (err) {
                 console.error('Session save error:', err);
                 return res.status(500).json({ error: 'Session save failed' });
             }
+
+            // NEW: ensure a User document exists for this Privy user
+            try {
+                await User.updateOne(
+                    { privyUserId: privyUserId },
+                    {
+                        $setOnInsert: {
+                        privyUserId: privyUserId,
+                        createdAt: new Date()
+                        //Onboarding fields are removed and info is simplified.
+                        }
+                    },
+                    { upsert: true }
+                );
+            } catch (e) {
+                console.error('Ensure user error:', e);
+                // We don't block login on this, just log it.
+            }
+
             res.json({ success: true });
         });
     } catch (err) {
         console.error('Token decode error:', err.message);
         res.status(401).json({ error: 'Invalid token' });
     }
-});
-
-app.get('/logout', (req, res) => {
-    req.session.destroy(() => res.redirect('/'));
 });
 
 // Get user profile (returns placeholders for new users)
