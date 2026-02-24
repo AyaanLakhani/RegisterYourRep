@@ -176,7 +176,7 @@ function CalendarView({ workouts, workcards }) {
               }}
               onClick={() => hasActivity && setSelectedKey(isSelected ? null : key)}
             >
-              <span className={styles.calDayNum} style={{ color: isToday ? '#ff1e00' : hasSubmitted ? '#fff' : hasPending ? '#888' : '#3a3a3a' }}>
+              <span className={styles.calDayNum} style={{ color: isToday ? '#ff1e00' : hasPending ? '#aaa' : '#fff' }}>
                 {day.getDate()}
               </span>
               {hasSubmitted && (

@@ -12,9 +12,10 @@ function ensureCheckedLength(checked, total) {
 
 function getWeekdayFromDate(dateStr) {
   if (!dateStr) return ''
-  const d = new Date(dateStr)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString('en-US', { weekday: 'long' })
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleDateString('en-US', { weekday: 'long' })
 }
 
 export default function Workcards() {

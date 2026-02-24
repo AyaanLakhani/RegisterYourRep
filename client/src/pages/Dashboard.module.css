@@ -126,8 +126,8 @@
   flex-wrap: wrap;
 }
 .legendItem {
-  color: #555;
-  font-size: 10px;
+  color: #ffffff;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -198,8 +198,9 @@
   transition: border-color 0.15s ease;
 }
 .calDayNum {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
 }
 .calScore {
   font-size: 9px;
