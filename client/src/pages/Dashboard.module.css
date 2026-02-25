@@ -1,6 +1,14 @@
 /* Auto-generated starter stylesheet from pages/Dashboard.jsx. */
 /* Review values and wire classes in JSX (className) during migration. */
 
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tabContent {
+  animation: tabFadeIn 0.2s ease forwards;
+}
+
 .page {
   min-height: 100vh;
   background: #0f0f0f;
@@ -32,11 +40,120 @@
   color: #888;
   font-size: 14px;
   cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
 }
 .content {
-  max-width: 900px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 36px 24px;
+}
+.overviewLayout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+.overviewMain {
+  min-width: 0;
+}
+.overviewSidebar {
+  position: sticky;
+  top: 24px;
+}
+.sidebarCard {
+  background: #171717;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px;
+}
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.sidebarTitle {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+.sidebarLink {
+  background: none;
+  border: none;
+  color: #ff6a57;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.sidebarEmpty {
+  color: #555;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+.sidebarList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sidebarWorkcard {
+  background: #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.sidebarWorkcardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+.sidebarWorkcardName {
+  color: #ddd;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebarWorkcardDay {
+  color: #888;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.sidebarWorkcardDate {
+  color: #555;
+  font-size: 11px;
+}
+.sidebarProgressBar {
+  height: 4px;
+  background: #2a2a2a;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.sidebarProgressFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.sidebarProgressLabel {
+  font-size: 11px;
+  font-weight: 600;
+}
+@media (max-width: 900px) {
+  .overviewLayout {
+    grid-template-columns: 1fr;
+  }
+  .overviewSidebar {
+    position: static;
+  }
 }
 .welcome {
   color: #fff;
@@ -58,11 +175,13 @@
   color: #999;
   font-size: 13px;
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .tabBtnActive {
   background: #26100d;
   border: 1px solid #ff1e00;
   color: #ff6a57;
+  box-shadow: 0 0 8px rgba(255, 30, 0, 0.2);
 }
 .quoteCard {
   background: #1a1a1a;
@@ -106,6 +225,7 @@
   align-items: center;
   text-align: center;
   gap: 4px;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .statNum {
   color: #fff;
@@ -160,6 +280,7 @@
   line-height: 1.2;
   cursor: pointer;
   padding: 2px 10px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 .calMonthLabel {
   color: #fff;
@@ -437,6 +558,7 @@
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
 }
 .ghostBtn {
   background: transparent;
@@ -446,6 +568,7 @@
   color: #aaa;
   font-size: 13px;
   cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 .btnDisabled {
   background: #444;
@@ -575,6 +698,8 @@
   padding: 10px 12px;
   font-size: 14px;
   box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
 }
 .select {
   width: 100%;
@@ -585,6 +710,8 @@
   padding: 10px 12px;
   font-size: 14px;
   box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
 }
 .modalMuscleGrid {
   display: flex;
@@ -600,6 +727,7 @@
   color: #ccc;
   font-size: 13px;
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 .muscleChipActive {
   background: #2a1010;
@@ -620,6 +748,7 @@
   color: #ccc;
   font-size: 13px;
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 .durationBtnActive {
   background: #2a1010;
@@ -645,10 +774,71 @@
   font-size: 14px;
   box-sizing: border-box;
   resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
 }
 .modalActions {
   margin-top: 14px;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+/* ── Hover & focus states ── */
+.primaryBtn:hover:not(:disabled) {
+  background: #e01a00;
+  transform: translateY(-1px);
+}
+.primaryBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.ghostBtn:hover:not(:disabled) {
+  border-color: #777;
+  color: #ddd;
+  background: #1e1e1e;
+}
+.logoutBtn:hover {
+  border-color: #777;
+  color: #ddd;
+}
+.tabBtn:hover:not(.tabBtnActive) {
+  background: #222;
+  border-color: #444;
+  color: #ccc;
+}
+.calNavBtn:hover {
+  border-color: #555;
+  color: #fff;
+  background: #1e1e1e;
+}
+.sidebarLink:hover {
+  color: #ff9182;
+}
+.statCard:hover {
+  border-color: #3a3a3a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+.sidebarWorkcard:hover {
+  border-color: #3a3a3a;
+  transform: translateY(-1px);
+}
+.muscleChip:hover:not(.muscleChipActive) {
+  border-color: #555;
+  background: #2a2a2a;
+  color: #fff;
+}
+.durationBtn:hover:not(.durationBtnActive) {
+  border-color: #555;
+  background: #2a2a2a;
+  color: #fff;
+}
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: #ff1e00;
+}
+.guideCloseBtn:hover {
+  border-color: #777;
+  color: #ddd;
 }

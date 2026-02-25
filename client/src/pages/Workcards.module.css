@@ -70,6 +70,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .workcardTop {
   display: flex;
@@ -123,6 +124,8 @@
   padding: 8px;
   color: #ddd;
   box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
 }
 .exerciseList {
   background: #121212;
@@ -138,6 +141,39 @@
   align-items: center;
   gap: 8px;
   color: #ddd;
+  cursor: pointer;
+  user-select: none;
+}
+.exerciseItemDisabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.checkboxInput {
+  display: none;
+}
+.checkboxBox {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 5px;
+  border: 2px solid #444;
+  background: #1e1e1e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.checkboxChecked {
+  background: #2da25f;
+  border-color: #2da25f;
+}
+.checkboxDisabled {
+  border-color: #333;
+  background: #181818;
+}
+.checkmark {
+  width: 12px;
+  height: 10px;
 }
 .exerciseText {
   font-size: 13px;
@@ -171,6 +207,7 @@
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
+  transition: background 0.15s, transform 0.1s;
 }
 .ghostBtn {
   background: transparent;
@@ -181,6 +218,7 @@
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 .btnDisabled {
   background: #444;
@@ -242,4 +280,25 @@
   padding: 10px 12px;
   margin-bottom: 12px;
   font-size: 13px;
+}
+
+/* ── Hover & focus states ── */
+.primaryBtn:hover:not(:disabled) {
+  background: #e01a00;
+  transform: translateY(-1px);
+}
+.primaryBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.ghostBtn:hover:not(:disabled) {
+  border-color: #777;
+  color: #ddd;
+  background: #1e1e1e;
+}
+.workcard:hover {
+  border-color: #3a3a3a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.input:focus {
+  border-color: #ff1e00;
 }

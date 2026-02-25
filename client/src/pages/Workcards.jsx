@@ -1,8 +1,47 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 import Logo from '../components/Logo'
 import styles from './Workcards.module.css'
+
+function useToast() {
+  const [toasts, setToasts] = useState([])
+  const timerRef = useRef({})
+
+  function showToast(message, type = 'success') {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, message, type }])
+    timerRef.current[id] = setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+      delete timerRef.current[id]
+    }, 3000)
+  }
+
+  return { toasts, showToast }
+}
+
+function ToastContainer({ toasts }) {
+  if (!toasts.length) return null
+  return (
+    <div style={{ position: 'fixed', bottom: '24px', right: '24px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 9999 }}>
+      {toasts.map(t => (
+        <div key={t.id} style={{
+          background: t.type === 'error' ? '#2b1212' : '#0f2418',
+          border: `1px solid ${t.type === 'error' ? '#4d2323' : '#2da25f'}`,
+          color: t.type === 'error' ? '#ff6a6a' : '#4fda83',
+          borderRadius: '8px',
+          padding: '10px 16px',
+          fontSize: '13px',
+          fontWeight: 600,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          maxWidth: '320px',
+        }}>
+          {t.message}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function ensureCheckedLength(checked, total) {
   const next = Array.isArray(checked) ? checked.map(Boolean).slice(0, total) : []
@@ -23,7 +62,7 @@ export default function Workcards() {
   const { getAccessToken, logout } = usePrivy()
 
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { toasts, showToast } = useToast()
   const [workcards, setWorkcards] = useState([])
   const [savingId, setSavingId] = useState('')
   const [submittingId, setSubmittingId] = useState('')
@@ -58,12 +97,11 @@ export default function Workcards() {
   }
 
   async function loadWorkcards() {
-    setError('')
     try {
       const data = await requestJson('/api/workcards')
       setWorkcards(Array.isArray(data) ? data : [])
     } catch (err) {
-      setError(err.message || 'Failed to load workcards.')
+      showToast(err.message || 'Failed to load workcards.', 'error')
     } finally {
       setLoading(false)
     }
@@ -106,7 +144,6 @@ export default function Workcards() {
 
   async function saveCard(card) {
     setSavingId(card._id)
-    setError('')
     try {
       const total = card.totalCount || (card.exercises?.length || 0)
       const checked = ensureCheckedLength(card.checked, total)
@@ -121,8 +158,9 @@ export default function Workcards() {
       })
       if (!data?.success || !data?.workcard) throw new Error('Failed to save workcard')
       updateLocalCard(card._id, () => data.workcard)
+      showToast('Progress saved!')
     } catch (err) {
-      setError(err.message || 'Failed to save workcard.')
+      showToast(err.message || 'Failed to save workcard.', 'error')
     } finally {
       setSavingId('')
     }
@@ -130,7 +168,6 @@ export default function Workcards() {
 
   async function submitCard(card) {
     setSubmittingId(card._id)
-    setError('')
     try {
       const total = card.totalCount || (card.exercises?.length || 0)
       const checked = ensureCheckedLength(card.checked, total)
@@ -150,8 +187,9 @@ export default function Workcards() {
       })
       if (!submitted?.success || !submitted?.workcard) throw new Error('Failed to submit workcard')
       updateLocalCard(card._id, () => submitted.workcard)
+      showToast('Workcard submitted!')
     } catch (err) {
-      setError(err.message || 'Failed to submit workcard.')
+      showToast(err.message || 'Failed to submit workcard.', 'error')
     } finally {
       setSubmittingId('')
     }
@@ -167,7 +205,6 @@ export default function Workcards() {
     if (!confirmed) return
 
     setDeletingId(cardId)
-    setError('')
     try {
       const data = await requestJson(`/api/workcards/${cardId}`, {
         method: 'DELETE',
@@ -175,8 +212,9 @@ export default function Workcards() {
       if (!data?.success) throw new Error(data?.error || 'Failed to delete workcard')
 
       setWorkcards(prev => prev.filter(c => c._id !== cardId))
+      showToast('Workcard deleted.')
     } catch (err) {
-      setError(err.message || 'Failed to delete workcard.')
+      showToast(err.message || 'Failed to delete workcard.', 'error')
     } finally {
       setDeletingId('')
     }
@@ -193,6 +231,7 @@ export default function Workcards() {
 
   return (
     <div className={styles.page}>
+      <ToastContainer toasts={toasts} />
       <div className={styles.topBar}>
         <div className={styles.logoRow}>
           <Logo size={34} />
@@ -209,8 +248,6 @@ export default function Workcards() {
           <h1 className={styles.heading}>Workcards</h1>
           <p className={styles.sub}>Track each workout day as a checklist and submit your completion score.</p>
         </div>
-
-        {error && <p className={styles.error}>{error}</p>}
 
         {loading ? (
           <p className={styles.muted}>Loading workcards...</p>
@@ -270,13 +307,21 @@ export default function Workcards() {
                       
                       <div className={styles.exerciseList}>
                         {(card.exercises || []).map((ex, idx) => (
-                          <label key={`${card._id}-${idx}`} className={styles.exerciseItem}>
+                          <label key={`${card._id}-${idx}`} className={`${styles.exerciseItem} ${!canCheck ? styles.exerciseItemDisabled : ''}`}>
                             <input
                               type="checkbox"
                               checked={!!checked[idx]}
                               disabled={!canCheck}
                               onChange={() => onToggleExercise(card, idx)}
+                              className={styles.checkboxInput}
                             />
+                            <span className={`${styles.checkboxBox} ${!!checked[idx] ? styles.checkboxChecked : ''} ${!canCheck ? styles.checkboxDisabled : ''}`}>
+                              {!!checked[idx] && (
+                                <svg viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg" className={styles.checkmark}>
+                                  <path d="M1 5l3.5 3.5L11 1" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </span>
                             <span className={styles.exerciseText}>
                               {ex.name}
                               {(ex.sets && ex.reps) ? <span className={styles.exerciseMeta}> - {ex.sets}x{ex.reps}</span> : null}

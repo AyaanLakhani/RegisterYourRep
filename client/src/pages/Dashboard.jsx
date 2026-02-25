@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
 import { useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
@@ -35,6 +35,46 @@ const QUOTES = [
   { text: "Your body can stand almost anything. It's your mind you have to convince.", author: 'Unknown' },
   { text: "Don't wish for it. Work for it.", author: 'Unknown' },
 ]
+
+function useToast() {
+  const [toasts, setToasts] = useState([])
+  const timerRef = useRef({})
+
+  function showToast(message, type = 'success') {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, message, type }])
+    timerRef.current[id] = setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+      delete timerRef.current[id]
+    }, 3000)
+  }
+
+  return { toasts, showToast }
+}
+
+function ToastContainer({ toasts }) {
+  if (!toasts.length) return null
+  return (
+    <div style={{ position: 'fixed', bottom: '24px', right: '24px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 9999 }}>
+      {toasts.map(t => (
+        <div key={t.id} style={{
+          background: t.type === 'error' ? '#2b1212' : '#0f2418',
+          border: `1px solid ${t.type === 'error' ? '#4d2323' : '#2da25f'}`,
+          color: t.type === 'error' ? '#ff6a6a' : '#4fda83',
+          borderRadius: '8px',
+          padding: '10px 16px',
+          fontSize: '13px',
+          fontWeight: 600,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          animation: 'tabFadeIn 0.2s ease forwards',
+          maxWidth: '320px',
+        }}>
+          {t.message}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function calcStreak(workouts) {
   if (!workouts.length) return 0
@@ -306,7 +346,7 @@ export default function Dashboard() {
   const [workcards, setWorkcards] = useState([])
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
-  const [plansError, setPlansError] = useState('')
+  const { toasts, showToast } = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showOverviewGuide, setShowOverviewGuide] = useState(true)
   const [creatingPlan, setCreatingPlan] = useState(false)
@@ -364,7 +404,7 @@ export default function Dashboard() {
         setWorkcards(Array.isArray(wcds) ? wcds : [])
       })
       .catch(() => {
-        setPlansError('Failed to load workout ideas.')
+        showToast('Failed to load data.', 'error')
       })
       .finally(() => setLoading(false))
   }, [])
@@ -397,7 +437,6 @@ export default function Dashboard() {
   async function createPlan() {
     if (!newPlan.targetMuscles.length) return
     setCreatingPlan(true)
-    setPlansError('')
 
     try {
       const data = await requestJson('/api/workout-plans', {
@@ -421,8 +460,9 @@ export default function Dashboard() {
       setShowCreateModal(false)
       resetNewPlan()
       setActiveTab('workout_ideas')
+      showToast('Workout plan created!')
     } catch (err) {
-      setPlansError(err.message || 'Failed to create workout idea.')
+      showToast(err.message || 'Failed to create workout idea.', 'error')
     } finally {
       setCreatingPlan(false)
     }
@@ -430,7 +470,6 @@ export default function Dashboard() {
 
   async function generatePlan(planId) {
     setGeneratingPlanId(planId)
-    setPlansError('')
     setPlans(prev => prev.map(p => (p._id === planId ? { ...p, status: 'generating', lastError: '' } : p)))
 
     try {
@@ -441,8 +480,9 @@ export default function Dashboard() {
         throw new Error(data?.error || 'Failed to generate workout plan')
       }
       setPlans(prev => prev.map(p => (p._id === planId ? data.plan : p)))
+      showToast('Workout generated!')
     } catch (err) {
-      setPlansError(err.message || 'Failed to generate workout plan.')
+      showToast(err.message || 'Failed to generate workout plan.', 'error')
       setPlans(prev => prev.map(p => (p._id === planId ? { ...p, status: 'failed' } : p)))
     } finally {
       setGeneratingPlanId('')
@@ -451,7 +491,6 @@ export default function Dashboard() {
 
   async function generateWorkcards(planId) {
     setGeneratingWorkcardsPlanId(planId)
-    setPlansError('')
     try {
       const data = await requestJson(`/api/workout-plans/${planId}/workcards`, {
         method: 'POST',
@@ -461,7 +500,7 @@ export default function Dashboard() {
       }
       navigate('/workcards')
     } catch (err) {
-      setPlansError(err.message || 'Failed to generate workcards.')
+      showToast(err.message || 'Failed to generate workcards.', 'error')
     } finally {
       setGeneratingWorkcardsPlanId('')
     }
@@ -477,7 +516,6 @@ export default function Dashboard() {
     if (!confirmed) return
 
     setDeletingPlanId(planId)
-    setPlansError('')
     try {
       const data = await requestJson(`/api/workout-plans/${planId}`, {
         method: 'DELETE',
@@ -485,6 +523,7 @@ export default function Dashboard() {
       if (!data?.success) throw new Error(data?.error || 'Failed to delete workout plan')
 
       setPlans(prev => prev.filter(p => p._id !== planId))
+      showToast('Plan deleted.')
 
       // Keep dashboard stats/calendar in sync after cascade delete.
       const [wkts, wcds] = await Promise.all([
@@ -494,7 +533,7 @@ export default function Dashboard() {
       setWorkouts(Array.isArray(wkts) ? wkts : [])
       setWorkcards(Array.isArray(wcds) ? wcds : [])
     } catch (err) {
-      setPlansError(err.message || 'Failed to delete workout plan.')
+      showToast(err.message || 'Failed to delete workout plan.', 'error')
     } finally {
       setDeletingPlanId('')
     }
@@ -523,6 +562,7 @@ export default function Dashboard() {
 
   return (
     <div className={styles.page}>
+      <ToastContainer toasts={toasts} />
       <div className={styles.topBar}>
         <div className={styles.logoRow}>
           <Logo size={34} />
@@ -565,67 +605,107 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {plansError && <p className={styles.error}>{plansError}</p>}
+            <div key={activeTab} className={styles.tabContent}>
 
             {activeTab === 'overview' && (
-              <>
-                <QuoteCard />
-                {showOverviewGuide && (
-                  <div className={`${styles.emptyCard} ${styles.overviewGuide}`}>
-                    <div className={styles.overviewGuideHeader}>
-                      <p className={styles.muted}>
-                        New here? Go to <strong>Workout Ideas</strong> to create your first plan and begin your workout tracking journey.
-                      </p>
-                      <button
-                        className={styles.guideCloseBtn}
-                        onClick={() => setShowOverviewGuide(false)}
-                        aria-label="Close guide"
-                      >
-                        Close
-                      </button>
+              <div className={styles.overviewLayout}>
+                <div className={styles.overviewMain}>
+                  <QuoteCard />
+                  {showOverviewGuide && (
+                    <div className={`${styles.emptyCard} ${styles.overviewGuide}`}>
+                      <div className={styles.overviewGuideHeader}>
+                        <p className={styles.muted}>
+                          New here? Go to <strong>Workout Ideas</strong> to create your first plan and begin your workout tracking journey.
+                        </p>
+                        <button
+                          className={styles.guideCloseBtn}
+                          onClick={() => setShowOverviewGuide(false)}
+                          aria-label="Close guide"
+                        >
+                          Close
+                        </button>
+                      </div>
+                      <div style={{ marginTop: '12px' }}>
+                        <button
+                          className={styles.primaryBtn}
+                          onClick={() => setActiveTab('workout_ideas')}
+                        >
+                          Go To Workout Ideas
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ marginTop: '12px' }}>
-                      <button
-                        className={styles.primaryBtn}
-                        onClick={() => setActiveTab('workout_ideas')}
-                      >
-                        Go To Workout Ideas
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                <div className={styles.statsRow}>
-                  <div className={styles.statCard}>
-                    <span className={styles.statNum}>{streak}</span>
-                    <span className={styles.statLabel}>Day Streak</span>
+                  <div className={styles.statsRow}>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNum}>{streak}</span>
+                      <span className={styles.statLabel}>Day Streak</span>
+                    </div>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNum}>{totalSessions}</span>
+                      <span className={styles.statLabel}>Total Sessions</span>
+                    </div>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNum}>{weekSessionCount}</span>
+                      <span className={styles.statLabel}>This Week</span>
+                    </div>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNum} style={{ color: weekAvgScore > 0 ? getScoreColor(weekAvgScore) : '#fff' }}>
+                        {weekAvgScore > 0 ? `${weekAvgScore}%` : '—'}
+                      </span>
+                      <span className={styles.statLabel}>Avg Score</span>
+                    </div>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNum}>{weekExercises}</span>
+                      <span className={styles.statLabel}>Exercises</span>
+                    </div>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNum}>{overviewLevel}</span>
+                      <span className={styles.statLabel}>Level</span>
+                    </div>
                   </div>
-                  <div className={styles.statCard}>
-                    <span className={styles.statNum}>{totalSessions}</span>
-                    <span className={styles.statLabel}>Total Sessions</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <span className={styles.statNum}>{weekSessionCount}</span>
-                    <span className={styles.statLabel}>This Week</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <span className={styles.statNum} style={{ color: weekAvgScore > 0 ? getScoreColor(weekAvgScore) : '#fff' }}>
-                      {weekAvgScore > 0 ? `${weekAvgScore}%` : '—'}
-                    </span>
-                    <span className={styles.statLabel}>Avg Score</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <span className={styles.statNum}>{weekExercises}</span>
-                    <span className={styles.statLabel}>Exercises</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <span className={styles.statNum}>{overviewLevel}</span>
-                    <span className={styles.statLabel}>Level</span>
-                  </div>
+
+                  <CalendarView workouts={submittedSessions} workcards={workcards} />
                 </div>
 
-                <CalendarView workouts={submittedSessions} workcards={workcards} />
-              </>
+                <div className={styles.overviewSidebar}>
+                  <div className={styles.sidebarCard}>
+                    <div className={styles.sidebarHeader}>
+                      <h3 className={styles.sidebarTitle}>Active Workcards</h3>
+                      <button className={styles.sidebarLink} onClick={() => navigate('/workcards')}>View all →</button>
+                    </div>
+                    {workcards.filter(wc => wc.status !== 'submitted').length === 0 ? (
+                      <p className={styles.sidebarEmpty}>No active workcards. Generate them from a workout plan.</p>
+                    ) : (
+                      <div className={styles.sidebarList}>
+                        {workcards.filter(wc => wc.status !== 'submitted').slice(0, 6).map(wc => {
+                          const total = wc.totalCount || (wc.exercises?.length || 0)
+                          const done = wc.completedCount || 0
+                          const pct = total > 0 ? Math.round((done / total) * 100) : 0
+                          const barColor = getScoreColor(pct)
+                          return (
+                            <div key={wc._id} className={styles.sidebarWorkcard}>
+                              <div className={styles.sidebarWorkcardTop}>
+                                <span className={styles.sidebarWorkcardName}>{wc.planName || 'Plan'}</span>
+                                <span className={styles.sidebarWorkcardDay}>{wc.dayLabel || `Day ${wc.dayIndex}`}</span>
+                              </div>
+                              {wc.date && (
+                                <span className={styles.sidebarWorkcardDate}>{wc.date} · {wc.weekday || ''}</span>
+                              )}
+                              <div className={styles.sidebarProgressBar}>
+                                <div className={styles.sidebarProgressFill} style={{ width: `${pct}%`, background: barColor }} />
+                              </div>
+                              <span className={styles.sidebarProgressLabel} style={{ color: pct > 0 ? barColor : '#555' }}>
+                                {done}/{total} exercises
+                              </span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
 
             {activeTab === 'workout_ideas' && (
@@ -766,6 +846,8 @@ export default function Dashboard() {
                 )}
               </>
             )}
+
+            </div>
           </>
         )}
       </div>
