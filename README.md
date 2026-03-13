@@ -73,5 +73,7 @@ ryr-pages/
 ├── styles/                 # CSS modules and global styles
 └── lib/                    # Database, models, session, AI helpers
 ```
+
 ---
+
 *Built with React, Next.js, and Google Gemini.*

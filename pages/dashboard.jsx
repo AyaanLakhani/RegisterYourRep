@@ -196,25 +196,28 @@ function CalendarView({ workouts, workcards }) {
           const color = hasSubmitted ? getScoreColor(avgScore) : null
           const isToday = key === todayKey
           const isSelected = key === selectedKey
+          const isFuture = key > todayKey
 
           return (
             <div
               key={key}
               className={styles.calCell}
               style={{
-                background: hasSubmitted ? `${color}20` : hasPending ? '#1e1a10' : '#131313',
-                border: isSelected && hasSubmitted
-                  ? `2px solid ${color}`
-                  : isSelected && hasPending
-                  ? '2px dashed #d6a127'
-                  : isToday
-                  ? '2px solid #ff1e00'
-                  : hasPending
-                  ? '2px dashed #333'
+                background: isFuture ? '#0e0e0e'
+                  : hasSubmitted ? `${color}20`
+                  : hasPending ? '#1e1a10'
+                  : '#131313',
+                border: isFuture ? '2px solid transparent'
+                  : isSelected && hasSubmitted ? `2px solid ${color}`
+                  : isSelected && hasPending ? '2px dashed #d6a127'
+                  : isToday ? '2px solid #ff1e00'
+                  : hasPending ? '2px dashed #333'
                   : '2px solid transparent',
-                cursor: hasActivity ? 'pointer' : 'default',
+                cursor: 'default',
+                opacity: isFuture ? 0.3 : 1,          //  grayed out #BUG1 Fix
+                pointerEvents: isFuture ? 'none' : 'auto',  //  fully blocks clicks 
               }}
-              onClick={() => hasActivity && setSelectedKey(isSelected ? null : key)}
+              onClick={() => !isFuture && hasActivity && setSelectedKey(isSelected ? null : key)}
             >
               <span className={styles.calDayNum} style={{ color: isToday ? '#ff1e00' : hasPending ? '#aaa' : '#fff' }}>
                 {day.getDate()}

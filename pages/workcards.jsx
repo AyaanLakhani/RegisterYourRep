@@ -57,6 +57,15 @@ function getWeekdayFromDate(dateStr) {
   return date.toLocaleDateString('en-US', { weekday: 'long' })
 }
 
+//gray out future dates in datepicker and prevent selection #BUG1 Fix
+function getTodayString() {
+  const today = new Date()
+  const y = today.getFullYear()
+  const m = String(today.getMonth() + 1).padStart(2, '0')
+  const d = String(today.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export default function Workcards() {
   const router = useRouter()
   const { getAccessToken, logout, authenticated, ready } = usePrivy()
@@ -300,6 +309,7 @@ export default function Workcards() {
                             type="date"
                             value={card.date || ''}
                             className={styles.input}
+                            max={getTodayString()} //blocks future dates from being selected #BUG1 Fix.
                             onChange={e => {
                               const date = e.target.value
                               onFieldChange(card._id, 'date', date)

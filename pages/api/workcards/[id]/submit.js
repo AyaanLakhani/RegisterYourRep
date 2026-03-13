@@ -23,6 +23,10 @@ export default async function handler(req, res) {
     }
 
     const checked = Array.isArray(workcard.checked) ? workcard.checked : []
+    const today = new Date().toISOString().split('T')[0]
+      if (workcard.date > today) {
+        return res.status(400).json({ error: 'Date cannot be in the future.' })
+      }
     const completion = calculateCompletion(checked, workcard.totalCount || 0)
 
     workcard.completedCount = completion.completedCount
