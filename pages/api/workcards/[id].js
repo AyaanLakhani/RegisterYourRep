@@ -24,8 +24,13 @@ export default async function handler(req, res) {
       if (!workcard) return res.status(404).json({ error: 'Workcard not found' })
       if (workcard.status === 'submitted') return res.status(400).json({ error: 'Workcard already submitted' })
 
-      const { date, weekday, checked } = req.body
-      if (typeof date === 'string') workcard.date = date.trim()
+      const { date, weekday, checked } = req.body // only allow updating these specific fields
+      if (typeof date === 'string') {
+        const trimmed = date.trim()
+        const today = new Date().toISOString().split('T')[0]
+        if (trimmed > today) return res.status(400).json({ error: 'Date cannot be in the future.' })
+        workcard.date = trimmed
+      }
       if (typeof weekday === 'string') workcard.weekday = weekday.trim()
 
       if (Array.isArray(checked)) {
