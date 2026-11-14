@@ -6,6 +6,7 @@
 import { withAuth } from '@/lib/apiHandler'
 import { Workcard, Workout } from '@/lib/models'
 import { calculateCompletion } from '@/lib/apiHelpers'
+import { updateWorkcardBody } from '@/lib/validation'
 
 export default withAuth({
   PATCH: async (req, res, { privyUserId }) => {
@@ -13,17 +14,18 @@ export default withAuth({
     if (!workcard) return res.status(404).json({ error: 'Workcard not found' })
     if (workcard.status === 'submitted') return res.status(400).json({ error: 'Workcard already submitted' })
 
-    const { date, weekday, checked } = req.body || {} // only allow updating these specific fields
-    if (typeof date === 'string') {
-      const trimmed = date.trim()
+    // Validated by updateWorkcardBody: date is '' or YYYY-MM-DD, weekday is ''
+    // or a day name, checked is an array of booleans.
+    const { date, weekday, checked } = req.body
+    if (date !== undefined) {
       const today = new Date().toISOString().split('T')[0]
-      if (trimmed > today) return res.status(400).json({ error: 'Date cannot be in the future.' })
-      workcard.date = trimmed
+      if (date > today) return res.status(400).json({ error: 'Date cannot be in the future.' })
+      workcard.date = date
     }
-    if (typeof weekday === 'string') workcard.weekday = weekday.trim()
+    if (weekday !== undefined) workcard.weekday = weekday
 
-    if (Array.isArray(checked)) {
-      const normalizedChecked = checked.map(Boolean).slice(0, workcard.totalCount)
+    if (checked !== undefined) {
+      const normalizedChecked = checked.slice(0, workcard.totalCount)
       while (normalizedChecked.length < workcard.totalCount) normalizedChecked.push(false)
       workcard.checked = normalizedChecked
     }
@@ -47,4 +49,5 @@ export default withAuth({
 }, {
   idParams: ['id'],
   errors: { PATCH: 'Failed to update workcard', DELETE: 'Failed to delete workcard' },
+  schemas: { PATCH: { body: updateWorkcardBody } },
 })

@@ -1,6 +1,7 @@
 // pages/api/user/profile.js
 import { withAuth } from '@/lib/apiHandler'
 import { User } from '@/lib/models'
+import { profileBody } from '@/lib/validation'
 
 export default withAuth({
   GET: async (req, res, { privyUserId }) => {
@@ -15,7 +16,8 @@ export default withAuth({
   },
 
   POST: async (req, res, { privyUserId }) => {
-    const { email, fitnessLevel, targetMuscles, frequency, sessionDuration, preferences } = req.body || {}
+    // req.body has been validated against profileBody (unknown fields stripped).
+    const { email, fitnessLevel, targetMuscles, frequency, sessionDuration, preferences } = req.body
     await User.findOneAndUpdate(
       { privyUserId },
       { privyUserId, email, fitnessLevel, targetMuscles, frequency, sessionDuration, preferences, onboardingComplete: true },
@@ -25,4 +27,5 @@ export default withAuth({
   },
 }, {
   errors: { GET: 'Failed to fetch profile', POST: 'Failed to save profile' },
+  schemas: { POST: { body: profileBody } },
 })

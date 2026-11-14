@@ -1,7 +1,7 @@
 // pages/api/workout-plans/index.js
 import { withAuth } from '@/lib/apiHandler'
 import { WorkoutPlan } from '@/lib/models'
-import { normalizeMuscles, safeNumber } from '@/lib/apiHelpers'
+import { createPlanBody } from '@/lib/validation'
 
 export default withAuth({
   GET: async (req, res, { privyUserId }) => {
@@ -10,20 +10,22 @@ export default withAuth({
   },
 
   POST: async (req, res, { privyUserId }) => {
-    const body = req.body || {}
+    // req.body has been validated and trimmed against createPlanBody.
+    const body = req.body
     const plan = await WorkoutPlan.create({
       privyUserId,
-      name: body.name?.trim() || 'Workout Plan',
+      name: body.name || 'Workout Plan',
       source: body.source === 'onboarding' ? 'onboarding' : 'custom',
-      fitnessLevel: body.fitnessLevel ? String(body.fitnessLevel).trim() : '',
-      targetMuscles: normalizeMuscles(body.targetMuscles),
-      frequency: safeNumber(body.frequency),
-      sessionDuration: safeNumber(body.sessionDuration),
-      preferences: body.preferences ? String(body.preferences).trim() : '',
+      fitnessLevel: body.fitnessLevel || '',
+      targetMuscles: body.targetMuscles,
+      frequency: body.frequency,
+      sessionDuration: body.sessionDuration,
+      preferences: body.preferences || '',
       status: 'draft',
     })
     res.json({ success: true, plan })
   },
 }, {
   errors: { GET: 'Failed to fetch workout plans', POST: 'Failed to create workout plan' },
+  schemas: { POST: { body: createPlanBody } },
 })
