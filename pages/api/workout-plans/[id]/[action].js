@@ -5,18 +5,56 @@
 import { withAuth } from '@/lib/apiHandler'
 import { WorkoutPlan, Workcard } from '@/lib/models'
 import { generatePlanWithGemini, normalizeDayExercises } from '@/lib/apiHelpers'
+import { reserveGeneration, GENERATION_LIMIT } from '@/lib/rateLimit'
 
 const GENERATION_FAILED = 'Failed to generate workout plan'
 
+// A plan left in 'generating' longer than this (e.g. the function timed out
+// mid-run) is treated as stale, so it can be retried.
+const STALE_GENERATION_MS = 5 * 60 * 1000
+
 async function generate(req, res, privyUserId) {
   const { id } = req.query
-  const plan = await WorkoutPlan.findOne({ _id: id, privyUserId })
-  if (!plan) return res.status(404).json({ error: 'Workout plan not found' })
 
-  plan.status = 'generating'
-  plan.lastError = ''
-  await plan.save()
+  // 1. Per-user rate limit (RYR-5).
+  const reservation = await reserveGeneration(privyUserId, id)
+  if (!reservation.ok) {
+    const minutes = Math.ceil(reservation.retryAfterSeconds / 60)
+    res.setHeader('Retry-After', String(reservation.retryAfterSeconds))
+    return res.status(429).json({
+      error: `You've reached the limit of ${GENERATION_LIMIT} plan generations per hour. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`,
+    })
+  }
 
+  // 2. Atomically claim the plan, so two concurrent requests can't both start
+  //    a Gemini call. Only one update can flip the status to 'generating'.
+  let plan
+  try {
+    plan = await WorkoutPlan.findOneAndUpdate(
+      {
+        _id: id,
+        privyUserId,
+        $or: [
+          { status: { $ne: 'generating' } },
+          { updatedAt: { $lt: new Date(Date.now() - STALE_GENERATION_MS) } },
+        ],
+      },
+      { status: 'generating', lastError: '' },
+      { new: true }
+    )
+  } catch (err) {
+    await reservation.release()
+    throw err
+  }
+
+  if (!plan) {
+    await reservation.release()
+    const exists = await WorkoutPlan.exists({ _id: id, privyUserId })
+    if (!exists) return res.status(404).json({ error: 'Workout plan not found' })
+    return res.status(409).json({ error: 'This plan is already being generated. Please wait for it to finish.' })
+  }
+
+  // 3. Generate. A failed attempt still counts toward the limit.
   try {
     const generated = await generatePlanWithGemini({
       fitnessLevel: plan.fitnessLevel,

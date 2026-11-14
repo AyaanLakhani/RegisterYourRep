@@ -401,7 +401,9 @@ export default function Dashboard() {
 
     const data = await res.json().catch(() => ({}))
     if (!res.ok) {
-      throw new Error(data?.error || `Request failed (${res.status})`)
+      const error = new Error(data?.error || `Request failed (${res.status})`)
+      error.status = res.status
+      throw error
     }
     return data
   }
@@ -487,6 +489,7 @@ export default function Dashboard() {
   }
 
   async function generatePlan(planId) {
+    const previousPlan = plans.find(p => p._id === planId)
     setGeneratingPlanId(planId)
     setPlans(prev => prev.map(p => (p._id === planId ? { ...p, status: 'generating', lastError: '' } : p)))
 
@@ -501,7 +504,15 @@ export default function Dashboard() {
       showToast('Workout generated!')
     } catch (err) {
       showToast(err.message || 'Failed to generate workout plan.', 'error')
-      setPlans(prev => prev.map(p => (p._id === planId ? { ...p, status: 'failed' } : p)))
+      if (err.status === 429 && previousPlan) {
+        // Rate limited: nothing ran, so put the plan back the way it was.
+        setPlans(prev => prev.map(p => (p._id === planId ? previousPlan : p)))
+      } else if (err.status === 409) {
+        // Another run is already in progress for this plan.
+        setPlans(prev => prev.map(p => (p._id === planId ? { ...p, status: 'generating' } : p)))
+      } else {
+        setPlans(prev => prev.map(p => (p._id === planId ? { ...p, status: 'failed' } : p)))
+      }
     } finally {
       setGeneratingPlanId('')
     }
@@ -880,6 +891,7 @@ export default function Dashboard() {
               className={styles.input}
               value={newPlan.name}
               onChange={e => setNewPlan(prev => ({ ...prev, name: e.target.value }))}
+              maxLength={80}
               placeholder="e.g. Upper Body Focus"
             />
 
@@ -941,6 +953,7 @@ export default function Dashboard() {
               rows={3}
               value={newPlan.preferences}
               onChange={e => setNewPlan(prev => ({ ...prev, preferences: e.target.value }))}
+              maxLength={500}
               placeholder="Any injuries, equipment limits, or constraints"
             />
 
