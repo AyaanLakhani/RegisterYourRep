@@ -1,21 +1,11 @@
-// pages/api/workcards/[id]/submit.js  ←  was: app.post('/api/workcards/:id/submit', ...)
-import { getSession } from '@/lib/session'
-import { connectDB } from '@/lib/mongoose'
+// pages/api/workcards/[id]/submit.js
+import { withAuth } from '@/lib/apiHandler'
 import { Workcard, Workout } from '@/lib/models'
 import { calculateCompletion } from '@/lib/apiHelpers'
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end()
-
-  const session = await getSession(req, res)
-  if (!session.privyUserId) return res.status(401).json({ error: 'Not authenticated' })
-  const privyUserId = session.privyUserId
-  const { id } = req.query
-
-  await connectDB()
-
-  try {
-    const workcard = await Workcard.findOne({ _id: id, privyUserId })
+export default withAuth({
+  POST: async (req, res, { privyUserId }) => {
+    const workcard = await Workcard.findOne({ _id: req.query.id, privyUserId })
     if (!workcard) return res.status(404).json({ error: 'Workcard not found' })
     if (workcard.status === 'submitted') return res.json({ success: true, workcard, alreadySubmitted: true })
     if (!workcard.date || !workcard.weekday) {
@@ -24,9 +14,9 @@ export default async function handler(req, res) {
 
     const checked = Array.isArray(workcard.checked) ? workcard.checked : []
     const today = new Date().toISOString().split('T')[0]
-      if (workcard.date > today) {
-        return res.status(400).json({ error: 'Date cannot be in the future.' })
-      }
+    if (workcard.date > today) {
+      return res.status(400).json({ error: 'Date cannot be in the future.' })
+    }
     const completion = calculateCompletion(checked, workcard.totalCount || 0)
 
     workcard.completedCount = completion.completedCount
@@ -54,8 +44,8 @@ export default async function handler(req, res) {
     })
 
     res.json({ success: true, workcard })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Failed to submit workcard' })
-  }
-}
+  },
+}, {
+  idParams: ['id'],
+  errors: { POST: 'Failed to submit workcard' },
+})

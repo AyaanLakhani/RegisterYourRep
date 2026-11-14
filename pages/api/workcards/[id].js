@@ -1,70 +1,50 @@
 // pages/api/workcards/[id].js
 // Handles:
-//   PATCH  /api/workcards/:id         ← was: app.patch('/api/workcards/:id', ...)
-//   DELETE /api/workcards/:id         ← was: app.delete('/api/workcards/:id', ...)
-//   POST   /api/workcards/:id/submit  ← handled via query param below
-
-import { getSession } from '@/lib/session'
-import { connectDB } from '@/lib/mongoose'
+//   PATCH  /api/workcards/:id  update date / weekday / checked progress
+//   DELETE /api/workcards/:id  remove workcard + linked workout history
+// (POST /api/workcards/:id/submit lives in [id]/submit.js)
+import { withAuth } from '@/lib/apiHandler'
 import { Workcard, Workout } from '@/lib/models'
 import { calculateCompletion } from '@/lib/apiHelpers'
 
-export default async function handler(req, res) {
-  const session = await getSession(req, res)
-  if (!session.privyUserId) return res.status(401).json({ error: 'Not authenticated' })
-  const privyUserId = session.privyUserId
-  const { id } = req.query
+export default withAuth({
+  PATCH: async (req, res, { privyUserId }) => {
+    const workcard = await Workcard.findOne({ _id: req.query.id, privyUserId })
+    if (!workcard) return res.status(404).json({ error: 'Workcard not found' })
+    if (workcard.status === 'submitted') return res.status(400).json({ error: 'Workcard already submitted' })
 
-  await connectDB()
+    const { date, weekday, checked } = req.body || {} // only allow updating these specific fields
+    if (typeof date === 'string') {
+      const trimmed = date.trim()
+      const today = new Date().toISOString().split('T')[0]
+      if (trimmed > today) return res.status(400).json({ error: 'Date cannot be in the future.' })
+      workcard.date = trimmed
+    }
+    if (typeof weekday === 'string') workcard.weekday = weekday.trim()
 
-  // PATCH — update date / weekday / checked progress
-  if (req.method === 'PATCH') {
-    try {
-      const workcard = await Workcard.findOne({ _id: id, privyUserId })
-      if (!workcard) return res.status(404).json({ error: 'Workcard not found' })
-      if (workcard.status === 'submitted') return res.status(400).json({ error: 'Workcard already submitted' })
-
-      const { date, weekday, checked } = req.body // only allow updating these specific fields
-      if (typeof date === 'string') {
-        const trimmed = date.trim()
-        const today = new Date().toISOString().split('T')[0]
-        if (trimmed > today) return res.status(400).json({ error: 'Date cannot be in the future.' })
-        workcard.date = trimmed
-      }
-      if (typeof weekday === 'string') workcard.weekday = weekday.trim()
-
-      if (Array.isArray(checked)) {
-        const normalizedChecked = checked.map(Boolean).slice(0, workcard.totalCount)
-        while (normalizedChecked.length < workcard.totalCount) normalizedChecked.push(false)
-        workcard.checked = normalizedChecked
-      }
-
-      const completion = calculateCompletion(workcard.checked || [], workcard.totalCount || 0)
-      workcard.completedCount = completion.completedCount
-      workcard.score = completion.score
-      await workcard.save()
-
-      res.json({ success: true, workcard })
-    } catch (err) {
-      console.error(err)
-      res.status(500).json({ error: 'Failed to update workcard' })
+    if (Array.isArray(checked)) {
+      const normalizedChecked = checked.map(Boolean).slice(0, workcard.totalCount)
+      while (normalizedChecked.length < workcard.totalCount) normalizedChecked.push(false)
+      workcard.checked = normalizedChecked
     }
 
-  // DELETE — remove workcard + linked workout history
-  } else if (req.method === 'DELETE') {
-    try {
-      const workcard = await Workcard.findOne({ _id: id, privyUserId })
-      if (!workcard) return res.status(404).json({ error: 'Workcard not found' })
+    const completion = calculateCompletion(workcard.checked || [], workcard.totalCount || 0)
+    workcard.completedCount = completion.completedCount
+    workcard.score = completion.score
+    await workcard.save()
 
-      await Workout.deleteMany({ privyUserId, workcardId: String(workcard._id) })
-      await workcard.deleteOne()
-      res.json({ success: true })
-    } catch (err) {
-      console.error(err)
-      res.status(500).json({ error: 'Failed to delete workcard' })
-    }
+    res.json({ success: true, workcard })
+  },
 
-  } else {
-    res.status(405).end()
-  }
-}
+  DELETE: async (req, res, { privyUserId }) => {
+    const workcard = await Workcard.findOne({ _id: req.query.id, privyUserId })
+    if (!workcard) return res.status(404).json({ error: 'Workcard not found' })
+
+    await Workout.deleteMany({ privyUserId, workcardId: String(workcard._id) })
+    await workcard.deleteOne()
+    res.json({ success: true })
+  },
+}, {
+  idParams: ['id'],
+  errors: { PATCH: 'Failed to update workcard', DELETE: 'Failed to delete workcard' },
+})
