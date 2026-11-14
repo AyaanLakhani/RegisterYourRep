@@ -43,7 +43,9 @@ export default async function handler(req, res) {
 
       res.json({ success: true, plan })
     } catch (err) {
-      console.error(err)
+      // Log only status + message. The raw axios error carries the request
+      // config (URL and headers), which would put the Gemini API key in logs.
+      console.error('Plan generation failed:', err.response?.status ?? '-', err.message)
       try {
         await WorkoutPlan.findOneAndUpdate(
           { _id: id, privyUserId },
