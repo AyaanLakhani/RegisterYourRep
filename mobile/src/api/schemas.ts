@@ -420,10 +420,34 @@ export const WeekSchema = z.object({
 export type Week = z.infer<typeof WeekSchema>;
 
 /** Home screen: today's session (null on rest days) plus the active week. */
+/** One row of Home's "Days by type" bars. */
+export const MonthGoalTypeSchema = z.object({
+  /** Day type as the user sees it, e.g. "Push", "Pull", "Legs", "Core". */
+  type: z.string().min(1),
+  /** Days this month that trained this type. One session can count toward several types (Lower = Legs + Core). */
+  done: z.number().int().min(0),
+  goal: z.number().int().min(0),
+});
+export type MonthGoalType = z.infer<typeof MonthGoalTypeSchema>;
+
+/** Home's monthly goal card: sessions done against the month's plan, and how each day type is going. */
+export const MonthGoalSchema = z.object({
+  /** First day of the month. */
+  month: DayDateSchema,
+  sessionsDone: z.number().int().min(0),
+  /** Sessions the plan has scheduled for the whole month. */
+  sessionsGoal: z.number().int().min(0),
+  /** Sessions the plan expected to be done by today. Done minus this gives "N behind pace" or "N ahead". */
+  sessionsExpectedByToday: z.number().int().min(0),
+  byType: z.array(MonthGoalTypeSchema),
+});
+export type MonthGoal = z.infer<typeof MonthGoalSchema>;
+
 export const TodaySchema = z.object({
   date: DayDateSchema,
   session: SessionSchema.nullable(),
   week: WeekSchema,
+  monthGoal: MonthGoalSchema,
   /**
    * Sessions planned last week that didn't happen. Home shows the missed-week
    * prompt when this is above 0. Omitted (or 0) when nothing was missed.

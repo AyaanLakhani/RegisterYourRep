@@ -16,6 +16,8 @@ export const colors = {
   accentSoft: '#2E1A0E', // selected chip and day backgrounds
   accentFill: '#CA1712', // primary buttons
   accentTextLight: '#FAA57A', // labels on accentSoft (set tracker)
+  coach: '#F7A21B', // the coach's dumbbell icon
+  coachSoft: '#3D2412', // background behind the coach icon
 
   done: '#2DA25F',
   doneText: '#4CC483', // "Done"/"Applied" text and "+" lines

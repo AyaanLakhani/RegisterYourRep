@@ -80,7 +80,18 @@ function renderPaths(name: IconName, s: Record<string, unknown>, color: string) 
     case 'check':
       return <Path {...s} d="M5 12.5 10 17 19 7" />;
     case 'coach':
-      return <Path {...s} d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M2 11v2M22 11v2" />;
+      // Solid dumbbell (design update, Nov 15): plates either side of a short bar.
+      return (
+        <>
+          <Rect x="1" y="10.4" width="1.8" height="3.2" rx="0.9" fill={color} />
+          <Rect x="3.1" y="7.6" width="2.9" height="8.8" rx="1.45" fill={color} />
+          <Rect x="6.4" y="5.4" width="3.3" height="13.2" rx="1.65" fill={color} />
+          <Rect x="9.7" y="10.9" width="4.6" height="2.2" fill={color} />
+          <Rect x="14.3" y="5.4" width="3.3" height="13.2" rx="1.65" fill={color} />
+          <Rect x="18" y="7.6" width="2.9" height="8.8" rx="1.45" fill={color} />
+          <Rect x="21.2" y="10.4" width="1.8" height="3.2" rx="0.9" fill={color} />
+        </>
+      );
     case 'swap':
       return <Path {...s} d="M17 3l4 4-4 4M3 7h18M7 21l-4-4 4-4M21 17H3" />;
     case 'skip':

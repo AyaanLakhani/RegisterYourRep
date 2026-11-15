@@ -67,6 +67,10 @@ async function main() {
 
   const today = check('getToday', S.TodaySchema, await api.getToday());
   expect('today is Thu Nov 12 Push', today.session?.name === 'Push' && today.session.exercises.length === 6);
+  const goal = today.monthGoal;
+  const typeCounts = goal.byType.map((t) => `${t.type} ${t.done}/${t.goal}`).join(', ');
+  expect('month goal matches the design (6 of 21, 1 behind)', goal.sessionsDone === 6 && goal.sessionsGoal === 21 && goal.sessionsExpectedByToday === 7);
+  expect('days by type match the design', typeCounts === 'Push 3/9, Pull 2/9, Legs 3/8, Core 3/8');
   expect('no missed-week prompt by default', today.lastWeekMissedSessions === undefined);
   api.setMissedLastWeek(3);
   const missed = check('getToday (missed last week)', S.TodaySchema, await api.getToday());

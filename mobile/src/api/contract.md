@@ -141,3 +141,11 @@ From Questions & Decisions, "How does the coach tell beginner, intermediate and 
   familiarity ticks (`suggestLevel`), shows "we'll start you as …", and the user confirms or changes it. The profile
   stores both `suggestedLevel` and the confirmed `level`; plans use `level`. There is no plain level dropdown.
 - Pro users still get a generated plan, which they tweak through Plan and Ask Coach.
+
+## Monthly goal on Home (design update, Nov 15)
+
+`Today.monthGoal` drives Home's "<Month> goal" card: `sessionsDone` of `sessionsGoal` for the month, a pace badge
+from `sessionsDone - sessionsExpectedByToday` ("N behind pace", "On pace" or "N ahead of pace"), and `byType` rows for
+"Days by type". A session counts toward every type it trains (Upper = Push + Pull, Lower and Legs = Legs + Core), so
+the type rows don't add up to `sessionsDone`. The app highlights the type with the lowest share of its goal. All of
+this is plain counting on the server; no AI.

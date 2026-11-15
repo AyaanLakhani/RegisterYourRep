@@ -5,7 +5,7 @@ import { Icon } from './Icon';
 
 export type CoachAvatarProps = { size?: number };
 
-// Orange dumbbell in a soft circle. Decorative: hidden from screen readers.
+// Amber dumbbell in a brown circle. Decorative: hidden from screen readers.
 export function CoachAvatar({ size = 32 }: CoachAvatarProps) {
   return (
     <View
@@ -13,7 +13,7 @@ export function CoachAvatar({ size = 32 }: CoachAvatarProps) {
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Icon name="coach" size={Math.round(size * 0.56)} color={colors.accent} />
+      <Icon name="coach" size={Math.round(size * 0.56)} color={colors.coach} />
     </View>
   );
 }
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.accentSoft,
+    backgroundColor: colors.coachSoft,
   },
   bubble: { paddingVertical: 10, paddingHorizontal: 14 },
   user: {

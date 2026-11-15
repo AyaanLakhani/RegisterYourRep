@@ -163,7 +163,31 @@ export interface MockState {
   programs: Program[]; // every version, oldest first
   sessions: Session[]; // sessions of the active week
   progress: ProgressStats;
+  monthGoal: MonthGoalBase;
 }
+
+/**
+ * November before this week (Nov 1-8), plus the month's targets. The mock adds
+ * this week's finished sessions on top, so finishing a workout moves Home's
+ * monthly goal card.
+ */
+export interface MonthGoalBase {
+  month: string;
+  sessionsGoal: number;
+  sessionsExpectedByToday: number;
+  doneBeforeThisWeek: number;
+  /** Day types in display order, with the month's goal and days done before this week. */
+  types: { type: string; goal: number; doneBeforeThisWeek: number }[];
+}
+
+/** Which day types a session counts toward on the monthly goal card. */
+export const SESSION_TYPES: Record<string, string[]> = {
+  Upper: ['Push', 'Pull'],
+  Lower: ['Legs', 'Core'],
+  Push: ['Push'],
+  Pull: ['Pull'],
+  Legs: ['Legs', 'Core'],
+};
 
 export function createSeed(): MockState {
   const profile: Profile = {
@@ -263,5 +287,20 @@ export function createSeed(): MockState {
     levelUpReady: false,
   };
 
-  return { profile, programs: [v1, v2], sessions: [mon, tue, thu, fri, sat], progress };
+  // Matches the design: 6 of 21 sessions once Mon and Tue are counted, 1 behind pace;
+  // Push 3/9, Pull 2/9, Legs 3/8, Core 3/8.
+  const monthGoal: MonthGoalBase = {
+    month: '2026-11-01',
+    sessionsGoal: 21,
+    sessionsExpectedByToday: 7,
+    doneBeforeThisWeek: 4,
+    types: [
+      { type: 'Push', goal: 9, doneBeforeThisWeek: 2 },
+      { type: 'Pull', goal: 9, doneBeforeThisWeek: 1 },
+      { type: 'Legs', goal: 8, doneBeforeThisWeek: 2 },
+      { type: 'Core', goal: 8, doneBeforeThisWeek: 2 },
+    ],
+  };
+
+  return { profile, programs: [v1, v2], sessions: [mon, tue, thu, fri, sat], progress, monthGoal };
 }

@@ -144,7 +144,7 @@ export default function GeneratingScreen() {
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
       <View style={styles.main}>
         <View style={styles.badge} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Icon name="coach" size={28} color={colors.accent} />
+          <Icon name="coach" size={28} color={colors.coach} />
         </View>
 
         {failure ? (
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.accentSoft,
+    backgroundColor: colors.coachSoft,
   },
 
   intro: { gap: 8 },

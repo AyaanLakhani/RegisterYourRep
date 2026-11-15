@@ -18,6 +18,7 @@ import type {
   RepeatSkipNudge,
   Session,
   Week,
+  MonthGoal,
   WeekSummary,
 } from '../schemas';
 import { catalog, familiarityIds, findExercise } from './catalog';
@@ -32,6 +33,7 @@ import {
   PROGRAM_NAME,
   recommendedDays,
   sessionFromDay,
+  SESSION_TYPES,
   weekdayOf,
   WEEKDAYS,
   type MockState,
@@ -160,6 +162,23 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
       exercisesSkipped: logs.filter((l) => l.status === 'skipped').length,
       musclesHit: [...muscles],
       minutes,
+    };
+  }
+
+  // Home's monthly goal card: the seeded month so far plus this week's finished sessions.
+  function monthGoal(): MonthGoal {
+    const base = state.monthGoal;
+    const doneThisWeek = state.sessions.filter((s) => s.status === 'done' && s.date.startsWith(base.month.slice(0, 7)));
+    return {
+      month: base.month,
+      sessionsGoal: base.sessionsGoal,
+      sessionsExpectedByToday: base.sessionsExpectedByToday,
+      sessionsDone: base.doneBeforeThisWeek + doneThisWeek.length,
+      byType: base.types.map((t) => ({
+        type: t.type,
+        goal: t.goal,
+        done: t.doneBeforeThisWeek + doneThisWeek.filter((s) => (SESSION_TYPES[s.name] ?? []).includes(t.type)).length,
+      })),
     };
   }
 
@@ -369,6 +388,7 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
         date: MOCK_TODAY,
         session: state.sessions.find((s) => s.date === MOCK_TODAY) ?? null,
         week: activeWeek(),
+        monthGoal: monthGoal(),
         ...(missedLastWeek > 0 ? { lastWeekMissedSessions: missedLastWeek } : {}),
       })),
 

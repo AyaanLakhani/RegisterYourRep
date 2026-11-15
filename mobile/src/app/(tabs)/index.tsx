@@ -1,5 +1,5 @@
 // Home tab (RYR-23): what to do right now. Week calendar, missed-week prompt,
-// today's session (or rest day) and the next session.
+// today's session (or rest day), the next session and the monthly goal card.
 import { Link, router, useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
@@ -18,6 +18,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { api, useQuery, usingMocks, type DayDate, type Session, type Week } from '../../api';
 import { mockDataSource } from '../../api/mock';
 import { Badge, Button, Card, Icon, IconButton, MissedWeekPrompt } from '../../components';
+import { MonthGoalCard } from '../../features/home/MonthGoalCard';
 import {
   addDays,
   dayOfMonth,
@@ -146,6 +147,8 @@ export default function HomeScreen() {
         )}
 
         {session && upNext ? <UpNextRow session={upNext} /> : null}
+
+        <MonthGoalCard goal={t.monthGoal} />
 
         {session ? (
           <MoveSheet
