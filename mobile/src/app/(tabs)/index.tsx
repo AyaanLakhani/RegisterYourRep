@@ -9,6 +9,8 @@ export default function HomeScreen() {
       links={[
         { label: 'Start onboarding', href: '/onboarding' },
         { label: 'Start workout', href: '/workout' },
+        // Dev-only component gallery.
+        ...(__DEV__ ? [{ label: 'Component gallery (dev)', href: '/dev/components' as const }] : []),
       ]}
     />
   );

@@ -16,7 +16,9 @@ export type IconName =
   | 'coach'
   | 'swap'
   | 'skip'
-  | 'send';
+  | 'send'
+  | 'move'
+  | 'restart';
 
 type Props = {
   name: IconName;
@@ -85,5 +87,9 @@ function renderPaths(name: IconName, s: Record<string, unknown>, color: string) 
       return <Path {...s} d="M5 4l10 8-10 8V4zM19 5v14" />;
     case 'send':
       return <Path {...s} d="M22 2 11 13M22 2l-7 20-4-9-9-4z" />;
+    case 'move':
+      return <Path {...s} d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3" />;
+    case 'restart':
+      return <Path {...s} d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" />;
   }
 }
