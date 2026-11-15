@@ -1,9 +1,15 @@
 // Onboarding coach interview (RYR-20).
 //
-// Six steps on one layout: back + "Step N of 6", the previous answer echoed as
-// a muted chat bubble, the coach's question, answer chips, an optional text
-// field, then Continue. Answers live in one state object so going back keeps
-// them. The last step saves a structured Profile and starts plan generation.
+// Seven steps on one layout (updated Nov 15, Questions & Decisions: "How does
+// the coach tell beginner, intermediate and pro apart?"):
+//   1 goal, days, session length   2 where you train (gym type)
+//   3 confirm equipment (preset from the gym type)   4 training history
+//   5 exercise familiarity (only what the equipment allows)
+//   6 injuries and limitations     7 suggested starting level, confirmed
+// Each step: back + "Step N of 7", the previous answer echoed as a muted chat
+// bubble, the coach's question, answer chips, then Continue. Answers live in
+// one state object so going back keeps them. The last step saves a structured
+// Profile and starts plan generation.
 import { router } from 'expo-router';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
@@ -23,19 +29,25 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
   api,
+  GYM_TYPE_PRESETS,
+  suggestLevel,
   useQuery,
   type Equipment,
   type ExerciseCatalogEntry,
   type Goal,
   type GymType,
+  type Level,
   type ProfileInput,
+  type TrainingHistory,
   type Weekday,
 } from '../api';
 import { Button, ChatBubble, Chip, CoachAvatar, Icon, IconButton, StepProgress } from '../components';
 import { colors, fonts, radius, screenGutter, sizes } from '../theme';
 
-const TOTAL_STEPS = 6;
-const REVIEW_STEP = TOTAL_STEPS - 1;
+const TOTAL_STEPS = 7;
+// The last step confirms the level and lists every answer so it can be changed.
+const LEVEL_STEP = TOTAL_STEPS - 1;
+const STEP = { schedule: 0, gym: 1, equipment: 2, history: 3, familiarity: 4, limits: 5, level: 6 } as const;
 
 // --- Answer options (UI labels for the ProfileInput enums) -------------------
 
@@ -59,10 +71,29 @@ const WEEKDAYS: { value: Weekday; label: string }[] = [
 
 const SESSION_MINUTES = [30, 45, 60, 75, 90];
 
-const GYM_TYPES: { value: GymType; label: string }[] = [
-  { value: 'full_gym', label: 'Full gym' },
-  { value: 'home_gym', label: 'Home gym' },
-  { value: 'bodyweight_only', label: 'No equipment' },
+// Picking a gym type pre-ticks its preset equipment (api/level.ts) on the next
+// step, where the user unticks what theirs lacks.
+const GYM_TYPES: { value: GymType; label: string; equipmentHelper: string }[] = [
+  {
+    value: 'home',
+    label: 'Home',
+    equipmentHelper: "Home setups vary a lot, so tick what you own. Bodyweight moves are always on the table.",
+  },
+  {
+    value: 'apartment_gym',
+    label: 'Apartment gym',
+    equipmentHelper: "Apartment gyms usually have these. Untick anything yours doesn't, and tick anything extra.",
+  },
+  {
+    value: 'community_center',
+    label: 'Community center',
+    equipmentHelper: "Community centers usually have these. Untick anything yours doesn't, and tick anything extra.",
+  },
+  {
+    value: 'commercial_gym',
+    label: 'Commercial gym',
+    equipmentHelper: "Commercial gyms usually have all of this. Untick anything yours doesn't.",
+  },
 ];
 
 const EQUIPMENT: { value: Equipment; label: string }[] = [
@@ -71,18 +102,24 @@ const EQUIPMENT: { value: Equipment; label: string }[] = [
   { value: 'bench', label: 'Bench' },
   { value: 'cable', label: 'Cable machine' },
   { value: 'machine', label: 'Weight machines' },
+  { value: 'smith_machine', label: 'Smith machine' },
   { value: 'pullup_bar', label: 'Pull-up bar' },
   { value: 'kettlebell', label: 'Kettlebells' },
   { value: 'band', label: 'Resistance bands' },
   { value: 'bodyweight', label: 'Bodyweight' },
 ];
 
-// Picking a gym type pre-fills the equipment chips; the user can adjust them.
-const EQUIPMENT_FOR_GYM: Record<GymType, Equipment[]> = {
-  full_gym: ['barbell', 'dumbbell', 'bench', 'cable', 'machine', 'pullup_bar', 'bodyweight'],
-  home_gym: ['dumbbell', 'bench', 'bodyweight'],
-  bodyweight_only: ['bodyweight'],
-};
+const HISTORY: { value: TrainingHistory; label: string }[] = [
+  { value: 'under_6_months', label: 'Under 6 months' },
+  { value: 'six_months_to_2_years', label: '6 months to 2 years' },
+  { value: 'over_2_years', label: '2+ years' },
+];
+
+const LEVELS: { value: Level; label: string }[] = [
+  { value: 'beginner', label: 'Beginner' },
+  { value: 'intermediate', label: 'Intermediate' },
+  { value: 'pro', label: 'Pro' },
+];
 
 const LIMIT_AREAS = ['Knees', 'Lower back', 'Shoulders', 'Wrists', 'Hips', 'Neck'];
 
@@ -94,9 +131,12 @@ type Answers = {
   minutes?: number;
   gymType?: GymType;
   equipment: Equipment[];
+  history?: TrainingHistory;
   familiar: string[];
   limitAreas: string[];
   limitText: string;
+  /** Set only when the user picks a level other than the suggested one. */
+  levelChoice?: Level;
 };
 
 const EMPTY: Answers = { days: [], equipment: [], familiar: [], limitAreas: [], limitText: '' };
@@ -122,19 +162,34 @@ function scheduleSummary(a: Answers) {
   return parts.join(' · ');
 }
 
-function equipmentSummary(a: Answers) {
-  const names = EQUIPMENT.filter((e) => a.equipment.includes(e.value)).map((e) => e.label.toLowerCase());
-  const head = names.slice(0, 2).join(', ');
-  const kit = names.length > 2 ? `${head} and ${names.length - 2} more` : head;
-  return [labelOf(GYM_TYPES, a.gymType), kit].filter(Boolean).join(' · ');
+function goalAndSchedule(a: Answers) {
+  return [labelOf(GOALS, a.goal), scheduleSummary(a)].filter(Boolean).join(' · ');
 }
 
+function equipmentList(a: Answers) {
+  const names = EQUIPMENT.filter((e) => a.equipment.includes(e.value)).map((e) => e.label.toLowerCase());
+  const head = names.slice(0, 2).join(', ');
+  return names.length > 2 ? `${head} and ${names.length - 2} more` : head;
+}
+
+function equipmentSummary(a: Answers) {
+  return [labelOf(GYM_TYPES, a.gymType), equipmentList(a)].filter(Boolean).join(' · ');
+}
+
+// Ticks the current equipment still allows (equipment can change after ticking).
+const familiarStillOffered = (a: Answers, options: ExerciseCatalogEntry[] | undefined) =>
+  options ? a.familiar.filter((id) => options.some((o) => o.id === id)) : a.familiar;
+
 function familiaritySummary(a: Answers, options: ExerciseCatalogEntry[] | undefined) {
-  if (a.familiar.length === 0) return "I'm new to all of these";
-  const names = (options ?? []).filter((o) => a.familiar.includes(o.id)).map((o) => o.name);
-  if (names.length === 0 || names.length > 3) return `I know ${a.familiar.length} of these`;
+  const ids = familiarStillOffered(a, options);
+  if (ids.length === 0) return "I'm new to all of these";
+  const names = (options ?? []).filter((o) => ids.includes(o.id)).map((o) => o.name);
+  if (names.length === 0 || names.length > 3) return `I know ${ids.length} of these`;
   return `I know ${names.join(', ')}`;
 }
+
+const suggestedLevelOf = (a: Answers, options: ExerciseCatalogEntry[] | undefined) =>
+  suggestLevel(a.history ?? 'under_6_months', familiarStillOffered(a, options).length);
 
 function limitationsText(a: Answers) {
   const areas = a.limitAreas.join(', ');
@@ -144,27 +199,31 @@ function limitationsText(a: Answers) {
 
 const limitationsSummary = (a: Answers) => limitationsText(a) || 'Nothing to work around';
 
-function toProfileInput(a: Answers): ProfileInput {
+function toProfileInput(a: Answers, options: ExerciseCatalogEntry[] | undefined): ProfileInput {
+  const suggestedLevel = suggestedLevelOf(a, options);
   return {
     goals: a.goal ? [a.goal] : [],
     // Keep the week in calendar order whatever order the chips were tapped.
     trainingDays: WEEKDAYS.map((d) => d.value).filter((d) => a.days.includes(d)),
     sessionMinutes: a.minutes ?? 60,
-    gymType: a.gymType ?? 'full_gym',
+    gymType: a.gymType ?? 'commercial_gym',
     equipment: a.equipment,
-    familiarExerciseIds: a.familiar,
+    trainingHistory: a.history ?? 'under_6_months',
+    familiarExerciseIds: familiarStillOffered(a, options),
     limitations: limitationsText(a).slice(0, 1000),
+    suggestedLevel,
+    level: a.levelChoice ?? suggestedLevel,
   };
 }
 
 function isStepValid(step: number, a: Answers) {
   switch (step) {
-    case 0:
-      return !!a.goal;
-    case 1:
-      return a.days.length > 0 && !!a.minutes;
-    case 2:
+    case STEP.schedule:
+      return !!a.goal && a.days.length > 0 && !!a.minutes;
+    case STEP.gym:
       return !!a.gymType;
+    case STEP.history:
+      return !!a.history;
     default:
       return true;
   }
@@ -181,7 +240,9 @@ export default function OnboardingScreen() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>();
 
-  const familiarity = useQuery(() => api.getFamiliarityOptions(), []);
+  // Only exercises the confirmed equipment allows. Reloads when the equipment changes.
+  const equipmentKey = [...answers.equipment].sort().join(',');
+  const familiarity = useQuery(() => api.getFamiliarityOptions(answers.equipment), [equipmentKey]);
 
   const scrollRef = useRef<ScrollViewInstance>(null);
   const inputFocused = useRef(false);
@@ -223,11 +284,14 @@ export default function OnboardingScreen() {
 
   const goNext = () => {
     Keyboard.dismiss();
-    if (editingFromReview) {
+    if (editingFromReview && step === STEP.gym) {
+      // A changed gym type resets the equipment, so confirm it before going back.
+      setStep(STEP.equipment);
+    } else if (editingFromReview) {
       setEditingFromReview(false);
-      setStep(REVIEW_STEP);
+      setStep(LEVEL_STEP);
     } else {
-      setStep(Math.min(step + 1, REVIEW_STEP));
+      setStep(Math.min(step + 1, LEVEL_STEP));
     }
   };
 
@@ -240,7 +304,7 @@ export default function OnboardingScreen() {
     setSaving(true);
     setSaveError(undefined);
     try {
-      await api.saveProfile(toProfileInput(answers));
+      await api.saveProfile(toProfileInput(answers, familiarity.data));
       const job = await api.startGeneration();
       router.replace({ pathname: '/generating', params: { jobId: job.id } });
     } catch {
@@ -249,7 +313,9 @@ export default function OnboardingScreen() {
     }
   };
 
-  const onContinue = step === REVIEW_STEP ? submit : goNext;
+  const onContinue = step === LEVEL_STEP ? submit : goNext;
+  const suggested = suggestedLevelOf(answers, familiarity.data);
+  const level = answers.levelChoice ?? suggested;
 
   // --- Per-step content ------------------------------------------------------
 
@@ -260,24 +326,18 @@ export default function OnboardingScreen() {
   let secondary: { label: string; onPress: () => void } | undefined;
 
   switch (step) {
-    case 0:
-      heading = 'What do you want out of training?';
-      helper = 'Pick the one that matters most right now. You can change it later.';
-      body = (
-        <ChipRow>
-          {GOALS.map((g) => (
-            <Chip key={g.value} label={g.label} selected={answers.goal === g.value} onPress={() => update({ goal: g.value })} />
-          ))}
-        </ChipRow>
-      );
-      break;
-
-    case 1:
-      echo = labelOf(GOALS, answers.goal);
-      heading = 'When can you train?';
-      helper = "Tap the days that usually work and how long you've got each time.";
+    case STEP.schedule:
+      heading = 'What are you training for, and when?';
+      helper = "Pick what matters most right now, the days that usually work and how long you've got.";
       body = (
         <>
+          <Group label="Goal">
+            <ChipRow>
+              {GOALS.map((g) => (
+                <Chip key={g.value} label={g.label} selected={answers.goal === g.value} onPress={() => update({ goal: g.value })} />
+              ))}
+            </ChipRow>
+          </Group>
           <Group label="Days">
             <ChipRow>
               {WEEKDAYS.map((d) => (
@@ -301,49 +361,63 @@ export default function OnboardingScreen() {
       );
       break;
 
-    case 2:
-      echo = scheduleSummary(answers);
-      heading = 'Where will you train?';
-      helper = "I'll only pick exercises you can do with what you have.";
+    case STEP.gym:
+      echo = goalAndSchedule(answers);
+      heading = 'Where do you train?';
+      helper = "Pick the closest match. You'll confirm the equipment next.";
       body = (
-        <>
-          <Group label="Gym type">
-            <ChipRow>
-              {GYM_TYPES.map((g) => (
-                <Chip
-                  key={g.value}
-                  label={g.label}
-                  selected={answers.gymType === g.value}
-                  onPress={() =>
-                    answers.gymType !== g.value && update({ gymType: g.value, equipment: EQUIPMENT_FOR_GYM[g.value] })
-                  }
-                />
-              ))}
-            </ChipRow>
-          </Group>
-          {answers.gymType && (
-            <Group label="Equipment you can use">
-              <ChipRow>
-                {EQUIPMENT.map((e) => (
-                  <Chip
-                    key={e.value}
-                    label={e.label}
-                    selected={answers.equipment.includes(e.value)}
-                    onPress={() => update({ equipment: toggle(answers.equipment, e.value) })}
-                  />
-                ))}
-              </ChipRow>
-            </Group>
-          )}
-        </>
+        <ChipRow>
+          {GYM_TYPES.map((g) => (
+            <Chip
+              key={g.value}
+              label={g.label}
+              selected={answers.gymType === g.value}
+              // A new gym type resets the equipment to that type's preset.
+              onPress={() => answers.gymType !== g.value && update({ gymType: g.value, equipment: GYM_TYPE_PRESETS[g.value] })}
+            />
+          ))}
+        </ChipRow>
       );
       break;
 
-    case 3:
-      echo = equipmentSummary(answers);
+    case STEP.equipment:
+      echo = labelOf(GYM_TYPES, answers.gymType);
+      heading = 'Confirm your equipment';
+      helper = GYM_TYPES.find((g) => g.value === answers.gymType)?.equipmentHelper ?? 'Tick what you can use.';
+      body = (
+        <ChipRow>
+          {EQUIPMENT.map((e) => (
+            <Chip
+              key={e.value}
+              label={e.label}
+              selected={answers.equipment.includes(e.value)}
+              onPress={() => update({ equipment: toggle(answers.equipment, e.value) })}
+            />
+          ))}
+        </ChipRow>
+      );
+      break;
+
+    case STEP.history:
+      echo = equipmentList(answers) || 'Bodyweight only';
+      heading = 'How long have you trained consistently?';
+      helper = 'Count the time you trained most weeks. Breaks reset the clock.';
+      body = (
+        <ChipRow>
+          {HISTORY.map((h) => (
+            <Chip key={h.value} label={h.label} selected={answers.history === h.value} onPress={() => update({ history: h.value })} />
+          ))}
+        </ChipRow>
+      );
+      break;
+
+    case STEP.familiarity:
+      echo = labelOf(HISTORY, answers.history);
       heading = 'Which of these are you comfortable doing?';
       helper = "Tick any you can do with good form. I'll build your plan around them.";
-      body = familiarity.data ? (
+      body = familiarity.data && familiarity.data.length === 0 ? (
+        <Text style={styles.hint}>None of my check-in lifts fit your equipment, so I'll start you with simple moves and teach them as we go.</Text>
+      ) : familiarity.data ? (
         <>
           <ChipRow>
             {familiarity.data.map((ex) => (
@@ -376,7 +450,7 @@ export default function OnboardingScreen() {
       };
       break;
 
-    case 4:
+    case STEP.limits:
       echo = familiaritySummary(answers, familiarity.data);
       heading = 'Anything I should work around?';
       helper = "Injuries, pain or moves you'd rather skip. I'll plan around them.";
@@ -428,32 +502,41 @@ export default function OnboardingScreen() {
 
     default:
       echo = limitationsSummary(answers);
-      heading = "Here's what I've got";
-      helper = 'Check your answers. Tap one to change it.';
+      heading = `Based on this, we'll start you as ${labelOf(LEVELS, suggested)}. Sound right?`;
+      helper = 'Pick a different level if that feels off. Your weekly progress can move you up later.';
       body = (
-        <View style={styles.review}>
-          <ReviewRow label="Goal" value={labelOf(GOALS, answers.goal)} onPress={() => editStep(0)} />
-          <ReviewRow
-            label="Schedule"
-            value={[
-              WEEKDAYS.filter((d) => answers.days.includes(d.value))
-                .map((d) => d.label)
-                .join(', '),
-              answers.minutes ? `${answers.minutes} min` : '',
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-            onPress={() => editStep(1)}
-          />
-          <ReviewRow label="Equipment" value={equipmentSummary(answers)} onPress={() => editStep(2)} />
-          <ReviewRow label="Exercises you know" value={familiaritySummary(answers, familiarity.data)} onPress={() => editStep(3)} />
-          <ReviewRow label="Work around" value={limitationsSummary(answers)} onPress={() => editStep(4)} last />
-        </View>
+        <>
+          <Group label="Starting level">
+            <ChipRow>
+              {LEVELS.map((l) => (
+                <Chip
+                  key={l.value}
+                  label={l.label}
+                  selected={level === l.value}
+                  onPress={() => update({ levelChoice: l.value === suggested ? undefined : l.value })}
+                />
+              ))}
+            </ChipRow>
+          </Group>
+          <Group label="Your answers">
+            <View style={styles.review}>
+              <ReviewRow label="Goal and schedule" value={goalAndSchedule(answers)} onPress={() => editStep(STEP.schedule)} />
+              <ReviewRow label="Where you train" value={equipmentSummary(answers)} onPress={() => editStep(STEP.gym)} />
+              <ReviewRow label="Training history" value={labelOf(HISTORY, answers.history)} onPress={() => editStep(STEP.history)} />
+              <ReviewRow
+                label="Exercises you know"
+                value={familiaritySummary(answers, familiarity.data)}
+                onPress={() => editStep(STEP.familiarity)}
+              />
+              <ReviewRow label="Work around" value={limitationsSummary(answers)} onPress={() => editStep(STEP.limits)} last />
+            </View>
+          </Group>
+        </>
       );
       break;
   }
 
-  const continueLabel = step === REVIEW_STEP ? (saving ? 'Saving…' : 'Build my plan') : 'Continue';
+  const continueLabel = step === LEVEL_STEP ? (saving ? 'Saving…' : 'Build my plan') : 'Continue';
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>

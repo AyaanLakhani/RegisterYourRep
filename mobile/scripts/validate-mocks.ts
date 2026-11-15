@@ -9,6 +9,7 @@ import { catalog } from '../src/api/mock/catalog';
 import { createMockDataSource } from '../src/api/mock';
 import { createSeed } from '../src/api/mock/seed';
 import * as S from '../src/api/schemas';
+import { canDoWith, GYM_TYPE_PRESETS, suggestLevel } from '../src/api/level';
 
 let failures = 0;
 let checks = 0;
@@ -53,7 +54,16 @@ async function main() {
   const api = createMockDataSource({ delayMs: 0, generationStepMs: 1000, now: () => new Date(clock) });
 
   check('getProfile', S.ProfileSchema.nullable(), await api.getProfile());
-  check('getFamiliarityOptions', S.ExerciseCatalogEntrySchema.array().length(10), await api.getFamiliarityOptions());
+  check('getFamiliarityOptions', S.ExerciseCatalogEntrySchema.array().length(12), await api.getFamiliarityOptions());
+  // Equipment filtering: a home user with only bodyweight sees only bodyweight moves.
+  const homeOptions = check('getFamiliarityOptions home', S.ExerciseCatalogEntrySchema.array(), await api.getFamiliarityOptions(GYM_TYPE_PRESETS.home));
+  expect('home familiarity is bodyweight only', homeOptions.length > 0 && homeOptions.every((e) => canDoWith(e, ['bodyweight'])));
+  const apartment = await api.getFamiliarityOptions(GYM_TYPE_PRESETS.apartment_gym);
+  expect('apartment gym hides barbell and machine lifts', !apartment.some((e) => ['squat', 'deadlift', 'leg-press', 'lat-pulldown'].includes(e.id)));
+  // Suggested level rule.
+  expect('level: new lifter is beginner', suggestLevel('under_6_months', 2) === 'beginner');
+  expect('level: 6m-2y with some lifts is intermediate', suggestLevel('six_months_to_2_years', 4) === 'intermediate');
+  expect('level: 2y+ knowing most lifts is pro', suggestLevel('over_2_years', 8) === 'pro');
 
   const today = check('getToday', S.TodaySchema, await api.getToday());
   expect('today is Thu Nov 12 Push', today.session?.name === 'Push' && today.session.exercises.length === 6);
@@ -113,10 +123,13 @@ async function main() {
     goals: ['build_muscle'],
     trainingDays: ['mon', 'tue', 'thu', 'fri', 'sat'],
     sessionMinutes: 50,
-    gymType: 'full_gym',
+    gymType: 'commercial_gym',
     equipment: ['barbell', 'dumbbell', 'cable', 'machine'],
+    trainingHistory: 'six_months_to_2_years',
     familiarExerciseIds: ['squat', 'bench-press'],
     limitations: 'Left knee is sore on deep squats',
+    suggestedLevel: 'intermediate',
+    level: 'beginner',
   }));
   const job = check('startGeneration', S.GenerationJobSchema, await api.startGeneration());
   clock += 1500;

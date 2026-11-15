@@ -15,3 +15,4 @@ export { httpDataSource } from './http';
 export { ApiError, setTokenProvider } from './client';
 export { useQuery } from './useQuery';
 export * from './schemas';
+export { GYM_TYPE_PRESETS, canDoWith, suggestLevel } from './level';

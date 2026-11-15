@@ -43,7 +43,11 @@ const CatalogListSchema = ExerciseCatalogEntrySchema.array();
 export const httpDataSource: DataSource = {
   getProfile: () => call(ProfileSchema.nullable(), '/profile'),
   saveProfile: (input) => call(ProfileSchema, '/profile', 'PUT', input),
-  getFamiliarityOptions: () => call(CatalogListSchema, '/catalog/familiarity'),
+  getFamiliarityOptions: (equipment) =>
+    call(
+      CatalogListSchema,
+      equipment ? `/catalog/familiarity?equipment=${encodeURIComponent(equipment.join(','))}` : '/catalog/familiarity',
+    ),
 
   startGeneration: () => call(GenerationJobSchema, '/generation-jobs', 'POST', {}),
   getGenerationJob: (jobId) => call(GenerationJobSchema, `/generation-jobs/${enc(jobId)}`),

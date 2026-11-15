@@ -21,8 +21,8 @@ Conventions:
 |---|---|---|---|---|---|
 | **Profile** |
 | 1 | GET | `/profile` | – | `Profile` or `null` (before onboarding); optional `displayName` from the account | `getProfile()` |
-| 2 | PUT | `/profile` | `ProfileInput` | `Profile` (new version; server sets `assessedLevel`) | `saveProfile(input)` |
-| 3 | GET | `/catalog/familiarity` | – | `ExerciseCatalogEntry[]` (onboarding "which do you know?" list) | `getFamiliarityOptions()` |
+| 2 | PUT | `/profile` | `ProfileInput` | `Profile` (new version; stores `suggestedLevel` and the confirmed `level`) | `saveProfile(input)` |
+| 3 | GET | `/catalog/familiarity?equipment=dumbbell,bench` | – | `ExerciseCatalogEntry[]` (onboarding "which do you know?" list, only exercises the confirmed equipment allows; all when `equipment` is omitted) | `getFamiliarityOptions(equipment?)` |
 | **Generation** |
 | 4 | POST | `/generation-jobs` | `{}` (uses the current profile) | `GenerationJob` (202) | `startGeneration()` |
 | 5 | GET | `/generation-jobs/:jobId` | – | `GenerationJob` (poll every ~1 s until `done` / `failed`) | `getGenerationJob(jobId)` |
@@ -114,7 +114,7 @@ The mobile side is already in place: `setTokenProvider()` in `client.ts` supplie
 
 | Today (`lib/models/index.js`) | New | Notes |
 |---|---|---|
-| `User` fields `fitnessLevel`, `targetMuscles`, `frequency`, `sessionDuration`, `preferences` | `Profile` (versioned) | `frequency` → `trainingDays` (actual weekdays); `sessionDuration` → `sessionMinutes`; `fitnessLevel` → `assessedLevel` (set by the server, not chosen); `targetMuscles` + `preferences` → `goals` + `limitations`; new: `gymType`, `equipment`, `familiarExerciseIds`. `User` keeps identity (`privyUserId`, `email`, `onboardingComplete`). |
+| `User` fields `fitnessLevel`, `targetMuscles`, `frequency`, `sessionDuration`, `preferences` | `Profile` (versioned) | `frequency` → `trainingDays` (actual weekdays); `sessionDuration` → `sessionMinutes`; `fitnessLevel` → `level` (suggested by the app, confirmed by the user) plus `suggestedLevel` and `trainingHistory`; `targetMuscles` + `preferences` → `goals` + `limitations`; new: `gymType`, `equipment` (the confirmed list), `trainingHistory`, `familiarExerciseIds`, `suggestedLevel`. `User` keeps identity (`privyUserId`, `email`, `onboardingComplete`). |
 | `WorkoutPlan` | `Program` (versioned) | `generatedPlan` (Mixed) becomes typed `days[]` with catalog ids; `status: draft/generating/ready/failed` splits into `GenerationJob.status` (pending/running/done/failed) and `Program.status` (current/archived). `name` stays; new: `version`, `note`, `profileVersion`. The fitness fields copied onto each plan move to `Profile`. |
 | (implicit in `WorkoutPlan.status` + `GenerationLog`) | `GenerationJob`, `ProgramProposal` | `GenerationLog` stays as the rate-limit log. The proposal holds both options until one is accepted. |
 | `Workcard` | `Session` | `date`, `weekday`, `dayLabel` → `name`, `focus`, `exercises` (now with `exerciseId`, `formCue`; `notes` → `formCue`). `checked[]` + `completedCount` / `totalCount` / `score` are replaced by `logs` (derived counts). `status: pending/submitted` → `scheduled/done/skipped/moved/carried_over`; `submittedAt` → `finishedAt`. `planId` → `programId` + `programVersion`. |
@@ -126,3 +126,18 @@ The mobile side is already in place: `setTokenProvider()` in `client.ts` supplie
 
 Existing routes (`/api/workout-plans`, `/api/workcards`, `/api/workouts`, `/api/user/profile`) stay as
 they are for the web app. `/api/v1` is new and only used by the mobile app until the web app moves over.
+
+## Gym type and level (decided 2026-11-15)
+
+From Questions & Decisions, "How does the coach tell beginner, intermediate and pro apart?". Rules live in code
+(`src/api/level.ts`); the server should apply the same ones.
+
+- **Gym type** is one of `home`, `apartment_gym`, `community_center`, `commercial_gym`. Each pre-ticks a preset
+  equipment list (`GYM_TYPE_PRESETS`). The user unticks what theirs lacks, and the **confirmed list** is saved as
+  `equipment`. Plan generation uses `equipment`, never the gym type alone.
+- **Equipment filter**: an exercise is possible when every piece of kit it needs is in `equipment`; bodyweight is
+  always possible (`canDoWith`). The familiarity endpoint and plan generation both apply it.
+- **Level** is `beginner`, `intermediate` or `pro`. The app suggests one from `trainingHistory` and the number of
+  familiarity ticks (`suggestLevel`), shows "we'll start you as …", and the user confirms or changes it. The profile
+  stores both `suggestedLevel` and the confirmed `level`; plans use `level`. There is no plain level dropdown.
+- Pro users still get a generated plan, which they tweak through Plan and Ask Coach.

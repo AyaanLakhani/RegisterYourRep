@@ -173,12 +173,14 @@ export function createSeed(): MockState {
     goals: ['build_muscle'],
     trainingDays: ['mon', 'tue', 'thu', 'fri', 'sat'],
     sessionMinutes: 55,
-    gymType: 'full_gym',
+    gymType: 'commercial_gym',
     equipment: ['barbell', 'dumbbell', 'cable', 'machine', 'bench', 'pullup_bar'],
     familiarExerciseIds: ['squat', 'bench-press', 'lat-pulldown', 'dumbbell-row', 'overhead-press', 'pull-up'],
     limitations: '',
-    assessedLevel: 'intermediate',
     displayName: 'Yara Tan',
+    trainingHistory: 'six_months_to_2_years',
+    suggestedLevel: 'intermediate',
+    level: 'intermediate',
   };
 
   const v1: Program = {
