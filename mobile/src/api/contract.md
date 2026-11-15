@@ -77,8 +77,9 @@ Conventions:
   `mostSkipped` is sorted by count, with the most common reason. `levelUpReady` drives the
   "ready for harder?" card.
 - **Coach (20–23).** Apply and decline require `status: pending` (400 otherwise). Undo requires
-  `applied`: it creates a new program version that restores the days of `baseProgramVersion` and puts
-  the change back to `pending`. Applying a change also refreshes untouched upcoming sessions in the
+  `applied` or `declined` (400 otherwise). Undoing an applied change creates a new program version that
+  restores the days of `baseProgramVersion` and puts the change back to `pending`. Undoing a declined
+  change only puts it back to `pending` (no new version; `program` is the current one). Applying a change also refreshes untouched upcoming sessions in the
   active week.
 
 ## Auth

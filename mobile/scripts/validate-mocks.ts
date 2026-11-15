@@ -104,6 +104,8 @@ async function main() {
     check('applyChange', S.CoachChangeResultSchema, await api.applyChange(changeId));
     check('undoChange', S.CoachChangeResultSchema, await api.undoChange(changeId));
     check('declineChange', S.CoachChangeResultSchema, await api.declineChange(changeId));
+    const undoneDecline = check('undoChange (declined)', S.CoachChangeResultSchema, await api.undoChange(changeId));
+    expect('undoing a decline puts the change back to pending', undoneDecline.change.status === 'pending');
   }
 
   // Onboarding + generation
