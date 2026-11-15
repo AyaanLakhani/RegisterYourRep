@@ -57,6 +57,11 @@ async function main() {
 
   const today = check('getToday', S.TodaySchema, await api.getToday());
   expect('today is Thu Nov 12 Push', today.session?.name === 'Push' && today.session.exercises.length === 6);
+  expect('no missed-week prompt by default', today.lastWeekMissedSessions === undefined);
+  api.setMissedLastWeek(3);
+  const missed = check('getToday (missed last week)', S.TodaySchema, await api.getToday());
+  expect('missed-week flag reported', missed.lastWeekMissedSessions === 3);
+  api.setMissedLastWeek(0);
   const week = check('getCurrentWeek', S.WeekSchema, await api.getCurrentWeek());
   expect('week summary 2 of 5 done, 11 done / 1 skipped', week.summary.sessionsDone === 2 && week.summary.sessionsPlanned === 5 && week.summary.exercisesDone === 11 && week.summary.exercisesSkipped === 1);
   check('getWeek past', S.WeekSchema, await api.getWeek('2026-10-12'));
