@@ -1,46 +1,31 @@
-// pages/api/workout-plans/index.js  ←  was: app.get/post('/api/workout-plans', ...)
-import { getSession } from '@/lib/session'
-import { connectDB } from '@/lib/mongoose'
+// pages/api/workout-plans/index.js
+import { withAuth } from '@/lib/apiHandler'
 import { WorkoutPlan } from '@/lib/models'
-import { normalizeMuscles, safeNumber } from '@/lib/apiHelpers'
+import { createPlanBody } from '@/lib/validation'
 
-export default async function handler(req, res) {
-  const session = await getSession(req, res)
-  if (!session.privyUserId) return res.status(401).json({ error: 'Not authenticated' })
-  const privyUserId = session.privyUserId
+export default withAuth({
+  GET: async (req, res, { privyUserId }) => {
+    const plans = await WorkoutPlan.find({ privyUserId }).sort({ updatedAt: -1 })
+    res.json(plans)
+  },
 
-  await connectDB()
-
-  if (req.method === 'GET') {
-    try {
-      const plans = await WorkoutPlan.find({ privyUserId }).sort({ updatedAt: -1 })
-      res.json(plans)
-    } catch (err) {
-      console.error(err)
-      res.status(500).json({ error: 'Failed to fetch workout plans' })
-    }
-
-  } else if (req.method === 'POST') {
-    try {
-      const body = req.body || {}
-      const plan = await WorkoutPlan.create({
-        privyUserId,
-        name: body.name?.trim() || 'Workout Plan',
-        source: body.source === 'onboarding' ? 'onboarding' : 'custom',
-        fitnessLevel: body.fitnessLevel ? String(body.fitnessLevel).trim() : '',
-        targetMuscles: normalizeMuscles(body.targetMuscles),
-        frequency: safeNumber(body.frequency),
-        sessionDuration: safeNumber(body.sessionDuration),
-        preferences: body.preferences ? String(body.preferences).trim() : '',
-        status: 'draft',
-      })
-      res.json({ success: true, plan })
-    } catch (err) {
-      console.error(err)
-      res.status(500).json({ error: 'Failed to create workout plan' })
-    }
-
-  } else {
-    res.status(405).end()
-  }
-}
+  POST: async (req, res, { privyUserId }) => {
+    // req.body has been validated and trimmed against createPlanBody.
+    const body = req.body
+    const plan = await WorkoutPlan.create({
+      privyUserId,
+      name: body.name || 'Workout Plan',
+      source: body.source === 'onboarding' ? 'onboarding' : 'custom',
+      fitnessLevel: body.fitnessLevel || '',
+      targetMuscles: body.targetMuscles,
+      frequency: body.frequency,
+      sessionDuration: body.sessionDuration,
+      preferences: body.preferences || '',
+      status: 'draft',
+    })
+    res.json({ success: true, plan })
+  },
+}, {
+  errors: { GET: 'Failed to fetch workout plans', POST: 'Failed to create workout plan' },
+  schemas: { POST: { body: createPlanBody } },
+})
