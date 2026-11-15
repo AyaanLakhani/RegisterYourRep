@@ -530,10 +530,15 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & { 
       }),
 
     // Undo restores the days of the version the change was based on, as a new version.
+    // Undoing a decline just puts the change back to pending (no new version).
     undoChange: (changeId) =>
       respond(() => {
         const change = changeFor(changeId);
-        if (change.status !== 'applied') throw badRequest('Only applied changes can be undone');
+        if (change.status === 'declined') {
+          change.status = 'pending';
+          return { change, program: currentProgram() };
+        }
+        if (change.status !== 'applied') throw badRequest('Only applied or declined changes can be undone');
         const base = state.programs.find((p) => p.version === change.baseProgramVersion);
         if (!base) throw notFound('Program version');
         const program = addProgramVersion(base.days, `Undid: ${change.title}`);
