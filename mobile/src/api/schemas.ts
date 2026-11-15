@@ -125,6 +125,8 @@ export const ProfileSchema = ProfileInputSchema.extend({
   createdAt: IsoDateTimeSchema,
   /** Level the server assessed from the answers (not chosen by the user). */
   assessedLevel: LevelSchema,
+  /** User's name for display (Home avatar initials). From the account, not asked in onboarding. */
+  displayName: z.string().optional(),
 });
 export type Profile = z.infer<typeof ProfileSchema>;
 
@@ -411,6 +413,11 @@ export const TodaySchema = z.object({
   date: DayDateSchema,
   session: SessionSchema.nullable(),
   week: WeekSchema,
+  /**
+   * Sessions planned last week that didn't happen. Home shows the missed-week
+   * prompt when this is above 0. Omitted (or 0) when nothing was missed.
+   */
+  lastWeekMissedSessions: z.number().int().min(0).optional(),
 });
 export type Today = z.infer<typeof TodaySchema>;
 

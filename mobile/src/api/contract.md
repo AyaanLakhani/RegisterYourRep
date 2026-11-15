@@ -20,7 +20,7 @@ Conventions:
 | # | Method | Path | Request | Response | `DataSource` method |
 |---|---|---|---|---|---|
 | **Profile** |
-| 1 | GET | `/profile` | – | `Profile` or `null` (before onboarding) | `getProfile()` |
+| 1 | GET | `/profile` | – | `Profile` or `null` (before onboarding); optional `displayName` from the account | `getProfile()` |
 | 2 | PUT | `/profile` | `ProfileInput` | `Profile` (new version; server sets `assessedLevel`) | `saveProfile(input)` |
 | 3 | GET | `/catalog/familiarity` | – | `ExerciseCatalogEntry[]` (onboarding "which do you know?" list) | `getFamiliarityOptions()` |
 | **Generation** |
@@ -33,7 +33,7 @@ Conventions:
 | 9 | GET | `/program/versions/:version` | – | `Program` | `getProgramVersion(version)` |
 | 10 | POST | `/program/day-moves` | `SaveDayMovesRequest` | `Program` (new version) | `saveDayMoves(body)` |
 | **Today, weeks, sessions** |
-| 11 | GET | `/today` | – | `Today` (`session` is `null` on rest days) | `getToday()` |
+| 11 | GET | `/today` | – | `Today` (`session` is `null` on rest days; `lastWeekMissedSessions` > 0 shows the missed-week prompt) | `getToday()` |
 | 12 | GET | `/weeks/current` | – | `Week` | `getCurrentWeek()` |
 | 13 | GET | `/weeks/:startDate` | – (`startDate` = any day; server snaps to Monday) | `Week` | `getWeek(startDate)` |
 | 14 | GET | `/sessions/:sessionId` | – | `Session` | `getSession(sessionId)` |

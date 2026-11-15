@@ -178,6 +178,7 @@ export function createSeed(): MockState {
     familiarExerciseIds: ['squat', 'bench-press', 'lat-pulldown', 'dumbbell-row', 'overhead-press', 'pull-up'],
     limitations: '',
     assessedLevel: 'intermediate',
+    displayName: 'Yara Tan',
   };
 
   const v1: Program = {

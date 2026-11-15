@@ -66,7 +66,14 @@ export interface MockOptions {
   now?: () => Date;
 }
 
-export function createMockDataSource(options: MockOptions = {}): DataSource & { reset(): void } {
+export interface MockControls {
+  reset(): void;
+  /** Dev toggle (mirrors the design's `missedLastWeek`): sessions missed last week; 0 hides the prompt. */
+  setMissedLastWeek(count: number): void;
+  getMissedLastWeek(): number;
+}
+
+export function createMockDataSource(options: MockOptions = {}): DataSource & MockControls {
   const delayMs = options.delayMs ?? 300;
   const stepMs = options.generationStepMs ?? 1200;
   const now = options.now ?? (() => new Date());
@@ -76,6 +83,7 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & { 
   let proposals: ProgramProposal[] = [];
   let changes: CoachChangeProposal[] = [];
   let idCounter = 0;
+  let missedLastWeek = 0;
 
   const nextId = (prefix: string) => `${prefix}-${++idCounter}`;
   const nowIso = () => now().toISOString();
@@ -222,7 +230,14 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & { 
       proposals = [];
       changes = [];
       idCounter = 0;
+      missedLastWeek = 0;
     },
+
+    setMissedLastWeek(count) {
+      missedLastWeek = Math.max(0, Math.round(count));
+    },
+
+    getMissedLastWeek: () => missedLastWeek,
 
     getProfile: () => respond(() => state.profile),
 
@@ -349,6 +364,7 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & { 
         date: MOCK_TODAY,
         session: state.sessions.find((s) => s.date === MOCK_TODAY) ?? null,
         week: activeWeek(),
+        ...(missedLastWeek > 0 ? { lastWeekMissedSessions: missedLastWeek } : {}),
       })),
 
     getCurrentWeek: () => respond(activeWeek),
