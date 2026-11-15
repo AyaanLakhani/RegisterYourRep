@@ -45,8 +45,8 @@ const badRequest = (message: string) => new ApiError(400, message);
 
 const STEP_LABELS: Record<GenerationStep['id'], string> = {
   reading_answers: 'Reading your answers',
-  picking_exercises: 'Picking exercises',
-  balancing_muscles: 'Balancing muscles',
+  picking_exercises: 'Picking exercises you know',
+  balancing_muscles: 'Balancing muscle groups',
   setting_sets_reps: 'Setting sets and reps',
 };
 const STEP_IDS = Object.keys(STEP_LABELS) as GenerationStep['id'][];
