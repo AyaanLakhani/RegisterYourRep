@@ -42,7 +42,8 @@ export const MuscleSchema = z.enum([
 ]);
 export type Muscle = z.infer<typeof MuscleSchema>;
 
-export const LevelSchema = z.enum(['beginner', 'intermediate', 'advanced']);
+/** Coaching level (Questions & Decisions, Nov 15): beginner, intermediate or pro. */
+export const LevelSchema = z.enum(['beginner', 'intermediate', 'pro']);
 export type Level = z.infer<typeof LevelSchema>;
 
 export const EquipmentSchema = z.enum([
@@ -50,6 +51,7 @@ export const EquipmentSchema = z.enum([
   'dumbbell',
   'cable',
   'machine',
+  'smith_machine',
   'bodyweight',
   'kettlebell',
   'band',
@@ -102,8 +104,13 @@ export type ExerciseCatalogEntry = z.infer<typeof ExerciseCatalogEntrySchema>;
 export const GoalSchema = z.enum(['build_muscle', 'get_stronger', 'lose_fat', 'general_fitness', 'endurance']);
 export type Goal = z.infer<typeof GoalSchema>;
 
-export const GymTypeSchema = z.enum(['full_gym', 'home_gym', 'bodyweight_only']);
+/** Where the user trains. Each type pre-ticks a preset equipment list the user then confirms. */
+export const GymTypeSchema = z.enum(['home', 'apartment_gym', 'community_center', 'commercial_gym']);
 export type GymType = z.infer<typeof GymTypeSchema>;
+
+/** "How long have you trained consistently?" */
+export const TrainingHistorySchema = z.enum(['under_6_months', 'six_months_to_2_years', 'over_2_years']);
+export type TrainingHistory = z.infer<typeof TrainingHistorySchema>;
 
 /** What the user fills in during onboarding (and edits later). */
 export const ProfileInputSchema = z.object({
@@ -111,11 +118,17 @@ export const ProfileInputSchema = z.object({
   trainingDays: z.array(WeekdaySchema).min(1).max(7),
   sessionMinutes: z.number().int().min(15).max(180),
   gymType: GymTypeSchema,
+  /** The confirmed list: the gym type's preset after the user unticked what theirs lacks. Generation uses this, not the gym type. */
   equipment: z.array(EquipmentSchema),
+  trainingHistory: TrainingHistorySchema,
   /** Catalog ids of exercises the user already knows. */
   familiarExerciseIds: z.array(IdSchema),
   /** Free text, e.g. "left knee hurts on deep squats". */
   limitations: z.string().max(1000),
+  /** Level the app suggested from training history and familiarity (see api/level.ts). */
+  suggestedLevel: LevelSchema,
+  /** Level the user confirmed (or changed to) on the last onboarding step. Plans use this one. */
+  level: LevelSchema,
 });
 export type ProfileInput = z.infer<typeof ProfileInputSchema>;
 
@@ -123,8 +136,6 @@ export const ProfileSchema = ProfileInputSchema.extend({
   id: IdSchema,
   version: z.number().int().min(1),
   createdAt: IsoDateTimeSchema,
-  /** Level the server assessed from the answers (not chosen by the user). */
-  assessedLevel: LevelSchema,
 });
 export type Profile = z.infer<typeof ProfileSchema>;
 

@@ -21,6 +21,7 @@ import type {
   WeekSummary,
 } from '../schemas';
 import { catalog, familiarityIds, findExercise } from './catalog';
+import { canDoWith } from '../level';
 import {
   addDays,
   asAskedDays,
@@ -233,13 +234,17 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & { 
           id: state.profile?.id ?? 'profile-1',
           version: (state.profile?.version ?? 0) + 1,
           createdAt: nowIso(),
-          assessedLevel: input.familiarExerciseIds.length >= 6 ? 'intermediate' : 'beginner',
         };
         return state.profile;
       }),
 
-    getFamiliarityOptions: () =>
-      respond(() => familiarityIds.map((id) => findExercise(id)).filter((e): e is ExerciseCatalogEntry => !!e)),
+    getFamiliarityOptions: (equipment) =>
+      respond(() =>
+        familiarityIds
+          .map((id) => findExercise(id))
+          .filter((e): e is ExerciseCatalogEntry => !!e)
+          .filter((e) => !equipment || canDoWith(e, equipment)),
+      ),
 
     startGeneration: () =>
       respond(() => {

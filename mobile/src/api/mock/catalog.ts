@@ -9,7 +9,7 @@ export const catalog: ExerciseCatalogEntry[] = [
   { id: 'cable-fly', name: 'Cable fly', muscles: ['chest'], muscleGroup: 'upper', equipment: ['cable'], difficulty: 'intermediate', movementPattern: 'isolation', alternatives: ['pec-deck', 'dumbbell-fly', 'push-up'] },
   { id: 'pec-deck', name: 'Pec deck', muscles: ['chest'], muscleGroup: 'upper', equipment: ['machine'], difficulty: 'beginner', movementPattern: 'isolation', alternatives: ['cable-fly', 'dumbbell-fly'] },
   { id: 'dumbbell-fly', name: 'Dumbbell fly', muscles: ['chest'], muscleGroup: 'upper', equipment: ['dumbbell', 'bench'], difficulty: 'beginner', movementPattern: 'isolation', alternatives: ['cable-fly', 'pec-deck'] },
-  { id: 'push-up', name: 'Push-up', muscles: ['chest', 'triceps', 'shoulders'], muscleGroup: 'upper', equipment: ['bodyweight'], difficulty: 'beginner', movementPattern: 'push_horizontal', alternatives: ['dumbbell-bench-press'] },
+  { id: 'push-up', name: 'Push-up', muscles: ['chest', 'triceps', 'shoulders'], muscleGroup: 'upper', equipment: ['bodyweight'], difficulty: 'beginner', movementPattern: 'push_horizontal', formCue: 'Hands under your shoulders, body in one straight line. Lower your chest to the floor, then push away.', alternatives: ['dumbbell-bench-press'] },
   { id: 'overhead-press', name: 'Overhead press', muscles: ['shoulders', 'triceps'], muscleGroup: 'upper', equipment: ['barbell'], difficulty: 'intermediate', movementPattern: 'push_vertical', formCue: 'Squeeze your glutes and press the bar from your collarbone straight overhead.', alternatives: ['dumbbell-shoulder-press'] },
   { id: 'dumbbell-shoulder-press', name: 'Dumbbell shoulder press', muscles: ['shoulders', 'triceps'], muscleGroup: 'upper', equipment: ['dumbbell'], difficulty: 'beginner', movementPattern: 'push_vertical', alternatives: ['overhead-press'] },
   { id: 'lateral-raise', name: 'Lateral raise', muscles: ['shoulders'], muscleGroup: 'upper', equipment: ['dumbbell'], difficulty: 'beginner', movementPattern: 'isolation', alternatives: ['cable-lateral-raise'] },
@@ -32,9 +32,9 @@ export const catalog: ExerciseCatalogEntry[] = [
 
   // Legs
   { id: 'squat', name: 'Squat', muscles: ['quads', 'glutes'], muscleGroup: 'lower', equipment: ['barbell'], difficulty: 'intermediate', movementPattern: 'squat', formCue: 'Brace, sit down between your heels and drive up through the whole foot.', alternatives: ['goblet-squat', 'leg-press'] },
-  { id: 'goblet-squat', name: 'Goblet squat', muscles: ['quads', 'glutes'], muscleGroup: 'lower', equipment: ['dumbbell'], difficulty: 'beginner', movementPattern: 'squat', alternatives: ['squat', 'leg-press'] },
+  { id: 'goblet-squat', name: 'Goblet squat', muscles: ['quads', 'glutes'], muscleGroup: 'lower', equipment: ['dumbbell'], difficulty: 'beginner', movementPattern: 'squat', formCue: 'Hold one dumbbell at your chest. Sit down between your heels, elbows inside your knees, then stand up tall.', alternatives: ['squat', 'leg-press'] },
   { id: 'leg-press', name: 'Leg press', muscles: ['quads', 'glutes'], muscleGroup: 'lower', equipment: ['machine'], difficulty: 'beginner', movementPattern: 'squat', formCue: 'Feet shoulder-width on the platform. Lower until your knees reach about 90 degrees, hips stay down.', alternatives: ['goblet-squat', 'lunges'] },
-  { id: 'deadlift', name: 'Deadlift', muscles: ['hamstrings', 'glutes', 'lower_back'], muscleGroup: 'lower', equipment: ['barbell'], difficulty: 'advanced', movementPattern: 'hinge', formCue: 'Bar over mid-foot, flat back. Push the floor away and keep the bar close to your legs.', alternatives: ['romanian-deadlift'] },
+  { id: 'deadlift', name: 'Deadlift', muscles: ['hamstrings', 'glutes', 'lower_back'], muscleGroup: 'lower', equipment: ['barbell'], difficulty: 'pro', movementPattern: 'hinge', formCue: 'Bar over mid-foot, flat back. Push the floor away and keep the bar close to your legs.', alternatives: ['romanian-deadlift'] },
   { id: 'romanian-deadlift', name: 'Romanian deadlift', muscles: ['hamstrings', 'glutes'], muscleGroup: 'lower', equipment: ['barbell'], difficulty: 'intermediate', movementPattern: 'hinge', alternatives: ['dumbbell-romanian-deadlift'] },
   { id: 'dumbbell-romanian-deadlift', name: 'Dumbbell Romanian deadlift', muscles: ['hamstrings', 'glutes'], muscleGroup: 'lower', equipment: ['dumbbell'], difficulty: 'beginner', movementPattern: 'hinge', alternatives: ['romanian-deadlift'] },
   { id: 'lunges', name: 'Lunges', muscles: ['quads', 'glutes'], muscleGroup: 'lower', equipment: ['dumbbell'], difficulty: 'beginner', movementPattern: 'lunge', formCue: 'Step forward and drop the back knee toward the floor. Front knee stays over your foot.', alternatives: ['goblet-squat'] },
@@ -59,6 +59,8 @@ export const familiarityIds = [
   'leg-press',
   'lunges',
   'pull-up',
+  'push-up',
+  'goblet-squat',
 ];
 
 export function findExercise(id: string): ExerciseCatalogEntry | undefined {

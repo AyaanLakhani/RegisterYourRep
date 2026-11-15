@@ -5,6 +5,7 @@
 //   - http.ts the real API via apiFetch
 import type {
   AcceptProposalRequest,
+  Equipment,
   CoachChangeResult,
   CoachReply,
   DayDate,
@@ -33,7 +34,8 @@ export interface DataSource {
   /** Saves answers as a new profile version. */
   saveProfile(input: ProfileInput): Promise<Profile>;
   /** Catalog entries shown on the onboarding "which of these do you know?" step. */
-  getFamiliarityOptions(): Promise<ExerciseCatalogEntry[]>;
+  /** Onboarding familiarity list, limited to exercises the given equipment allows (all of them when omitted). */
+  getFamiliarityOptions(equipment?: Equipment[]): Promise<ExerciseCatalogEntry[]>;
 
   // Generation
   startGeneration(): Promise<GenerationJob>;
