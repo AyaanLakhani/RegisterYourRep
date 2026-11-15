@@ -73,6 +73,7 @@ Conventions:
   been skipped 2+ times overall, otherwise `null`.
 - **Progress (18).** `completionPercent = round(sessionsDone / sessionsPlanned * 100)` over the current
   program block. `muscleBalance` compares sets per group (upper/lower/core) this week with the target.
+  Optional `muscleDetail` gives the same comparison per muscle (for "See every muscle").
   `mostSkipped` is sorted by count, with the most common reason. `levelUpReady` drives the
   "ready for harder?" card.
 - **Coach (20–23).** Apply and decline require `status: pending` (400 otherwise). Undo requires
