@@ -6,8 +6,7 @@ import { withAuth } from '@/lib/apiHandler'
 import { WorkoutPlan, Workcard } from '@/lib/models'
 import { generatePlanWithGemini, normalizeDayExercises } from '@/lib/apiHelpers'
 import { reserveGeneration, GENERATION_LIMIT } from '@/lib/rateLimit'
-
-const GENERATION_FAILED = 'Failed to generate workout plan'
+import { GenerationError, GENERATION_FAILED } from '@/lib/geminiClient'
 
 // A plan left in 'generating' longer than this (e.g. the function timed out
 // mid-run) is treated as stale, so it can be retried.
@@ -71,14 +70,16 @@ async function generate(req, res, privyUserId) {
 
     res.json({ success: true, plan })
   } catch (err) {
-    // Log only status + message. The raw axios error carries the request
-    // config (URL and headers), which would put the Gemini API key in logs.
+    // Log only the message. A raw axios error carries the request config
+    // (headers), which would put the Gemini API key in logs (RYR-2).
     console.error('Plan generation failed:', err.response?.status ?? '-', err.message)
-    // lastError is shown in the dashboard, so it gets the generic message too.
+    // lastError is shown in the dashboard: a GenerationError carries a
+    // readable message (RYR-7); anything else gets the generic one.
+    const userMessage = err instanceof GenerationError ? err.userMessage : GENERATION_FAILED
     try {
-      await WorkoutPlan.findOneAndUpdate({ _id: id, privyUserId }, { status: 'failed', lastError: GENERATION_FAILED })
+      await WorkoutPlan.findOneAndUpdate({ _id: id, privyUserId }, { status: 'failed', lastError: userMessage })
     } catch (_) {}
-    res.status(500).json({ error: GENERATION_FAILED })
+    res.status(500).json({ error: userMessage })
   }
 }
 
