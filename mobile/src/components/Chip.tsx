@@ -8,16 +8,21 @@ export type ChipProps = {
   selected: boolean;
   onPress?: () => void;
   disabled?: boolean;
+  // Optional press-and-hold action (onboarding exercise demo).
+  onLongPress?: () => void;
+  accessibilityHint?: string;
 };
 
 // Selectable pill (exercise picks in onboarding). Selected shows a check.
-export function Chip({ label, selected, onPress, disabled = false }: ChipProps) {
+export function Chip({ label, selected, onPress, disabled = false, onLongPress, accessibilityHint }: ChipProps) {
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ selected, disabled }}
       style={({ pressed }) => [styles.base, selected ? styles.selected : styles.idle, pressed && styles.pressed]}
     >

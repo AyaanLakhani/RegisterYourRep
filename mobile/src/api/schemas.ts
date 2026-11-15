@@ -88,6 +88,8 @@ export const ExerciseCatalogEntrySchema = z.object({
   equipment: z.array(EquipmentSchema),
   difficulty: LevelSchema,
   movementPattern: MovementPatternSchema,
+  /** One-line form cue, shown in the onboarding press-and-hold demo. */
+  formCue: z.string().optional(),
   /** Catalog ids that can stand in for this exercise (used by swap). */
   alternatives: z.array(IdSchema),
 });
