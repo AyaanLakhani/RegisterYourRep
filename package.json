@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed:exercises": "node --no-warnings --import ./scripts/register-loader.mjs scripts/seed-exercises.mjs"
+    "seed:exercises": "node --no-warnings --import ./scripts/register-loader.mjs scripts/seed-exercises.mjs",
+    "eval": "node --no-warnings --import ./scripts/register-loader.mjs evals/run.mjs"
   },
   "dependencies": {
     "@privy-io/node": "^0.39.0",

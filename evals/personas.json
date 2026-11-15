@@ -1,0 +1,127 @@
+{
+  "_comment": "Eval personas (RYR-11). Fields match the plan generation input. When 'equipment' is left out, the gym type's preset from lib/catalog/equipment.js is used.",
+  "personas": [
+    {
+      "id": "home-beginner",
+      "description": "Beginner training at home, full body, short sessions",
+      "gymType": "home", "fitnessLevel": "beginner", "trainingHistory": "under_6_months", "goal": "general_fitness",
+      "targetMuscles": ["full_body"], "frequency": 3, "sessionDuration": 30,
+      "familiarExercises": ["push-up"], "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "home-intermediate",
+      "description": "Intermediate at home, upper-body focus",
+      "gymType": "home", "fitnessLevel": "intermediate", "trainingHistory": "6_to_24_months", "goal": "build_muscle",
+      "targetMuscles": ["chest", "back", "shoulders"], "frequency": 4, "sessionDuration": 45,
+      "familiarExercises": ["goblet-squat", "db-bench-press", "db-shoulder-press", "db-rdl", "push-up", "bulgarian-split-squat"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "home-pro",
+      "description": "Advanced lifter at home, lower-body strength",
+      "gymType": "home", "fitnessLevel": "professional", "trainingHistory": "over_2_years", "goal": "get_stronger",
+      "targetMuscles": ["quadriceps", "glutes", "hamstrings"], "frequency": 5, "sessionDuration": 60,
+      "familiarExercises": ["goblet-squat", "db-rdl", "bulgarian-split-squat", "barbell-back-squat", "conventional-deadlift", "barbell-rdl", "front-squat", "barbell-hip-thrust", "pull-up"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "apartment-beginner",
+      "description": "Beginner in an apartment gym, wants to lose fat",
+      "gymType": "apartment", "fitnessLevel": "beginner", "trainingHistory": "under_6_months", "goal": "lose_fat",
+      "targetMuscles": ["glutes", "quadriceps", "core"], "frequency": 3, "sessionDuration": 45,
+      "familiarExercises": [], "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "apartment-intermediate",
+      "description": "Intermediate in an apartment gym, back and arms",
+      "gymType": "apartment", "fitnessLevel": "intermediate", "trainingHistory": "6_to_24_months", "goal": "build_muscle",
+      "targetMuscles": ["back", "biceps"], "frequency": 4, "sessionDuration": 45,
+      "familiarExercises": ["db-bench-press", "db-shoulder-press", "db-rdl", "bulgarian-split-squat", "goblet-squat", "seated-cable-row"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "apartment-pro",
+      "description": "Advanced lifter in an apartment gym, push muscles",
+      "gymType": "apartment", "fitnessLevel": "professional", "trainingHistory": "over_2_years", "goal": "build_muscle",
+      "targetMuscles": ["chest", "triceps", "shoulders"], "frequency": 5, "sessionDuration": 60,
+      "familiarExercises": ["db-bench-press", "db-shoulder-press", "barbell-bench-press", "barbell-ohp", "triceps-dip", "pull-up", "bulgarian-split-squat", "barbell-back-squat"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "community-beginner",
+      "description": "Beginner at a community center, general fitness",
+      "gymType": "community", "fitnessLevel": "beginner", "trainingHistory": "under_6_months", "goal": "general_fitness",
+      "targetMuscles": ["chest", "back", "quadriceps"], "frequency": 3, "sessionDuration": 45,
+      "familiarExercises": ["leg-press", "lat-pulldown"], "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "community-intermediate",
+      "description": "Intermediate at a community center, shoulders and back",
+      "gymType": "community", "fitnessLevel": "intermediate", "trainingHistory": "6_to_24_months", "goal": "build_muscle",
+      "targetMuscles": ["shoulders", "back"], "frequency": 4, "sessionDuration": 60,
+      "familiarExercises": ["leg-press", "lat-pulldown", "seated-cable-row", "db-bench-press", "db-shoulder-press", "db-rdl", "pull-up", "bulgarian-split-squat"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "community-pro",
+      "description": "Advanced lifter at a community center, full-body strength",
+      "gymType": "community", "fitnessLevel": "professional", "trainingHistory": "over_2_years", "goal": "get_stronger",
+      "targetMuscles": ["full_body"], "frequency": 5, "sessionDuration": 90,
+      "familiarExercises": ["barbell-back-squat", "conventional-deadlift", "barbell-bench-press", "barbell-ohp", "barbell-row", "pull-up", "triceps-dip", "bulgarian-split-squat"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "commercial-beginner",
+      "description": "Beginner in a commercial gym: should still get the common machines, not everything there",
+      "gymType": "commercial", "fitnessLevel": "beginner", "trainingHistory": "under_6_months", "goal": "build_muscle",
+      "targetMuscles": ["chest", "back", "shoulders", "biceps", "triceps"], "frequency": 3, "sessionDuration": 60,
+      "familiarExercises": [], "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "commercial-intermediate",
+      "description": "Intermediate in a commercial gym, legs",
+      "gymType": "commercial", "fitnessLevel": "intermediate", "trainingHistory": "6_to_24_months", "goal": "get_stronger",
+      "targetMuscles": ["quadriceps", "hamstrings", "glutes", "calves"], "frequency": 4, "sessionDuration": 60,
+      "familiarExercises": ["leg-press", "barbell-back-squat", "barbell-rdl", "barbell-hip-thrust", "bulgarian-split-squat", "lat-pulldown", "db-bench-press"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "commercial-pro",
+      "description": "Advanced lifter in a commercial gym, chest and back hypertrophy",
+      "gymType": "commercial", "fitnessLevel": "professional", "trainingHistory": "over_2_years", "goal": "build_muscle",
+      "targetMuscles": ["chest", "back"], "frequency": 6, "sessionDuration": 90,
+      "familiarExercises": ["goblet-squat", "leg-press", "lat-pulldown", "seated-cable-row", "db-bench-press", "db-shoulder-press", "db-rdl", "push-up", "barbell-back-squat", "conventional-deadlift", "barbell-bench-press", "barbell-ohp", "barbell-row", "barbell-rdl", "pull-up", "barbell-hip-thrust", "bulgarian-split-squat", "triceps-dip", "front-squat", "power-clean"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "edge-pro-home-dumbbells-only",
+      "description": "Pro at home with only dumbbells: the coach must work within the limits",
+      "gymType": "home", "equipment": ["dumbbells"], "fitnessLevel": "professional", "trainingHistory": "over_2_years", "goal": "build_muscle",
+      "targetMuscles": ["full_body"], "frequency": 4, "sessionDuration": 45,
+      "familiarExercises": ["barbell-back-squat", "conventional-deadlift", "barbell-bench-press", "barbell-ohp", "barbell-row", "pull-up", "bulgarian-split-squat"],
+      "injuries": [], "injuryNotes": "", "preferences": ""
+    },
+    {
+      "id": "edge-intermediate-apartment-light-dumbbells",
+      "description": "Intermediate in an apartment gym with light dumbbells and a bench only",
+      "gymType": "apartment", "equipment": ["dumbbells", "adjustable_bench"], "fitnessLevel": "intermediate", "trainingHistory": "6_to_24_months", "goal": "build_muscle",
+      "targetMuscles": ["chest", "shoulders", "quadriceps"], "frequency": 3, "sessionDuration": 45,
+      "familiarExercises": ["db-bench-press", "db-shoulder-press", "goblet-squat", "bulgarian-split-squat", "db-rdl"],
+      "injuries": [], "injuryNotes": "", "preferences": "My dumbbells only go up to 12 kg."
+    },
+    {
+      "id": "edge-beginner-home-bad-knee",
+      "description": "Beginner at home, dumbbells only, bad knee",
+      "gymType": "home", "equipment": ["dumbbells"], "fitnessLevel": "beginner", "trainingHistory": "under_6_months", "goal": "general_fitness",
+      "targetMuscles": ["quadriceps", "glutes", "core"], "frequency": 3, "sessionDuration": 30,
+      "familiarExercises": [], "injuries": ["knee"], "injuryNotes": "Knee hurts on deep bends and jumping.", "preferences": ""
+    },
+    {
+      "id": "edge-beginner-commercial-lower-back",
+      "description": "Beginner in a commercial gym with a sensitive lower back",
+      "gymType": "commercial", "fitnessLevel": "beginner", "trainingHistory": "under_6_months", "goal": "general_fitness",
+      "targetMuscles": ["back", "hamstrings"], "frequency": 2, "sessionDuration": 45,
+      "familiarExercises": ["lat-pulldown"], "injuries": ["lower_back"], "injuryNotes": "", "preferences": ""
+    }
+  ]
+}
