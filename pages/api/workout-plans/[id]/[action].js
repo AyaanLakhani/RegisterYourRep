@@ -2,16 +2,18 @@
 // Handles:
 //   POST /api/workout-plans/:id/generate
 //   POST /api/workout-plans/:id/workcards
+import { Types } from 'mongoose'
+import { waitUntil } from '@vercel/functions'
 import { withAuth } from '@/lib/apiHandler'
 import { WorkoutPlan, Workcard } from '@/lib/models'
-import { generatePlanWithGemini, normalizeDayExercises } from '@/lib/apiHelpers'
+import { normalizeDayExercises } from '@/lib/apiHelpers'
 import { reserveGeneration, GENERATION_LIMIT } from '@/lib/rateLimit'
+import { runGeneration, STALE_GENERATION_MS } from '@/lib/planGeneration'
 
-const GENERATION_FAILED = 'Failed to generate workout plan'
-
-// A plan left in 'generating' longer than this (e.g. the function timed out
-// mid-run) is treated as stale, so it can be retried.
-const STALE_GENERATION_MS = 5 * 60 * 1000
+// Generation keeps running after the response (RYR-8), up to this many
+// seconds. Must match GENERATION_MAX_DURATION_S in lib/planGeneration.js;
+// Vercel only reads a literal here.
+export const config = { maxDuration: 60 }
 
 async function generate(req, res, privyUserId) {
   const { id } = req.query
@@ -28,6 +30,9 @@ async function generate(req, res, privyUserId) {
 
   // 2. Atomically claim the plan, so two concurrent requests can't both start
   //    a Gemini call. Only one update can flip the status to 'generating'.
+  //    A run left 'generating' past STALE_GENERATION_MS is dead and can be
+  //    replaced; its generationId no longer matches, so it can't save.
+  const generationId = new Types.ObjectId().toString()
   let plan
   try {
     plan = await WorkoutPlan.findOneAndUpdate(
@@ -39,7 +44,7 @@ async function generate(req, res, privyUserId) {
           { updatedAt: { $lt: new Date(Date.now() - STALE_GENERATION_MS) } },
         ],
       },
-      { status: 'generating', lastError: '' },
+      { status: 'generating', lastError: '', generationId },
       { new: true }
     )
   } catch (err) {
@@ -54,32 +59,10 @@ async function generate(req, res, privyUserId) {
     return res.status(409).json({ error: 'This plan is already being generated. Please wait for it to finish.' })
   }
 
-  // 3. Generate. A failed attempt still counts toward the limit.
-  try {
-    const generated = await generatePlanWithGemini({
-      fitnessLevel: plan.fitnessLevel,
-      targetMuscles: plan.targetMuscles,
-      frequency: plan.frequency,
-      sessionDuration: plan.sessionDuration,
-      preferences: plan.preferences,
-    })
-
-    plan.generatedPlan = generated
-    plan.status = 'ready'
-    plan.lastError = ''
-    await plan.save()
-
-    res.json({ success: true, plan })
-  } catch (err) {
-    // Log only status + message. The raw axios error carries the request
-    // config (URL and headers), which would put the Gemini API key in logs.
-    console.error('Plan generation failed:', err.response?.status ?? '-', err.message)
-    // lastError is shown in the dashboard, so it gets the generic message too.
-    try {
-      await WorkoutPlan.findOneAndUpdate({ _id: id, privyUserId }, { status: 'failed', lastError: GENERATION_FAILED })
-    } catch (_) {}
-    res.status(500).json({ error: GENERATION_FAILED })
-  }
+  // 3. Generate after the response. A failed attempt still counts toward the
+  //    limit. runGeneration never throws; it writes the outcome to the plan.
+  waitUntil(runGeneration(plan, generationId))
+  res.status(202).json({ success: true, plan })
 }
 
 async function createWorkcards(req, res, privyUserId) {

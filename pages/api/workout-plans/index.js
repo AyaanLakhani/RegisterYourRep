@@ -2,9 +2,11 @@
 import { withAuth } from '@/lib/apiHandler'
 import { WorkoutPlan } from '@/lib/models'
 import { createPlanBody } from '@/lib/validation'
+import { failStaleGenerations } from '@/lib/planGeneration'
 
 export default withAuth({
   GET: async (req, res, { privyUserId }) => {
+    await failStaleGenerations(privyUserId) // RYR-8: free up plans stuck in 'generating'
     const plans = await WorkoutPlan.find({ privyUserId }).sort({ updatedAt: -1 })
     res.json(plans)
   },

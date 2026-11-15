@@ -1,9 +1,13 @@
 // pages/api/workout-plans/[id].js
 import { withAuth } from '@/lib/apiHandler'
 import { WorkoutPlan, Workcard, Workout } from '@/lib/models'
+import { failStaleGenerations } from '@/lib/planGeneration'
 
 export default withAuth({
   GET: async (req, res, { privyUserId }) => {
+    // RYR-8: the dashboard polls this while a plan generates; a run that
+    // died is reported as failed instead of 'generating' forever.
+    await failStaleGenerations(privyUserId, req.query.id)
     const plan = await WorkoutPlan.findOne({ _id: req.query.id, privyUserId })
     if (!plan) return res.status(404).json({ error: 'Workout plan not found' })
     res.json(plan)
