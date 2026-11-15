@@ -10,6 +10,7 @@
   "dependencies": {
     "@privy-io/node": "^0.39.0",
     "@privy-io/react-auth": "^3.14.1",
+    "@vercel/functions": "3.10.3",
     "axios": "^1.13.5",
     "iron-session": "^8.0.1",
     "jose": "^6.2.17",

@@ -27,6 +27,8 @@ const MUSCLE_LABELS = {
 
 const MUSCLES = Object.entries(MUSCLE_LABELS).map(([id, label]) => ({ id, label }))
 const DURATIONS = [15, 30, 45, 60, 90]
+// How often a generating plan is re-read (RYR-8).
+const PLAN_POLL_INTERVAL_MS = 3000
 
 const QUOTES = [
   { text: "The only bad workout is the one that didn't happen.", author: 'Unknown' },
@@ -427,6 +429,47 @@ export default function Dashboard() {
       .finally(() => setLoading(false))
   }, [])
 
+  // While any plan is generating, re-read it every few seconds, and right away
+  // when the tab or app comes back to the foreground (RYR-8). The server marks
+  // a run that died as failed, so this always ends.
+  const generatingPlanIds = plans.filter(p => p.status === 'generating').map(p => p._id).join(',')
+  useEffect(() => {
+    if (!generatingPlanIds) return undefined
+    const ids = generatingPlanIds.split(',')
+    let cancelled = false
+    let inFlight = false
+
+    async function poll() {
+      if (inFlight || document.visibilityState === 'hidden') return
+      inFlight = true
+      try {
+        const results = await Promise.all(ids.map(id =>
+          requestJson(`/api/workout-plans/${id}`).catch(() => null)
+        ))
+        if (cancelled) return
+        const finished = results.filter(plan => plan && plan.status !== 'generating')
+        if (!finished.length) return
+        const byId = new Map(finished.map(plan => [plan._id, plan]))
+        setPlans(prev => prev.map(p => byId.get(p._id) || p))
+        for (const plan of finished) {
+          if (plan.status === 'ready') showToast('Workout generated!')
+          else showToast(plan.lastError || 'Failed to generate workout plan.', 'error')
+        }
+      } finally {
+        inFlight = false
+      }
+    }
+
+    const timer = setInterval(poll, PLAN_POLL_INTERVAL_MS)
+    const onVisible = () => { if (document.visibilityState === 'visible') poll() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [generatingPlanIds]) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready || !authenticated) return <div className="loading">Loading...</div>
 
   async function handleLogout() {
@@ -494,6 +537,8 @@ export default function Dashboard() {
     setPlans(prev => prev.map(p => (p._id === planId ? { ...p, status: 'generating', lastError: '' } : p)))
 
     try {
+      // The server answers 202 straight away and generates in the background
+      // (RYR-8). The polling effect above picks up the result.
       const data = await requestJson(`/api/workout-plans/${planId}/generate`, {
         method: 'POST',
       })
@@ -501,7 +546,6 @@ export default function Dashboard() {
         throw new Error(data?.error || 'Failed to generate workout plan')
       }
       setPlans(prev => prev.map(p => (p._id === planId ? data.plan : p)))
-      showToast('Workout generated!')
     } catch (err) {
       showToast(err.message || 'Failed to generate workout plan.', 'error')
       if (err.status === 429 && previousPlan) {
