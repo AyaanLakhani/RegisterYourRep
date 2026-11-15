@@ -8,9 +8,11 @@ export type MuscleBarProps = {
   max: number; // target (bar is full at max)
   // attention = under-trained (amber). Never red.
   tone?: 'accent' | 'attention';
+  // Width of the label column. Default 64; wider for long names ("Hamstrings").
+  labelWidth?: number;
 };
 
-export function MuscleBar({ label, value, max, tone = 'accent' }: MuscleBarProps) {
+export function MuscleBar({ label, value, max, tone = 'accent', labelWidth }: MuscleBarProps) {
   const pct = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
   return (
     <View
@@ -20,7 +22,7 @@ export function MuscleBar({ label, value, max, tone = 'accent' }: MuscleBarProps
       accessibilityLabel={`${label}: ${value} of ${max}`}
       accessibilityValue={{ min: 0, max, now: Math.min(value, max) }}
     >
-      <Text style={styles.label} numberOfLines={1}>
+      <Text style={[styles.label, labelWidth !== undefined && { width: labelWidth }]} numberOfLines={1}>
         {label}
       </Text>
       <View style={styles.track}>

@@ -433,6 +433,15 @@ export const MuscleBalanceEntrySchema = z.object({
 });
 export type MuscleBalanceEntry = z.infer<typeof MuscleBalanceEntrySchema>;
 
+/** Per-muscle breakdown behind `muscleBalance` (Progress "See every muscle"). */
+export const MuscleDetailEntrySchema = z.object({
+  muscle: MuscleSchema,
+  group: MuscleGroupSchema,
+  actual: z.number().int().min(0),
+  target: z.number().int().min(0),
+});
+export type MuscleDetailEntry = z.infer<typeof MuscleDetailEntrySchema>;
+
 export const MostSkippedEntrySchema = z.object({
   exerciseId: IdSchema,
   name: z.string(),
@@ -448,6 +457,8 @@ export const ProgressStatsSchema = z.object({
   sessionsPlanned: z.number().int().min(0),
   streakWeeks: z.number().int().min(0),
   muscleBalance: z.array(MuscleBalanceEntrySchema),
+  /** Optional per-muscle breakdown, same period and unit as `muscleBalance`. */
+  muscleDetail: z.array(MuscleDetailEntrySchema).optional(),
   mostSkipped: z.array(MostSkippedEntrySchema),
   /** True when the server thinks the user is ready for a harder program. */
   levelUpReady: z.boolean(),
