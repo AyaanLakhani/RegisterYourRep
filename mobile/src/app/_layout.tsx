@@ -49,6 +49,8 @@ export default function RootLayout() {
         <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="workout-complete" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
         <Stack.Screen name="coach" />
+        {/* Dev-only component gallery; the screen redirects home outside __DEV__ */}
+        <Stack.Screen name="dev/components" />
       </Stack>
     </SafeAreaProvider>
   );
