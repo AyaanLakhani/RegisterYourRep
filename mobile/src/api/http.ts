@@ -8,6 +8,7 @@ import { ApiError, apiFetch } from './client';
 import type { DataSource } from './dataSource';
 import {
   CoachChangeResultSchema,
+  CoachHistorySchema,
   CoachReplySchema,
   ExerciseCatalogEntrySchema,
   GenerationJobSchema,
@@ -53,6 +54,7 @@ export const httpDataSource: DataSource = {
   getGenerationJob: (jobId) => call(GenerationJobSchema, `/generation-jobs/${enc(jobId)}`),
   getProposal: (proposalId) => call(ProgramProposalSchema, `/proposals/${enc(proposalId)}`),
   acceptProposal: (proposalId, body) => call(ProgramSchema, `/proposals/${enc(proposalId)}/accept`, 'POST', body),
+  getPendingProposal: () => call(ProgramProposalSchema.nullable(), '/proposals/pending'),
 
   getProgram: () => call(ProgramWithVersionsSchema, '/program'),
   getProgramVersion: (version) => call(ProgramSchema, `/program/versions/${version}`),
@@ -71,6 +73,7 @@ export const httpDataSource: DataSource = {
 
   getAlternatives: (exerciseId) => call(CatalogListSchema, `/catalog/${enc(exerciseId)}/alternatives`),
 
+  getCoachMessages: () => call(CoachHistorySchema, '/coach/messages'),
   sendCoachMessage: (body) => call(CoachReplySchema, '/coach/messages', 'POST', body),
   applyChange: (changeId) => call(CoachChangeResultSchema, `/coach/changes/${enc(changeId)}/apply`, 'POST', {}),
   declineChange: (changeId) => call(CoachChangeResultSchema, `/coach/changes/${enc(changeId)}/decline`, 'POST', {}),

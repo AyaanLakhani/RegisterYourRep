@@ -516,16 +516,31 @@ export type ChangeLine = z.infer<typeof ChangeLineSchema>;
 export const ChangeStatusSchema = z.enum(['pending', 'applied', 'declined']);
 export type ChangeStatus = z.infer<typeof ChangeStatusSchema>;
 
+/**
+ * What a coach change applies to:
+ *   program  the active plan: a card the user applies, declines or undoes.
+ *   draft    an unconfirmed plan (proposal option) opened from the plan page's Tweak:
+ *            the change is made right away ("applied"); Undo puts the draft back,
+ *            which makes it "pending" again (apply = redo).
+ */
+export const ChangeTargetSchema = z.enum(['program', 'draft']);
+export type ChangeTarget = z.infer<typeof ChangeTargetSchema>;
+
 export const CoachChangeProposalSchema = z.object({
   id: IdSchema,
+  /** Omitted by older servers: treat as "program". */
+  target: ChangeTargetSchema.optional(),
   status: ChangeStatusSchema,
   createdAt: IsoDateTimeSchema,
   title: z.string(),
   lines: z.array(ChangeLineSchema).min(1),
-  /** Program version this change was proposed against. */
-  baseProgramVersion: z.number().int().min(1),
-  /** Program version created when the change was applied. */
+  /** Program changes: the program version this change was proposed against. */
+  baseProgramVersion: z.number().int().min(1).optional(),
+  /** Program changes: the version created when the change was applied. */
   resultingProgramVersion: z.number().int().min(1).optional(),
+  /** Draft changes: the proposal and option that were tweaked. */
+  proposalId: IdSchema.optional(),
+  option: ProposalOptionKindSchema.optional(),
 });
 export type CoachChangeProposal = z.infer<typeof CoachChangeProposalSchema>;
 
@@ -541,6 +556,9 @@ export type CoachMessage = z.infer<typeof CoachMessageSchema>;
 
 export const SendCoachMessageRequestSchema = z.object({
   text: z.string().trim().min(1).max(2000),
+  /** Set both to tweak that draft plan instead of the active program. */
+  proposalId: IdSchema.optional(),
+  option: ProposalOptionKindSchema.optional(),
 });
 export type SendCoachMessageRequest = z.infer<typeof SendCoachMessageRequestSchema>;
 
@@ -550,10 +568,15 @@ export const CoachReplySchema = z.object({
 });
 export type CoachReply = z.infer<typeof CoachReplySchema>;
 
+/** GET /coach/messages: the chat so far, oldest first. */
+export const CoachHistorySchema = z.array(CoachMessageSchema);
+
 export const CoachChangeResultSchema = z.object({
   change: CoachChangeProposalSchema,
-  /** The program after apply / decline / undo. */
-  program: ProgramSchema,
+  /** Program changes: the program after apply / decline / undo. */
+  program: ProgramSchema.optional(),
+  /** Draft changes: the proposal with the tweaked option after apply (redo) / undo. */
+  proposal: ProgramProposalSchema.optional(),
 });
 export type CoachChangeResult = z.infer<typeof CoachChangeResultSchema>;
 

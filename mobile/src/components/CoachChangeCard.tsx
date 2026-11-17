@@ -14,10 +14,18 @@ export type CoachChangeCardProps = {
   status: ChangeStatus;
   footnote?: string;
   title?: string;
+  /**
+   * program: a proposed change to the active plan (Apply / Decline, then Undo).
+   * draft:   a tweak already made to an unconfirmed plan (See updated plan + Undo;
+   *          once undone, Redo). Status "applied" = made, "pending" = undone.
+   */
+  mode?: 'program' | 'draft';
   onApply?: () => void;
   onDecline?: () => void;
   // Shown once applied or declined.
   onUndo?: () => void;
+  // Draft mode: open the plan page on the tweaked plan.
+  onSeePlan?: () => void;
 };
 
 const SYMBOL: Record<ChangeLineKind, { char: string; color: string; spoken: string }> = {
@@ -32,21 +40,32 @@ const STATUS: Record<ChangeStatus, { label: string; tone: BadgeTone }> = {
   declined: { label: 'Declined', tone: 'neutral' },
 };
 
+// Draft tweaks are made straight away, so their states read differently.
+const DRAFT_STATUS: Record<ChangeStatus, { label: string; tone: BadgeTone }> = {
+  pending: { label: 'Undone', tone: 'neutral' },
+  applied: { label: 'Made', tone: 'done' },
+  declined: { label: 'Undone', tone: 'neutral' },
+};
+
 export function CoachChangeCard({
   lines,
   status,
   footnote,
-  title = 'Proposed change',
+  title,
+  mode = 'program',
   onApply,
   onDecline,
   onUndo,
+  onSeePlan,
 }: CoachChangeCardProps) {
-  const s = STATUS[status];
+  const draft = mode === 'draft';
+  const s = (draft ? DRAFT_STATUS : STATUS)[status];
+  const heading = title ?? (draft ? 'Change made to your plan' : 'Proposed change');
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title} accessibilityRole="header">
-          {title}
+          {heading}
         </Text>
         <Badge label={s.label} tone={s.tone} />
       </View>
@@ -62,7 +81,18 @@ export function CoachChangeCard({
         })}
       </View>
       {footnote ? <Text style={styles.footnote}>{footnote}</Text> : null}
-      {status === 'pending' ? (
+      {draft ? (
+        <View style={styles.buttons}>
+          {status === 'applied' ? (
+            <>
+              <Button label="Undo" size="compact" variant="secondary" onPress={onUndo} style={styles.flex} accessibilityLabel="Undo this change" />
+              <Button label="See updated plan" size="compact" onPress={onSeePlan} style={styles.flex} />
+            </>
+          ) : (
+            <Button label="Redo" size="compact" variant="secondary" onPress={onApply} style={styles.flex} accessibilityLabel="Make this change again" />
+          )}
+        </View>
+      ) : status === 'pending' ? (
         <View style={styles.buttons}>
           <Button label="Decline" size="compact" variant="secondary" onPress={onDecline} style={styles.flex} />
           <Button label="Apply change" size="compact" onPress={onApply} style={styles.flex} />

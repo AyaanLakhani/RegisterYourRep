@@ -87,6 +87,8 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
   let jobs: { job: GenerationJob; startedAt: number }[] = [];
   let proposals: ProgramProposal[] = [];
   let changes: CoachChangeProposal[] = [];
+  let chat: CoachMessage[] = [];
+  const acceptedProposals = new Set<string>();
   let idCounter = 0;
   let missedLastWeek = 0;
 
@@ -245,7 +247,7 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
 
   // --- DataSource ----------------------------------------------------------
 
-  return {
+  const source: DataSource & MockControls = {
     startAsNewUser() {
       state.profile = null;
     },
@@ -255,6 +257,8 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
       jobs = [];
       proposals = [];
       changes = [];
+      chat = [];
+      acceptedProposals.clear();
       idCounter = 0;
       missedLastWeek = 0;
     },
@@ -351,11 +355,15 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
       respond(() => {
         const p = proposals.find((x) => x.id === proposalId);
         if (!p) throw notFound('Proposal');
+        acceptedProposals.add(p.id);
         const option = choice === 'recommended' ? p.recommended : p.asAsked;
         const program = addProgramVersion(option.days, `Accepted the ${choice === 'recommended' ? 'recommended' : 'as-asked'} plan`, option.name);
         refreshUpcomingSessions();
         return program;
       }),
+
+    getPendingProposal: () =>
+      respond(() => [...proposals].reverse().find((p) => !acceptedProposals.has(p.id)) ?? null),
 
     getProgram: () =>
       respond(() => ({
@@ -505,6 +513,8 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
         return entry.alternatives.map((id) => catalog.find((e) => e.id === id)).filter((e): e is ExerciseCatalogEntry => !!e);
       }),
 
+    getCoachMessages: () => respond(() => chat),
+
     sendCoachMessage: ({ text }) =>
       respond(() => {
         const message: CoachMessage = { id: nextId('msg'), role: 'user', text, createdAt: nowIso() };
@@ -595,6 +605,15 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
         return { change, program };
       }),
   };
+
+  // Keep the chat, so Ask Coach can reload it (getCoachMessages).
+  const reply = source.sendCoachMessage;
+  source.sendCoachMessage = async (body) => {
+    const result = await reply(body);
+    chat.push(clone(result.message), clone(result.reply));
+    return result;
+  };
+  return source;
 }
 
 /** Shared instance the app uses. */

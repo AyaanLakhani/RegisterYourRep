@@ -1,10 +1,18 @@
 // Program proposal (RYR-22): the plan the coach built, Recommended vs As you asked.
-import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+//
+// The plan is saved as a draft as soon as it's built. Tweak opens Ask Coach on
+// the shown option; the coach changes the draft right away, and "See updated
+// plan" (or Back) returns here, which reloads it. "Start this plan" makes the
+// (tweaked) option the active program.
+//
+// Search params: proposalId, and optional option ("recommended" | "as_asked")
+// to open on the option that was just tweaked.
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { api, ApiError, useQuery, usingMocks, type ProposalOption, type ProposalOptionKind } from '../api';
+import { api, useQuery, usingMocks, type ProposalOption, type ProposalOptionKind } from '../api';
 import { Button, Card, CoachAvatar, SegmentedControl } from '../components';
 import { formatMuscles, WEEKDAY_LETTER, WEEKDAY_ORDER, WEEKDAY_SHORT } from '../lib/format';
 import { colors, fonts, radius, screenGutter, type } from '../theme';
@@ -15,15 +23,24 @@ const OPTIONS = [
 ] as const;
 
 export default function ProposalScreen() {
-  const params = useLocalSearchParams<{ proposalId?: string }>();
+  const params = useLocalSearchParams<{ proposalId?: string; option?: string }>();
   const proposalId = typeof params.proposalId === 'string' && params.proposalId ? params.proposalId : undefined;
 
   const { data: proposal, error, loading, refetch } = useQuery(
     () => (proposalId ? api.getProposal(proposalId) : Promise.resolve(undefined)),
     [proposalId],
   );
-  const [choice, setChoice] = useState<ProposalOptionKind>('recommended');
+  const [choice, setChoice] = useState<ProposalOptionKind>(params.option === 'as_asked' ? 'as_asked' : 'recommended');
   const [accepting, setAccepting] = useState(false);
+
+  // Coming back from Ask Coach: show the draft as the coach left it.
+  const focusedOnce = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (focusedOnce.current) refetch();
+      focusedOnce.current = true;
+    }, [refetch]),
+  );
 
   const option = proposal ? (choice === 'recommended' ? proposal.recommended : proposal.asAsked) : undefined;
 
@@ -39,24 +56,11 @@ export default function ProposalScreen() {
     }
   };
 
-  // The coach can only change an accepted program (each change is a new,
-  // undoable version), so Tweak starts the shown option first and then opens
-  // the coach with the request ready to send.
-  const tweak = async () => {
-    if (!proposal || !option || accepting) return;
-    setAccepting(true);
-    try {
-      await api.acceptProposal(proposal.id, { choice });
-    } catch (err) {
-      // Already accepted (e.g. coming back to this screen) is fine: tweak that plan.
-      if (!(err instanceof ApiError && err.status === 409)) {
-        setAccepting(false);
-        Alert.alert("Couldn't start this plan", err instanceof Error ? err.message : 'Please try again.');
-        return;
-      }
-    }
-    router.replace('/');
-    router.push({ pathname: '/coach', params: { prefill: `I'd like to tweak my new ${option.name} plan.` } });
+  // Tweak the shown option in Ask Coach. Nothing is started: the coach changes
+  // this draft, and the user starts it from here when they're happy.
+  const tweak = () => {
+    if (!proposal || accepting) return;
+    router.push({ pathname: '/coach', params: { proposalId: proposal.id, option: choice } });
   };
 
   let body;

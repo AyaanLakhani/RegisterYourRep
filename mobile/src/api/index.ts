@@ -24,6 +24,7 @@ const REAL_METHODS = new Set<keyof DataSource>([
   'getGenerationJob',
   'getProposal',
   'acceptProposal',
+  'getPendingProposal',
   'getProgram',
   'getProgramVersion',
   'saveDayMoves',
@@ -39,6 +40,7 @@ const REAL_METHODS = new Set<keyof DataSource>([
   'getProgress',
   'getAlternatives',
   // RYR-40: Ask Coach
+  'getCoachMessages',
   'sendCoachMessage',
   'applyChange',
   'declineChange',

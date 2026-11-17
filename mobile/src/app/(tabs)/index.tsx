@@ -43,6 +43,10 @@ const REST_TIP = 'Rest is part of the plan: muscles rebuild on days off. A walk 
 export default function HomeScreen() {
   const today = useQuery(() => api.getToday(), []);
   const profile = useQuery(() => api.getProfile(), []);
+  // Onboarded but no program yet (the server answers 404): is a built plan
+  // waiting to be started? Then go back to it rather than building a new one.
+  const noProgram = Boolean(profile.data) && today.error instanceof ApiError && today.error.status === 404;
+  const pending = useQuery(() => (noProgram ? api.getPendingProposal() : Promise.resolve(undefined)), [noProgram]);
 
   const todayDate = today.data?.date;
   const currentWeek = today.data?.week;
@@ -170,10 +174,11 @@ export default function HomeScreen() {
   // No profile yet means this account hasn't done onboarding: send it there.
   // (undefined = still loading, null = no profile.)
   if (profile.data === null) return <Redirect href="/onboarding" />;
-  // Onboarded but no program yet (the server answers 404): build the plan.
-  // The generating screen starts a job itself when it has no jobId.
-  if (profile.data && today.error instanceof ApiError && today.error.status === 404) {
-    return <Redirect href="/generating" />;
+  if (noProgram) {
+    if (pending.data) return <Redirect href={{ pathname: '/proposal', params: { proposalId: pending.data.id } }} />;
+    // No draft waiting: build the plan (the generating screen starts a job itself).
+    if (pending.data === null || pending.error) return <Redirect href="/generating" />;
+    return null; // still checking
   }
 
   return (
