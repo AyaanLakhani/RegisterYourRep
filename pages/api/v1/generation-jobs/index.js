@@ -9,9 +9,11 @@ import { GenerationJob } from '@/lib/v1/models'
 import { requireProfile } from '@/lib/v1/profiles'
 import { runProposalJob, STALE_JOB_MS, toJob } from '@/lib/v1/generation'
 
-// Generation keeps running after the response, up to this many seconds
-// (as the RYR-8 generate route). Vercel only reads a literal here.
-export const config = { maxDuration: 60 }
+// Generation keeps running after the response (waitUntil) for up to this many
+// seconds; it must stay above PROPOSAL_BUDGET_MS (150s). Vercel only reads a
+// literal here. Up to 300 needs Fluid compute (the default for Vercel
+// projects); without it, Hobby caps functions at 60s.
+export const config = { maxDuration: 180 }
 
 const STALE_MESSAGE = "Building the plan didn't finish. Please try again."
 
