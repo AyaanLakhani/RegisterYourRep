@@ -40,6 +40,7 @@ import {
   type ProfileInput,
   type TrainingHistory,
   type Weekday,
+  ApiError,
 } from '../api';
 import { rememberOnboardingFinished } from '../auth/onboardingMemory';
 import { Button, ChatBubble, Chip, CoachAvatar, Icon, IconButton, StepProgress } from '../components';
@@ -307,13 +308,25 @@ export default function OnboardingScreen() {
   const submit = async () => {
     setSaving(true);
     setSaveError(undefined);
+    let saved = false;
     try {
       await api.saveProfile(toProfileInput(answers, familiarity.data));
+      saved = true;
       await rememberOnboardingFinished();
       const job = await api.startGeneration();
       router.replace({ pathname: '/generating', params: { jobId: job.id } });
-    } catch {
-      setSaveError("I couldn't save your answers. Check your connection and try again.");
+    } catch (err) {
+      // Say what actually went wrong: the answers may be saved while starting
+      // the plan failed (e.g. the hourly plan-build limit, 429).
+      const offline = err instanceof ApiError && err.status === 0;
+      const serverMessage = err instanceof ApiError && !offline ? err.message : undefined;
+      setSaveError(
+        offline
+          ? "I couldn't reach the server. Check your connection and try again."
+          : saved
+            ? `Your answers are saved, but I couldn't start building your plan. ${serverMessage ?? 'Please try again.'}`
+            : (serverMessage ?? "I couldn't save your answers. Please try again."),
+      );
       setSaving(false);
     }
   };
