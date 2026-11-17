@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { api, useQuery, usingMocks, type DayDate, type Session, type Week } from '../../api';
+import { api, ApiError, useQuery, usingMocks, type DayDate, type Session, type Week } from '../../api';
 import { mockDataSource } from '../../api/mock';
 import { Badge, Button, Card, Icon, IconButton, MissedWeekPrompt } from '../../components';
 import { MonthGoalCard } from '../../features/home/MonthGoalCard';
@@ -170,6 +170,11 @@ export default function HomeScreen() {
   // No profile yet means this account hasn't done onboarding: send it there.
   // (undefined = still loading, null = no profile.)
   if (profile.data === null) return <Redirect href="/onboarding" />;
+  // Onboarded but no program yet (the server answers 404): build the plan.
+  // The generating screen starts a job itself when it has no jobId.
+  if (profile.data && today.error instanceof ApiError && today.error.status === 404) {
+    return <Redirect href="/generating" />;
+  }
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
