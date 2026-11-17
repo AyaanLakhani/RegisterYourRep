@@ -1,10 +1,17 @@
-// Ask Coach (RYR-29): chat with the coach, who can propose a program change that
-// the user applies, declines or undoes. Design: board "10 · Ask Coach" (project/Coach.dc.html).
+// Ask Coach (RYR-29): chat with the coach. Design: board "10 · Ask Coach" (project/Coach.dc.html).
 //
-// Optional search param `prefill`: text to put in the message box, e.g.
-//   router.push({ pathname: '/coach', params: { prefill: 'Swap cable fly' } })
+// Two modes:
+//   - Active plan (default): the coach proposes a change card the user applies,
+//     declines or undoes.
+//   - Draft (opened from the plan page's Tweak with `proposalId` + `option`): the
+//     coach changes the unconfirmed plan right away; its card offers
+//     "See updated plan" and Undo (then Redo).
+// The chat is kept on the server and reloads when the screen opens.
 //
-// The conversation lives in screen state for now; persisting chat history is out of scope.
+// Search params:
+//   prefill     text to put in the message box
+//   proposalId  the draft plan to tweak, with
+//   option      which of its options ("recommended" | "as_asked")
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -22,7 +29,14 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { api, useQuery, type CoachChangeProposal, type CoachChangeResult, type CoachMessage } from '../api';
+import {
+  api,
+  useQuery,
+  type CoachChangeProposal,
+  type CoachChangeResult,
+  type CoachMessage,
+  type ProposalOptionKind,
+} from '../api';
 import { ChatBubble, CoachAvatar, CoachChangeCard, IconButton } from '../components';
 import { colors, fonts, radius, screenGutter } from '../theme';
 
@@ -56,10 +70,20 @@ const errorText = (err: unknown, fallback: string) => (err instanceof Error && e
 type ChangeAction = 'apply' | 'decline' | 'undo';
 
 export default function CoachScreen() {
-  const params = useLocalSearchParams<{ prefill?: string | string[] }>();
-  const prefill = Array.isArray(params.prefill) ? params.prefill[0] : params.prefill;
+  const params = useLocalSearchParams<{
+    prefill?: string | string[];
+    proposalId?: string | string[];
+    option?: string | string[];
+  }>();
+  const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
+  const prefill = first(params.prefill);
+  const draftProposalId = first(params.proposalId);
+  const draftOption: ProposalOptionKind = first(params.option) === 'as_asked' ? 'as_asked' : 'recommended';
+  const isDraft = Boolean(draftProposalId);
 
-  const program = useQuery(() => api.getProgram(), []);
+  // A draft has no program yet; the active-plan mode shows which version changes apply to.
+  const program = useQuery(() => (isDraft ? Promise.resolve(undefined) : api.getProgram()), [isDraft]);
+  const history = useQuery(() => api.getCoachMessages(), []);
   // The date new versions start from ("Creates plan v3 from Thu, Nov 12").
   const today = useQuery(() => api.getToday(), []);
   const reduceMotion = useReduceMotion();
@@ -84,6 +108,13 @@ export default function CoachScreen() {
   useEffect(() => {
     if (program.data) setPlanVersion((v) => v ?? program.data!.current.version);
   }, [program.data]);
+
+  // Earlier messages come first; anything sent before the history arrived stays.
+  useEffect(() => {
+    const past = history.data;
+    if (!past) return;
+    setMessages((m) => [...past, ...m.filter((x) => !past.some((h) => h.id === x.id))]);
+  }, [history.data]);
 
   useEffect(() => {
     const show = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setKeyboardShown(true));
@@ -114,7 +145,9 @@ export default function CoachScreen() {
     setSendError(null);
     setTyping(true);
     try {
-      const { message, reply } = await api.sendCoachMessage({ text: trimmed });
+      const { message, reply } = await api.sendCoachMessage(
+        isDraft ? { text: trimmed, proposalId: draftProposalId, option: draftOption } : { text: trimmed },
+      );
       setMessages((m) => [...m.filter((x) => x.id !== optimistic.id), message, reply]);
       AccessibilityInfo.announceForAccessibility(`Coach: ${reply.text}`);
     } catch (err) {
@@ -138,11 +171,17 @@ export default function CoachScreen() {
         undo: api.undoChange,
       };
       const result = await call[action](change.id);
+      if (change.target === 'draft') {
+        // Undoing a draft tweak also undoes the ones made after it: reload them all.
+        setMessages(await api.getCoachMessages());
+        AccessibilityInfo.announceForAccessibility(action === 'undo' ? 'Change undone.' : 'Change made again.');
+        return;
+      }
       setMessages((m) => m.map((msg) => (msg.change?.id === result.change.id ? { ...msg, change: result.change } : msg)));
-      setPlanVersion(result.program.version);
+      if (result.program) setPlanVersion(result.program.version);
       AccessibilityInfo.announceForAccessibility(
         action === 'apply'
-          ? `Change applied. Plan v${result.program.version} is live.`
+          ? `Change applied. Plan v${result.program?.version ?? ''} is live.`
           : action === 'decline'
             ? 'Change declined.'
             : `Undone. The change is pending again.`,
@@ -154,30 +193,53 @@ export default function CoachScreen() {
     }
   };
 
-  const goBack = () => router.dismissTo('/plan');
+  // Back to wherever the chat was opened from (the plan page, or Plan).
+  const goBack = () => (router.canGoBack() ? router.back() : router.dismissTo('/plan'));
+
+  // Draft tweaks: show the plan page with the tweaked option.
+  const seePlan = (change: CoachChangeProposal) => {
+    if (!change.proposalId) return;
+    if (isDraft && change.proposalId === draftProposalId && router.canGoBack()) {
+      router.back(); // the plan page reloads when it comes back into view
+    } else {
+      router.push({ pathname: '/proposal', params: { proposalId: change.proposalId, option: change.option ?? 'recommended' } });
+    }
+  };
 
   const fromDate = today.data ? formatDay(today.data.date) : undefined;
   const footnote = (change: CoachChangeProposal) => {
+    if (change.target === 'draft') {
+      return change.status === 'applied'
+        ? "Your plan isn't started yet, so you can undo this any time before you start."
+        : 'This change was undone.';
+    }
     const from = fromDate ?? formatDay(localDay(change.createdAt));
+    const base = planVersion ?? change.baseProgramVersion ?? 1;
     if (change.status === 'applied') {
       return `Created plan v${change.resultingProgramVersion ?? planVersion} from ${from}. Past sessions stay as they were.`;
     }
     if (change.status === 'declined') {
-      return `Not applied. Plan v${planVersion ?? change.baseProgramVersion} stays as it is.`;
+      return `Not applied. Plan v${base} stays as it is.`;
     }
-    return `Creates plan v${(planVersion ?? change.baseProgramVersion) + 1} from ${from}. Past sessions stay as they were.`;
+    return `Creates plan v${base + 1} from ${from}. Past sessions stay as they were.`;
   };
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
-        <IconButton icon="back" accessibilityLabel="Back to plan" onPress={goBack} />
+        <IconButton icon="back" accessibilityLabel="Back" onPress={goBack} />
         <View style={styles.headerText}>
           <Text style={styles.title} accessibilityRole="header">
             Ask Coach
           </Text>
           <Text style={styles.subtitle}>
-            {planVersion ? `Changes apply to plan v${planVersion}` : program.error ? "Couldn't load your plan" : 'Loading your plan…'}
+            {isDraft
+              ? 'Changes apply to your new plan before you start'
+              : planVersion
+                ? `Changes apply to plan v${planVersion}`
+                : program.error
+                  ? "Couldn't load your plan"
+                  : 'Loading your plan…'}
           </Text>
         </View>
       </View>
@@ -195,7 +257,11 @@ export default function CoachScreen() {
           {messages.length === 0 && !typing ? (
             <ChatBubble
               from="coach"
-              text="Hi! Tell me what you'd like to change about your plan, like a shorter session, a swap or a different day."
+              text={
+                isDraft
+                  ? "Tell me what you'd like to change in this plan, like a swap, fewer exercises or easier sets. I'll update it right away."
+                  : "Hi! Tell me what you'd like to change about your plan, like a shorter session, a swap or a different day."
+              }
             />
           ) : null}
 
@@ -208,9 +274,11 @@ export default function CoachScreen() {
                     lines={m.change.lines}
                     status={m.change.status}
                     footnote={footnote(m.change)}
+                    mode={m.change.target === 'draft' ? 'draft' : 'program'}
                     onApply={() => runChange(m.change!, 'apply')}
                     onDecline={() => runChange(m.change!, 'decline')}
                     onUndo={() => runChange(m.change!, 'undo')}
+                    onSeePlan={() => seePlan(m.change!)}
                   />
                   {busyChange === m.change.id ? <Text style={styles.note}>Updating your plan…</Text> : null}
                   {changeErrors[m.change.id] ? (

@@ -28,6 +28,7 @@ Conventions:
 | 5 | GET | `/generation-jobs/:jobId` | – | `GenerationJob` (poll every ~1 s until `done` / `failed`) | `getGenerationJob(jobId)` |
 | 6 | GET | `/proposals/:proposalId` | – | `ProgramProposal` | `getProposal(proposalId)` |
 | 7 | POST | `/proposals/:proposalId/accept` | `AcceptProposalRequest` | `Program` (new current version) | `acceptProposal(proposalId, body)` |
+| 25 | GET | `/proposals/pending` | – | `ProgramProposal` or `null` (a built plan not started yet, from the last 7 days and newer than the current program) | `getPendingProposal()` |
 | **Program** |
 | 8 | GET | `/program` | – | `ProgramWithVersions` (current + version list, newest first) | `getProgram()` |
 | 9 | GET | `/program/versions/:version` | – | `Program` | `getProgramVersion(version)` |
@@ -45,7 +46,8 @@ Conventions:
 | **Catalog** |
 | 19 | GET | `/catalog/:exerciseId/alternatives` | – | `ExerciseCatalogEntry[]` (swap options) | `getAlternatives(exerciseId)` |
 | **Coach** |
-| 20 | POST | `/coach/messages` | `SendCoachMessageRequest` | `CoachReply` (`reply.change` holds a proposed `CoachChangeProposal`, if any) | `sendCoachMessage(body)` |
+| 24 | GET | `/coach/messages` | – | `CoachMessage[]` (the chat so far, oldest first, each `change` in its current state) | `getCoachMessages()` |
+| 20 | POST | `/coach/messages` | `SendCoachMessageRequest` (`proposalId` + `option` = tweak that draft) | `CoachReply` (`reply.change` holds a `CoachChangeProposal`, if any) | `sendCoachMessage(body)` |
 | 21 | POST | `/coach/changes/:changeId/apply` | `{}` | `CoachChangeResult` (new program version) | `applyChange(changeId)` |
 | 22 | POST | `/coach/changes/:changeId/decline` | `{}` | `CoachChangeResult` | `declineChange(changeId)` |
 | 23 | POST | `/coach/changes/:changeId/undo` | `{}` | `CoachChangeResult` | `undoChange(changeId)` |
@@ -81,6 +83,17 @@ Conventions:
   restores the days of `baseProgramVersion` and puts the change back to `pending`. Undoing a declined
   change only puts it back to `pending` (no new version; `program` is the current one). Applying a change also refreshes untouched upcoming sessions in the
   active week.
+- **Draft tweaks (20–23, 25).** A built plan is saved as a draft (`ProgramProposal`) until it's started
+  with 7. The plan page's Tweak opens Ask Coach with `proposalId` + `option`; those messages target that
+  draft option instead of the active program. A change the coach makes there has `target: "draft"`, is
+  made right away (`status: applied`) and is shown with "See updated plan" and Undo. Undo (23) puts the
+  option back to how it was before that tweak; that tweak and any made after it on the same option become
+  `pending`, and apply (21) makes one again (redo). Decline (22) is 400 for drafts. Results of 21/23 for a
+  draft carry `proposal` (the updated `ProgramProposal`) instead of `program`. Once the proposal is
+  accepted, draft tweaks return 409. Home uses 25 to return to a waiting draft instead of building a new plan.
+- **Honest coach replies (20).** If the coach wants a change it can't make (an exercise the user's
+  equipment or level doesn't allow, a day with no training, …), there is no `change` and the reply says
+  so plainly. A reply never describes a change that wasn't made or proposed.
 
 ## Auth
 

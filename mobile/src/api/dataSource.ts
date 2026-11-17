@@ -7,6 +7,7 @@ import type {
   AcceptProposalRequest,
   Equipment,
   CoachChangeResult,
+  CoachMessage,
   CoachReply,
   DayDate,
   ExerciseCatalogEntry,
@@ -42,6 +43,8 @@ export interface DataSource {
   getGenerationJob(jobId: string): Promise<GenerationJob>;
   getProposal(proposalId: string): Promise<ProgramProposal>;
   acceptProposal(proposalId: string, body: AcceptProposalRequest): Promise<Program>;
+  /** The plan the user built but hasn't started yet (a draft), or null. */
+  getPendingProposal(): Promise<ProgramProposal | null>;
 
   // Program
   getProgram(): Promise<ProgramWithVersions>;
@@ -65,6 +68,8 @@ export interface DataSource {
   getAlternatives(exerciseId: string): Promise<ExerciseCatalogEntry[]>;
 
   // Coach
+  /** The chat so far, oldest first. */
+  getCoachMessages(): Promise<CoachMessage[]>;
   sendCoachMessage(body: SendCoachMessageRequest): Promise<CoachReply>;
   applyChange(changeId: string): Promise<CoachChangeResult>;
   declineChange(changeId: string): Promise<CoachChangeResult>;

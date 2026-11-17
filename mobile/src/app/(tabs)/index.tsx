@@ -1,6 +1,6 @@
 // Home tab (RYR-23): what to do right now. Week calendar, missed-week prompt,
 // today's session (or rest day), the next session and the monthly goal card.
-import { Link, router, useFocusEffect } from 'expo-router';
+import { Link, Redirect, router, useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { api, useQuery, usingMocks, type DayDate, type Session, type Week } from '../../api';
+import { api, ApiError, useQuery, usingMocks, type DayDate, type Session, type Week } from '../../api';
 import { mockDataSource } from '../../api/mock';
 import { Badge, Button, Card, Icon, IconButton, MissedWeekPrompt } from '../../components';
 import { MonthGoalCard } from '../../features/home/MonthGoalCard';
@@ -43,6 +43,10 @@ const REST_TIP = 'Rest is part of the plan: muscles rebuild on days off. A walk 
 export default function HomeScreen() {
   const today = useQuery(() => api.getToday(), []);
   const profile = useQuery(() => api.getProfile(), []);
+  // Onboarded but no program yet (the server answers 404): is a built plan
+  // waiting to be started? Then go back to it rather than building a new one.
+  const noProgram = Boolean(profile.data) && today.error instanceof ApiError && today.error.status === 404;
+  const pending = useQuery(() => (noProgram ? api.getPendingProposal() : Promise.resolve(undefined)), [noProgram]);
 
   const todayDate = today.data?.date;
   const currentWeek = today.data?.week;
@@ -165,6 +169,16 @@ export default function HomeScreen() {
         ) : null}
       </>
     );
+  }
+
+  // No profile yet means this account hasn't done onboarding: send it there.
+  // (undefined = still loading, null = no profile.)
+  if (profile.data === null) return <Redirect href="/onboarding" />;
+  if (noProgram) {
+    if (pending.data) return <Redirect href={{ pathname: '/proposal', params: { proposalId: pending.data.id } }} />;
+    // No draft waiting: build the plan (the generating screen starts a job itself).
+    if (pending.data === null || pending.error) return <Redirect href="/generating" />;
+    return null; // still checking
   }
 
   return (
