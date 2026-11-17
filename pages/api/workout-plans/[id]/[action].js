@@ -61,7 +61,7 @@ async function generate(req, res, privyUserId) {
 
   // 3. Generate after the response. A failed attempt still counts toward the
   //    limit. runGeneration never throws; it writes the outcome to the plan.
-  waitUntil(runGeneration(plan, generationId))
+  waitUntil(runGeneration(plan, generationId, reservation.logId))
   res.status(202).json({ success: true, plan })
 }
 
