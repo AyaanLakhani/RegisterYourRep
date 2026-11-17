@@ -30,6 +30,19 @@ export class ApiError extends Error {
 // A request that gets no answer in this time fails, instead of leaving the
 // screen on "Loading…" or "Saving…" (e.g. a phone that can't reach the API).
 const REQUEST_TIMEOUT_MS = 15_000;
+// Ask Coach answers inside the request (one AI call, up to ~50s on the server).
+const SLOW_PATHS: { pattern: RegExp; timeoutMs: number }[] = [{ pattern: /\/coach\/messages$/, timeoutMs: 65_000 }];
+const timeoutFor = (path: string) => SLOW_PATHS.find((p) => p.pattern.test(path))?.timeoutMs ?? REQUEST_TIMEOUT_MS;
+
+// The server works out "today" in the user's time zone (contract: calendar
+// days are local), so every request says which one that is.
+const TIME_ZONE = (() => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+})();
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = await getToken();
@@ -45,11 +58,13 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 async function send(path: string, init: RequestInit, token: string | null): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/json');
+  headers.set('X-Time-Zone', TIME_ZONE);
   if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutMs = timeoutFor(path);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res: Response;
   try {
     res = await fetch(`${BASE_URL}${path}`, { ...init, headers, signal: init.signal ?? controller.signal });
@@ -59,7 +74,7 @@ async function send(path: string, init: RequestInit, token: string | null): Prom
     throw new ApiError(
       0,
       timedOut
-        ? `No answer from ${BASE_URL} in ${REQUEST_TIMEOUT_MS / 1000}s`
+        ? `No answer from ${BASE_URL} in ${timeoutMs / 1000}s`
         : `Can't reach ${BASE_URL}: ${String(err)}`,
     );
   } finally {

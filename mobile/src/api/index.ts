@@ -19,6 +19,30 @@ const REAL_METHODS = new Set<keyof DataSource>([
   'getProfile',
   'saveProfile',
   'getFamiliarityOptions',
+  // RYR-37: generation, proposal, program versions
+  'startGeneration',
+  'getGenerationJob',
+  'getProposal',
+  'acceptProposal',
+  'getProgram',
+  'getProgramVersion',
+  'saveDayMoves',
+  // RYR-38: today, weeks, sessions, logging
+  'getToday',
+  'getCurrentWeek',
+  'getWeek',
+  'getSession',
+  'moveSession',
+  'logExercise',
+  'finishSession',
+  // RYR-39: progress and swap alternatives
+  'getProgress',
+  'getAlternatives',
+  // RYR-40: Ask Coach
+  'sendCoachMessage',
+  'applyChange',
+  'declineChange',
+  'undoChange',
 ]);
 
 function hybridDataSource(): DataSource {
