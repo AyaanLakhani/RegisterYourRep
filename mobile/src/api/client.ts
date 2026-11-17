@@ -1,12 +1,12 @@
 // Small fetch wrapper for the RegisterYourRep API.
 //
-// The app signs in with Privy and sends the Privy access token as a bearer
-// token. The Privy provider is wired up with the login screen; until then no
-// token provider is set and requests go out without auth.
+// The app signs in with Privy and sends the Privy access token as
+// `Authorization: Bearer <token>`; the API accepts it on every protected route
+// (RYR-34). src/auth/AuthProvider sets the token provider after login; before
+// that (or with login off) requests go out without auth.
 //
-// Note: the web API currently authenticates with the iron-session cookie only.
-// Accepting `Authorization: Bearer <privy token>` on the server is tracked in
-// RYR-30.
+// On a phone, EXPO_PUBLIC_API_URL must be the computer's network address
+// (e.g. http://192.168.1.184:3000): localhost would be the phone itself.
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
@@ -33,6 +33,16 @@ const REQUEST_TIMEOUT_MS = 15_000;
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = await getToken();
+  let res = await send(path, init, token);
+  // An expired token gets a 401: ask Privy for a fresh one and retry once.
+  if (res.status === 401 && token) {
+    const fresh = await getToken();
+    if (fresh) res = await send(path, init, fresh);
+  }
+  return readResponse<T>(res);
+}
+
+async function send(path: string, init: RequestInit, token: string | null): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set('Accept', 'application/json');
   if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
@@ -46,11 +56,19 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   } catch (err) {
     // Status 0: the request never got an HTTP answer (offline, timeout, wrong URL).
     const timedOut = controller.signal.aborted;
-    throw new ApiError(0, timedOut ? `No answer from ${BASE_URL} in ${REQUEST_TIMEOUT_MS / 1000}s` : `Can't reach ${BASE_URL}: ${String(err)}`);
+    throw new ApiError(
+      0,
+      timedOut
+        ? `No answer from ${BASE_URL} in ${REQUEST_TIMEOUT_MS / 1000}s`
+        : `Can't reach ${BASE_URL}: ${String(err)}`,
+    );
   } finally {
     clearTimeout(timer);
   }
+  return res;
+}
 
+async function readResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
   let data: unknown = null;
   try {
