@@ -41,6 +41,7 @@ import {
   type TrainingHistory,
   type Weekday,
 } from '../api';
+import { rememberOnboardingFinished } from '../auth/onboardingMemory';
 import { Button, ChatBubble, Chip, CoachAvatar, Icon, IconButton, StepProgress } from '../components';
 import { colors, fonts, radius, screenGutter, sizes } from '../theme';
 
@@ -266,6 +267,8 @@ export default function OnboardingScreen() {
   const canGoBackFromStart = router.canGoBack();
 
   const goBack = () => {
+    // Nothing can change while the answers are being saved.
+    if (saving) return;
     Keyboard.dismiss();
     setEditingFromReview(false);
     if (step > 0) setStep(step - 1);
@@ -296,6 +299,7 @@ export default function OnboardingScreen() {
   };
 
   const editStep = (target: number) => {
+    if (saving) return;
     setEditingFromReview(true);
     setStep(target);
   };
@@ -305,6 +309,7 @@ export default function OnboardingScreen() {
     setSaveError(undefined);
     try {
       await api.saveProfile(toProfileInput(answers, familiarity.data));
+      await rememberOnboardingFinished();
       const job = await api.startGeneration();
       router.replace({ pathname: '/generating', params: { jobId: job.id } });
     } catch {
@@ -513,6 +518,7 @@ export default function OnboardingScreen() {
                   key={l.value}
                   label={l.label}
                   selected={level === l.value}
+                  disabled={saving}
                   onPress={() => update({ levelChoice: l.value === suggested ? undefined : l.value })}
                 />
               ))}
@@ -520,15 +526,15 @@ export default function OnboardingScreen() {
           </Group>
           <Group label="Your answers">
             <View style={styles.review}>
-              <ReviewRow label="Goal and schedule" value={goalAndSchedule(answers)} onPress={() => editStep(STEP.schedule)} />
-              <ReviewRow label="Where you train" value={equipmentSummary(answers)} onPress={() => editStep(STEP.gym)} />
-              <ReviewRow label="Training history" value={labelOf(HISTORY, answers.history)} onPress={() => editStep(STEP.history)} />
+              <ReviewRow label="Goal and schedule" value={goalAndSchedule(answers)} disabled={saving} onPress={() => editStep(STEP.schedule)} />
+              <ReviewRow label="Where you train" value={equipmentSummary(answers)} disabled={saving} onPress={() => editStep(STEP.gym)} />
+              <ReviewRow label="Training history" value={labelOf(HISTORY, answers.history)} disabled={saving} onPress={() => editStep(STEP.history)} />
               <ReviewRow
                 label="Exercises you know"
                 value={familiaritySummary(answers, familiarity.data)}
-                onPress={() => editStep(STEP.familiarity)}
+                disabled={saving} onPress={() => editStep(STEP.familiarity)}
               />
-              <ReviewRow label="Work around" value={limitationsSummary(answers)} onPress={() => editStep(STEP.limits)} last />
+              <ReviewRow label="Work around" value={limitationsSummary(answers)} disabled={saving} onPress={() => editStep(STEP.limits)} last />
             </View>
           </Group>
         </>
@@ -543,7 +549,7 @@ export default function OnboardingScreen() {
       <KeyboardAvoidingView behavior="padding" style={styles.flex}>
         <View style={styles.header}>
           {step > 0 || canGoBackFromStart ? (
-            <IconButton icon="back" accessibilityLabel="Back" onPress={goBack} />
+            <IconButton icon="back" accessibilityLabel="Back" onPress={goBack} disabled={saving} />
           ) : (
             <View style={styles.backSpacer} />
           )}
@@ -620,10 +626,24 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function ReviewRow({ label, value, onPress, last = false }: { label: string; value: string; onPress: () => void; last?: boolean }) {
+function ReviewRow({
+  label,
+  value,
+  onPress,
+  last = false,
+  disabled = false,
+}: {
+  label: string;
+  value: string;
+  onPress: () => void;
+  last?: boolean;
+  disabled?: boolean;
+}) {
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
+      accessibilityState={{ disabled }}
       accessibilityRole="button"
       accessibilityLabel={`${label}: ${value}`}
       accessibilityHint="Change this answer"

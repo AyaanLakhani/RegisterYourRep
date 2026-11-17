@@ -1,6 +1,6 @@
 // Home tab (RYR-23): what to do right now. Week calendar, missed-week prompt,
 // today's session (or rest day), the next session and the monthly goal card.
-import { Link, router, useFocusEffect } from 'expo-router';
+import { Link, Redirect, router, useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -166,6 +166,10 @@ export default function HomeScreen() {
       </>
     );
   }
+
+  // No profile yet means this account hasn't done onboarding: send it there.
+  // (undefined = still loading, null = no profile.)
+  if (profile.data === null) return <Redirect href="/onboarding" />;
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>

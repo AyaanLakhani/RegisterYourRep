@@ -74,6 +74,8 @@ export interface MockControls {
   /** Dev toggle (mirrors the design's `missedLastWeek`): sessions missed last week; 0 hides the prompt. */
   setMissedLastWeek(count: number): void;
   getMissedLastWeek(): number;
+  /** Start as an account that hasn't done onboarding yet (no profile), so Home sends it to onboarding. */
+  startAsNewUser(): void;
 }
 
 export function createMockDataSource(options: MockOptions = {}): DataSource & MockControls {
@@ -244,6 +246,10 @@ export function createMockDataSource(options: MockOptions = {}): DataSource & Mo
   // --- DataSource ----------------------------------------------------------
 
   return {
+    startAsNewUser() {
+      state.profile = null;
+    },
+
     reset() {
       state = createSeed();
       jobs = [];
