@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { api, useQuery, usingMocks, type ProposalOption, type ProposalOptionKind } from '../api';
+import { api, ApiError, useQuery, usingMocks, type ProposalOption, type ProposalOptionKind } from '../api';
 import { Button, Card, CoachAvatar, SegmentedControl } from '../components';
 import { formatMuscles, WEEKDAY_LETTER, WEEKDAY_ORDER, WEEKDAY_SHORT } from '../lib/format';
 import { colors, fonts, radius, screenGutter, type } from '../theme';
@@ -39,15 +39,24 @@ export default function ProposalScreen() {
     }
   };
 
-  const tweak = () => {
-    if (!option) return;
-    router.push({
-      pathname: '/coach',
-      params: {
-        prefill: `I'd like to tweak the ${option.name} plan before I start.`,
-        ...(proposal ? { proposalId: proposal.id } : {}),
-      },
-    });
+  // The coach can only change an accepted program (each change is a new,
+  // undoable version), so Tweak starts the shown option first and then opens
+  // the coach with the request ready to send.
+  const tweak = async () => {
+    if (!proposal || !option || accepting) return;
+    setAccepting(true);
+    try {
+      await api.acceptProposal(proposal.id, { choice });
+    } catch (err) {
+      // Already accepted (e.g. coming back to this screen) is fine: tweak that plan.
+      if (!(err instanceof ApiError && err.status === 409)) {
+        setAccepting(false);
+        Alert.alert("Couldn't start this plan", err instanceof Error ? err.message : 'Please try again.');
+        return;
+      }
+    }
+    router.replace('/');
+    router.push({ pathname: '/coach', params: { prefill: `I'd like to tweak my new ${option.name} plan.` } });
   };
 
   let body;
