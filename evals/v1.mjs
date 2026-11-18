@@ -21,6 +21,14 @@ const DAYS = {
   7: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
 }
 
+// Persona target muscles (catalog ids) -> onboarding focus groups, as the app saves them.
+const FOCUS_GROUP = { quadriceps: 'legs', hamstrings: 'legs', glutes: 'legs', calves: 'legs' }
+export function toFocusGroups(targetMuscles = []) {
+  const groups = [...new Set(targetMuscles.map(m => FOCUS_GROUP[m] || m))]
+  if (!groups.length || groups.includes('full_body')) return ['full_body']
+  return groups.slice(0, 3)
+}
+
 /** v1 level name for a persona's fitnessLevel. */
 export const v1Level = fitnessLevel => LEVEL[fitnessLevel] || 'beginner'
 
@@ -44,7 +52,7 @@ export function personaToProfile(persona) {
     trainingHistory: HISTORY[persona.trainingHistory] || 'under_6_months',
     familiarExerciseIds: (persona.familiarExercises || []).filter(id => EXERCISES_BY_ID.has(id)),
     limitations,
-    focusMuscles: (persona.targetMuscles || []).filter(m => m !== 'full_body'),
+    focusMuscles: toFocusGroups(persona.targetMuscles),
   }
 }
 
