@@ -112,6 +112,22 @@ export type GymType = z.infer<typeof GymTypeSchema>;
 export const TrainingHistorySchema = z.enum(['under_6_months', 'six_months_to_2_years', 'over_2_years']);
 export type TrainingHistory = z.infer<typeof TrainingHistorySchema>;
 
+/**
+ * "Which muscles do you most want to improve?" (onboarding step 2, RYR-20).
+ * `legs` covers quads, hamstrings, glutes and calves. `full_body` means no
+ * particular focus and is picked on its own.
+ */
+export const FocusMuscleSchema = z.enum(['chest', 'triceps', 'back', 'biceps', 'legs', 'shoulders', 'core', 'full_body']);
+export type FocusMuscle = z.infer<typeof FocusMuscleSchema>;
+export const MAX_FOCUS_MUSCLES = 3;
+
+/** 1-3 muscle groups, or ['full_body'] alone. */
+export const FocusMusclesSchema = z
+  .array(FocusMuscleSchema)
+  .refine((list) => new Set(list).size === list.length, 'No duplicates')
+  .refine((list) => !list.includes('full_body') || list.length === 1, 'Full body is picked on its own')
+  .refine((list) => list.length <= MAX_FOCUS_MUSCLES, `At most ${MAX_FOCUS_MUSCLES} focus muscle groups`);
+
 /** What the user fills in during onboarding (and edits later). */
 export const ProfileInputSchema = z.object({
   goals: z.array(GoalSchema).min(1),
@@ -125,6 +141,11 @@ export const ProfileInputSchema = z.object({
   familiarExerciseIds: z.array(IdSchema),
   /** Free text, e.g. "left knee hurts on deep squats". */
   limitations: z.string().max(1000),
+  /**
+   * Muscles to give extra work. Optional so profiles saved before this step
+   * existed still parse; the server returns [] for those (no focus).
+   */
+  focusMuscles: FocusMusclesSchema.optional(),
   /** Level the app suggested from training history and familiarity (see api/level.ts). */
   suggestedLevel: LevelSchema,
   /** Level the user confirmed (or changed to) on the last onboarding step. Plans use this one. */

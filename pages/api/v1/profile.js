@@ -20,6 +20,7 @@ function toProfile(doc) {
     trainingHistory: doc.trainingHistory,
     familiarExerciseIds: doc.familiarExerciseIds,
     limitations: doc.limitations ?? '',
+    focusMuscles: doc.focusMuscles ?? [],
     suggestedLevel: doc.suggestedLevel,
     level: doc.level,
   }
@@ -59,6 +60,7 @@ export default withAuth({
           trainingHistory: input.trainingHistory,
           familiarExerciseIds: input.familiarExerciseIds,
           limitations: input.limitations,
+          focusMuscles: input.focusMuscles ?? [],
           suggestedLevel,
           level: input.level,
         })
