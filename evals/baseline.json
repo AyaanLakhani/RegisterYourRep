@@ -1,0 +1,4765 @@
+{
+  "ranAt": "2026-11-18T22:25:43.399Z",
+  "rescoredAt": "2026-11-18T22:26:56.371Z",
+  "generator": "app",
+  "model": "gemini-2.5-pro",
+  "promptVersion": "v1-proposal-2026-11-17.3",
+  "personas": [
+    "home-beginner",
+    "home-intermediate",
+    "home-pro",
+    "apartment-beginner",
+    "apartment-intermediate",
+    "apartment-pro",
+    "community-beginner",
+    "community-intermediate",
+    "community-pro",
+    "commercial-beginner",
+    "commercial-intermediate",
+    "commercial-pro",
+    "edge-pro-home-dumbbells-only",
+    "edge-intermediate-apartment-light-dumbbells",
+    "edge-beginner-home-bad-knee",
+    "edge-beginner-commercial-lower-back"
+  ],
+  "durationMs": 238093,
+  "summary": {
+    "generation": {
+      "succeeded": 16,
+      "total": 16
+    },
+    "checks": {
+      "schema": {
+        "passed": 16,
+        "total": 16,
+        "rate": 1
+      },
+      "dayCount": {
+        "passed": 16,
+        "total": 16,
+        "rate": 1
+      },
+      "sessionLength": {
+        "passed": 12,
+        "total": 16,
+        "rate": 0.75
+      },
+      "volume": {
+        "passed": 11,
+        "total": 16,
+        "rate": 0.6875
+      },
+      "catalogCoverage": {
+        "passed": 16,
+        "total": 16,
+        "rate": 1
+      },
+      "equipment": {
+        "passed": 16,
+        "total": 16,
+        "rate": 1
+      },
+      "beginnerCommon": {
+        "passed": 6,
+        "total": 6,
+        "rate": 1
+      },
+      "noAdvancedForBeginner": {
+        "passed": 6,
+        "total": 6,
+        "rate": 1
+      },
+      "freeWeightCompound": {
+        "passed": 5,
+        "total": 5,
+        "rate": 1
+      },
+      "focusVolume": {
+        "passed": 2,
+        "total": 5,
+        "rate": 0.4
+      },
+      "proWeeklySets": {
+        "passed": 0,
+        "total": 3,
+        "rate": 0
+      },
+      "injurySafe": {
+        "passed": 2,
+        "total": 2,
+        "rate": 1
+      }
+    },
+    "tokens": {
+      "avgInput": 1879,
+      "avgOutput": 3571,
+      "avgThinking": 3138
+    },
+    "avgLatencyMs": 42717,
+    "approxCostUsd": 1.1109,
+    "retries": 0
+  },
+  "results": [
+    {
+      "id": "home-beginner",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 37800,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1251,
+          "outputTokens": 2379,
+          "thinkingTokens": 3412,
+          "totalTokens": 7042
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "3 days for frequency 3"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "beginnerCommon": {
+          "pass": true,
+          "detail": ""
+        },
+        "noAdvancedForBeginner": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Full Body Foundation",
+        "summary": "3 days · ~31 min · Build strength with two full body days",
+        "notes": [],
+        "days": [
+          {
+            "day": "Full Body A",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "abs"
+            ],
+            "durationMinutes": 31,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and back straight."
+              },
+              {
+                "exerciseId": "push-up",
+                "name": "Push-Up",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Keep your body in a straight line from head to heels."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Pull dumbbell to your hip, not your chest. Complete all reps on one side before switching."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Hinge at your hips with a flat back and slight knee bend."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 45,
+                "notes": "Hold for 30-45 seconds. Don't let your hips sag."
+              }
+            ]
+          },
+          {
+            "day": "Full Body B",
+            "focus": [
+              "quads",
+              "shoulders",
+              "back",
+              "glutes",
+              "abs"
+            ],
+            "durationMinutes": 30,
+            "exercises": [
+              {
+                "exerciseId": "reverse-lunge",
+                "name": "Reverse Lunge",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Step straight back and gently touch your back knee to the floor. Reps are per side."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press overhead without letting your lower back arch excessively."
+              },
+              {
+                "exerciseId": "band-row",
+                "name": "Band Row",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Squeeze your shoulder blades together at the end of each pull."
+              },
+              {
+                "exerciseId": "glute-bridge",
+                "name": "Glute Bridge",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Drive through your heels and squeeze your glutes at the top."
+              },
+              {
+                "exerciseId": "dead-bug",
+                "name": "Dead Bug",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 45,
+                "notes": "Keep your low back on the floor. Reps are per side."
+              }
+            ]
+          },
+          {
+            "day": "Full Body A",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "abs"
+            ],
+            "durationMinutes": 31,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and back straight."
+              },
+              {
+                "exerciseId": "push-up",
+                "name": "Push-Up",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Keep your body in a straight line from head to heels."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Pull dumbbell to your hip, not your chest. Complete all reps on one side before switching."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Hinge at your hips with a flat back and slight knee bend."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 45,
+                "notes": "Hold for 30-45 seconds. Don't let your hips sag."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "home-intermediate",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 45071,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1734,
+          "outputTokens": 3677,
+          "thinkingTokens": 3404,
+          "totalTokens": 8815
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "4 days for frequency 4"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "freeWeightCompound": {
+          "pass": true,
+          "detail": ""
+        },
+        "focusVolume": {
+          "pass": false,
+          "detail": "target sets chest 7, back 7, shoulders 9; other muscles avg 7.1"
+        }
+      },
+      "plan": {
+        "title": "Upper / Lower Split",
+        "summary": "4 days · ~41 min · Classic split for building muscle",
+        "notes": [],
+        "days": [
+          {
+            "day": "Upper Body A",
+            "focus": [
+              "chest",
+              "back",
+              "shoulders",
+              "biceps",
+              "triceps",
+              "abs"
+            ],
+            "durationMinutes": 45,
+            "exercises": [
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 4,
+                "reps": "6-10",
+                "restSeconds": 90,
+                "notes": "Keep your shoulder blades pulled back and down."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Pull the dumbbell towards your hip, not straight up."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Press overhead until your biceps are near your ears."
+              },
+              {
+                "exerciseId": "db-curl",
+                "name": "Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pinned to your sides."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pointing forward, not flaring out."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 45-60 seconds. Keep a straight line from head to heels."
+              }
+            ]
+          },
+          {
+            "day": "Lower Body A",
+            "focus": [
+              "quads",
+              "glutes",
+              "hamstrings",
+              "calves",
+              "back",
+              "shoulders"
+            ],
+            "durationMinutes": 46,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and drive your knees out."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Push your hips back with a slight bend in your knees."
+              },
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your torso upright and lower until your front thigh is parallel to the floor."
+              },
+              {
+                "exerciseId": "db-hip-thrust",
+                "name": "Dumbbell Hip Thrust",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Drive through your heels and squeeze your glutes at the top."
+              },
+              {
+                "exerciseId": "standing-calf-raise",
+                "name": "Standing Calf Raise",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Pause for a second at the top of the movement."
+              },
+              {
+                "exerciseId": "farmers-carry",
+                "name": "Farmer's Carry",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Walk for 30-40 yards. Stay tall and keep your core braced."
+              }
+            ]
+          },
+          {
+            "day": "Upper Body B",
+            "focus": [
+              "shoulders",
+              "chest",
+              "back",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 39,
+            "exercises": [
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Press up and slightly back over your upper chest."
+              },
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Squeeze your shoulder blades together at the top of the pull."
+              },
+              {
+                "exerciseId": "arnold-press",
+                "name": "Arnold Press",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Rotate your palms forward as you press overhead."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows and raise arms to shoulder height."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Allow your arms to hang straight down to get a full stretch."
+              },
+              {
+                "exerciseId": "bench-dip",
+                "name": "Bench Dip",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Keep your back close to the bench as you lower yourself."
+              }
+            ]
+          },
+          {
+            "day": "Lower Body B",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "glutes",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 35,
+            "exercises": [
+              {
+                "exerciseId": "reverse-lunge",
+                "name": "Reverse Lunge",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Step straight back and drop your back knee towards the floor."
+              },
+              {
+                "exerciseId": "single-leg-rdl",
+                "name": "Single-Leg Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Hinge at the hip, keeping your back flat and back leg straight."
+              },
+              {
+                "exerciseId": "single-leg-glute-bridge",
+                "name": "Single-Leg Glute Bridge",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Drive through your heel and keep your hips level."
+              },
+              {
+                "exerciseId": "step-up",
+                "name": "Step-Up",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Drive through the heel of your top foot to stand up."
+              },
+              {
+                "exerciseId": "single-leg-calf-raise",
+                "name": "Single-Leg Calf Raise",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 45,
+                "notes": "Control the movement on the way down for a full stretch."
+              },
+              {
+                "exerciseId": "ab-wheel",
+                "name": "Ab Wheel Rollout",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your back from arching and only roll out as far as you can control."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "home-pro",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 45224,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1830,
+          "outputTokens": 4657,
+          "thinkingTokens": 2590,
+          "totalTokens": 9077
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "5 days for frequency 5"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": false,
+          "detail": "day 1: 6 exercises; Dumbbell Lateral Raise: 3 sets; Overhead Dumbbell Triceps Extension: 3 sets; Diamond Push-Up: 3 sets (+17 more)"
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "proWeeklySets": {
+          "pass": false,
+          "detail": "quadriceps 11, glutes 3, hamstrings 10 (range 10-22)"
+        }
+      },
+      "plan": {
+        "title": "Pro PPL + Upper/Lower",
+        "summary": "5 days · ~50 min · 5-Day Advanced Strength Split",
+        "notes": [],
+        "days": [
+          {
+            "day": "Push",
+            "focus": [
+              "chest",
+              "shoulders",
+              "triceps"
+            ],
+            "durationMinutes": 51,
+            "exercises": [
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 4,
+                "reps": "6-8",
+                "restSeconds": 120,
+                "notes": "Keep your shoulder blades retracted and down throughout the lift."
+              },
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Press the dumbbells up and slightly inwards."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Keep your core braced and avoid arching your lower back."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows, keeping a slight bend in them."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Keep your elbows tucked in and pointing forward."
+              },
+              {
+                "exerciseId": "diamond-push-up",
+                "name": "Diamond Push-Up",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Form a diamond shape with your hands directly under your chest."
+              }
+            ]
+          },
+          {
+            "day": "Pull",
+            "focus": [
+              "biceps",
+              "back",
+              "shoulders"
+            ],
+            "durationMinutes": 45,
+            "exercises": [
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Drive your elbows back and squeeze your shoulder blades together."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Pull the dumbbell towards your hip, not straight up."
+              },
+              {
+                "exerciseId": "rear-delt-db-fly",
+                "name": "Bent-Over Dumbbell Rear Delt Fly",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Maintain a flat back and a slight bend in your elbows."
+              },
+              {
+                "exerciseId": "spider-curl",
+                "name": "Spider Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Keep your upper arms perpendicular to the floor throughout."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Allow a full stretch at the bottom, keeping elbows pinned."
+              },
+              {
+                "exerciseId": "hammer-curl",
+                "name": "Hammer Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Keep your palms facing each other like you're holding a hammer."
+              }
+            ]
+          },
+          {
+            "day": "Legs",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "calves",
+              "glutes"
+            ],
+            "durationMinutes": 49,
+            "exercises": [
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Keep your torso upright and drive through your front heel."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Hinge at your hips, keeping a slight bend in your knees."
+              },
+              {
+                "exerciseId": "walking-lunge",
+                "name": "Dumbbell Walking Lunge",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Take controlled steps, letting your back knee gently kiss the floor."
+              },
+              {
+                "exerciseId": "nordic-curl",
+                "name": "Nordic Hamstring Curl",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 120,
+                "notes": "Lower yourself as slowly as possible, keeping your body straight."
+              },
+              {
+                "exerciseId": "db-hip-thrust",
+                "name": "Dumbbell Hip Thrust",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Drive through your heels and squeeze your glutes hard at the top."
+              },
+              {
+                "exerciseId": "deficit-calf-raise",
+                "name": "Deficit Single-Leg Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Stand on an elevated surface for a deeper stretch at the bottom."
+              }
+            ]
+          },
+          {
+            "day": "Upper Body",
+            "focus": [
+              "shoulders",
+              "back",
+              "chest",
+              "triceps",
+              "quads",
+              "glutes"
+            ],
+            "durationMinutes": 54,
+            "exercises": [
+              {
+                "exerciseId": "handstand-push-up",
+                "name": "Handstand Push-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 120,
+                "notes": "Keep your core tight and create a tripod with your head and hands."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 4,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Focus on squeezing your lat at the top of the movement."
+              },
+              {
+                "exerciseId": "push-up",
+                "name": "Push-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Keep your body in a straight line from head to heels."
+              },
+              {
+                "exerciseId": "arnold-press",
+                "name": "Arnold Press",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Rotate smoothly from palms-in at the bottom to palms-out at the top."
+              },
+              {
+                "exerciseId": "band-pull-apart",
+                "name": "Band Pull-Apart",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Initiate the pull by squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "bench-dip",
+                "name": "Bench Dip",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your back close to the bench to protect your shoulders."
+              },
+              {
+                "exerciseId": "farmers-carry",
+                "name": "Farmer's Carry",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Walk for 30-40 yards. Stay tall with your shoulders back."
+              }
+            ]
+          },
+          {
+            "day": "Lower Body & Core",
+            "focus": [
+              "quads",
+              "abs",
+              "glutes",
+              "back",
+              "shoulders",
+              "hamstrings",
+              "calves"
+            ],
+            "durationMinutes": 50,
+            "exercises": [
+              {
+                "exerciseId": "box-jump",
+                "name": "Box Jump",
+                "sets": 5,
+                "reps": "5",
+                "restSeconds": 75,
+                "notes": "Focus on landing softly and quietly on the box."
+              },
+              {
+                "exerciseId": "pistol-squat",
+                "name": "Pistol Squat",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Use a counterbalance weight if needed to maintain balance."
+              },
+              {
+                "exerciseId": "single-leg-rdl",
+                "name": "Single-Leg Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "8-10",
+                "restSeconds": 75,
+                "notes": "Keep your hips square to the floor as you hinge forward."
+              },
+              {
+                "exerciseId": "pogo-jump",
+                "name": "Pogo Jumps",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Jump for 30 seconds. Stay on the balls of your feet."
+              },
+              {
+                "exerciseId": "dragon-flag",
+                "name": "Dragon Flag",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Lower your body as one solid unit, fighting gravity."
+              },
+              {
+                "exerciseId": "suitcase-carry",
+                "name": "Suitcase Carry",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Walk for 20-30 yards per side. Resist leaning to the side."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "apartment-beginner",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 26696,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1402,
+          "outputTokens": 2899,
+          "thinkingTokens": 1334,
+          "totalTokens": 5635
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "3 days for frequency 3"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "beginnerCommon": {
+          "pass": true,
+          "detail": ""
+        },
+        "noAdvancedForBeginner": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Full Body Foundation",
+        "summary": "3 days · ~36 min · Build strength & burn calories",
+        "notes": [],
+        "days": [
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "abs",
+              "shoulders"
+            ],
+            "durationMinutes": 36,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and back straight, squatting as low as you comfortably can."
+              },
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lower the dumbbells to your chest, keeping your elbows at a 45-degree angle."
+              },
+              {
+                "exerciseId": "seated-cable-row",
+                "name": "Seated Cable Row",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Pull the handle to your stomach, squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Hinge at your hips with a slight knee bend. Keep your back flat."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 2,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Pull the ropes towards your face, aiming for your ears."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-45 seconds. Keep your body in a straight line from head to heels."
+              }
+            ]
+          },
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "abs",
+              "shoulders"
+            ],
+            "durationMinutes": 36,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and back straight, squatting as low as you comfortably can."
+              },
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lower the dumbbells to your chest, keeping your elbows at a 45-degree angle."
+              },
+              {
+                "exerciseId": "seated-cable-row",
+                "name": "Seated Cable Row",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Pull the handle to your stomach, squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Hinge at your hips with a slight knee bend. Keep your back flat."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 2,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Pull the ropes towards your face, aiming for your ears."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-45 seconds. Keep your body in a straight line from head to heels."
+              }
+            ]
+          },
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "abs",
+              "shoulders"
+            ],
+            "durationMinutes": 36,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and back straight, squatting as low as you comfortably can."
+              },
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lower the dumbbells to your chest, keeping your elbows at a 45-degree angle."
+              },
+              {
+                "exerciseId": "seated-cable-row",
+                "name": "Seated Cable Row",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Pull the handle to your stomach, squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Hinge at your hips with a slight knee bend. Keep your back flat."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 2,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Pull the ropes towards your face, aiming for your ears."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-45 seconds. Keep your body in a straight line from head to heels."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "apartment-intermediate",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 40166,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1939,
+          "outputTokens": 3655,
+          "thinkingTokens": 2844,
+          "totalTokens": 8438
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "4 days for frequency 4"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "freeWeightCompound": {
+          "pass": true,
+          "detail": ""
+        },
+        "focusVolume": {
+          "pass": false,
+          "detail": "target sets back 6, biceps 6; other muscles avg 7.9"
+        }
+      },
+      "plan": {
+        "title": "Classic Upper/Lower Split",
+        "summary": "4 days · ~40 min · Twice-a-week frequency for growth",
+        "notes": [],
+        "days": [
+          {
+            "day": "Upper A",
+            "focus": [
+              "shoulders",
+              "chest",
+              "back",
+              "triceps",
+              "biceps"
+            ],
+            "durationMinutes": 41,
+            "exercises": [
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your shoulder blades pulled back and down."
+              },
+              {
+                "exerciseId": "seated-cable-row",
+                "name": "Seated Cable Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Squeeze your shoulder blades together at the end of the pull."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Press overhead without arching your lower back."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows, keeping them slightly bent."
+              },
+              {
+                "exerciseId": "cable-pushdown",
+                "name": "Cable Triceps Pushdown",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pinned to your sides."
+              },
+              {
+                "exerciseId": "db-curl",
+                "name": "Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Avoid swinging; control the weight on the way down."
+              }
+            ]
+          },
+          {
+            "day": "Lower A",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "glutes",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 40,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and back straight."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Hinge at your hips, keeping a slight bend in your knees."
+              },
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Focus on dropping your back knee straight down."
+              },
+              {
+                "exerciseId": "glute-bridge",
+                "name": "Glute Bridge",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Squeeze your glutes hard at the top of the movement."
+              },
+              {
+                "exerciseId": "standing-calf-raise",
+                "name": "Standing Calf Raise",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Pause at the top and get a full stretch at the bottom."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 45-60 seconds. Keep your core tight and back flat."
+              }
+            ]
+          },
+          {
+            "day": "Upper B",
+            "focus": [
+              "shoulders",
+              "chest",
+              "back",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 40,
+            "exercises": [
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Press up and slightly back over your upper chest."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Pull the dumbbell towards your hip, not straight up."
+              },
+              {
+                "exerciseId": "arnold-press",
+                "name": "Arnold Press",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Rotate your palms as you press overhead in a smooth motion."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Pull the rope towards your face, aiming for your ears."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Let your arms hang straight down to get a full stretch."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pointed forward, not flared out."
+              }
+            ]
+          },
+          {
+            "day": "Lower B",
+            "focus": [
+              "glutes",
+              "hamstrings",
+              "quads",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 40,
+            "exercises": [
+              {
+                "exerciseId": "db-hip-thrust",
+                "name": "Dumbbell Hip Thrust",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 90,
+                "notes": "Drive through your heels and squeeze your glutes at the top."
+              },
+              {
+                "exerciseId": "reverse-lunge",
+                "name": "Reverse Lunge",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Take a controlled step back and lower your knee towards the floor."
+              },
+              {
+                "exerciseId": "single-leg-rdl",
+                "name": "Single-Leg Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Maintain a flat back as you hinge forward on one leg."
+              },
+              {
+                "exerciseId": "cable-pull-through",
+                "name": "Cable Pull-Through",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Focus on squeezing your glutes to drive your hips forward."
+              },
+              {
+                "exerciseId": "db-calf-raise",
+                "name": "Dumbbell Calf Raise",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Get a full range of motion on each rep."
+              },
+              {
+                "exerciseId": "side-plank",
+                "name": "Side Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold 30-45s per side. Keep your hips from sagging."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "apartment-pro",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 52295,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 2034,
+          "outputTokens": 5043,
+          "thinkingTokens": 3492,
+          "totalTokens": 10569
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "5 days for frequency 5"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": false,
+          "detail": "Cable Fly: 3 sets; Cable Lateral Raise: 3 sets; Cable Overhead Triceps Extension: 3 sets; Cable Triceps Pushdown: 3 sets (+22 more)"
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "proWeeklySets": {
+          "pass": false,
+          "detail": "chest 14, triceps 9, shoulders 16 (range 10-22)"
+        }
+      },
+      "plan": {
+        "title": "PPL + Upper/Lower Split",
+        "summary": "5 days · ~46 min · High frequency, hits muscles 2x/week",
+        "notes": [],
+        "days": [
+          {
+            "day": "Push",
+            "focus": [
+              "chest",
+              "shoulders",
+              "triceps"
+            ],
+            "durationMinutes": 52,
+            "exercises": [
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Set bench to 30-45 degrees. Keep your chest up and shoulder blades retracted."
+              },
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Lower the dumbbells to your chest, keeping elbows at a 45-degree angle from your body."
+              },
+              {
+                "exerciseId": "cable-fly",
+                "name": "Cable Fly",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep a slight bend in your elbows and focus on squeezing your chest muscles together."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Press overhead without arching your lower back. Keep your core tight."
+              },
+              {
+                "exerciseId": "cable-lateral-raise",
+                "name": "Cable Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows and raise your arms to shoulder height. Avoid using momentum."
+              },
+              {
+                "exerciseId": "cable-overhead-extension",
+                "name": "Cable Overhead Triceps Extension",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your upper arms stationary next to your head as you extend your elbows."
+              },
+              {
+                "exerciseId": "cable-pushdown",
+                "name": "Cable Triceps Pushdown",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Pin your elbows to your sides and fully extend your arms to squeeze the triceps."
+              }
+            ]
+          },
+          {
+            "day": "Pull",
+            "focus": [
+              "back",
+              "biceps",
+              "shoulders"
+            ],
+            "durationMinutes": 43,
+            "exercises": [
+              {
+                "exerciseId": "seated-cable-row",
+                "name": "Seated Cable Row",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Pull the handle to your sternum, squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 4,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Focus on pulling with your back muscles, not your arms. Keep your chest on the bench."
+              },
+              {
+                "exerciseId": "straight-arm-pulldown",
+                "name": "Straight-Arm Cable Pulldown",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your arms straight and pull the bar down to your thighs by engaging your lats."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Pull the ropes towards your face, aiming for external rotation at the shoulder."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Allow your arms to hang straight down to get a full stretch on the bicep at the bottom."
+              },
+              {
+                "exerciseId": "spider-curl",
+                "name": "Spider Curl",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your upper arms perpendicular to the floor to isolate the biceps."
+              }
+            ]
+          },
+          {
+            "day": "Legs",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "calves",
+              "glutes"
+            ],
+            "durationMinutes": 47,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and back straight. Squat as deep as you can comfortably."
+              },
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Keep your torso upright and lower your back knee towards the floor."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 4,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Hinge at your hips with a slight knee bend. Keep the dumbbells close to your legs."
+              },
+              {
+                "exerciseId": "nordic-curl",
+                "name": "Nordic Hamstring Curl",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Lower your torso towards the floor as slowly as possible, using only your hamstrings."
+              },
+              {
+                "exerciseId": "db-hip-thrust",
+                "name": "Dumbbell Hip Thrust",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Drive through your heels and squeeze your glutes to lift your hips until they are level."
+              },
+              {
+                "exerciseId": "deficit-calf-raise",
+                "name": "Deficit Single-Leg Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Stand on an elevated surface to get a deeper stretch at the bottom of the movement."
+              }
+            ]
+          },
+          {
+            "day": "Upper Body",
+            "focus": [
+              "back",
+              "shoulders",
+              "chest",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 44,
+            "exercises": [
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Control the weight on the way down, pause briefly, and press explosively."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Support your body with one arm. Pull the dumbbell up towards your hip."
+              },
+              {
+                "exerciseId": "arnold-press",
+                "name": "Arnold Press",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Rotate your palms as you press up, ending with palms facing forward at the top."
+              },
+              {
+                "exerciseId": "straight-arm-pulldown",
+                "name": "Straight-Arm Cable Pulldown",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Initiate the movement from your lats, not your arms or shoulders."
+              },
+              {
+                "exerciseId": "cable-lateral-raise",
+                "name": "Cable Lateral Raise",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Keep constant tension on the deltoid. Don't let the weight stack touch down."
+              },
+              {
+                "exerciseId": "hammer-curl",
+                "name": "Hammer Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Keep your palms facing each other throughout the entire movement."
+              },
+              {
+                "exerciseId": "cable-pushdown",
+                "name": "Cable Triceps Pushdown",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Focus on a strong contraction at the bottom of the movement."
+              }
+            ]
+          },
+          {
+            "day": "Lower Body & Core",
+            "focus": [
+              "abs",
+              "hamstrings",
+              "calves",
+              "quads",
+              "glutes"
+            ],
+            "durationMinutes": 46,
+            "exercises": [
+              {
+                "exerciseId": "walking-lunge",
+                "name": "Dumbbell Walking Lunge",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Take a controlled step forward, lowering your hips until both knees are bent at 90 degrees."
+              },
+              {
+                "exerciseId": "single-leg-rdl",
+                "name": "Single-Leg Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Hinge at the hip, extending your non-working leg straight behind you for balance."
+              },
+              {
+                "exerciseId": "cable-pull-through",
+                "name": "Cable Pull-Through",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Focus on squeezing your glutes to bring your hips forward. Keep your back straight."
+              },
+              {
+                "exerciseId": "standing-calf-raise",
+                "name": "Standing Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Pause and squeeze at the top of the movement for a full second."
+              },
+              {
+                "exerciseId": "ab-wheel",
+                "name": "Ab Wheel Rollout",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Keep your back from arching by bracing your core throughout the movement."
+              },
+              {
+                "exerciseId": "dragon-flag",
+                "name": "Dragon Flag",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Lower your body as slowly as possible, keeping a straight line from shoulders to toes."
+              },
+              {
+                "exerciseId": "pallof-press",
+                "name": "Pallof Press",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30 seconds per side. Resist the rotational pull from the cable."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "community-beginner",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 30463,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1589,
+          "outputTokens": 2860,
+          "thinkingTokens": 1801,
+          "totalTokens": 6250
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "3 days for frequency 3"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "beginnerCommon": {
+          "pass": true,
+          "detail": ""
+        },
+        "noAdvancedForBeginner": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Full Body Foundation",
+        "summary": "3 days · ~38 min · Full body training 3x per week",
+        "notes": [],
+        "days": [
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "shoulders",
+              "abs"
+            ],
+            "durationMinutes": 38,
+            "exercises": [
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Push through your mid-foot, keeping your lower back pressed into the pad."
+              },
+              {
+                "exerciseId": "machine-chest-press",
+                "name": "Machine Chest Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and your shoulders pulled back and down."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows and pull the bar down to your upper chest."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement, especially as you let the weight back up."
+              },
+              {
+                "exerciseId": "machine-shoulder-press",
+                "name": "Machine Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press overhead without arching your lower back. Keep your core tight."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-60 seconds. Keep a straight line from your head to your heels."
+              }
+            ]
+          },
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "shoulders",
+              "abs"
+            ],
+            "durationMinutes": 38,
+            "exercises": [
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Push through your mid-foot, keeping your lower back pressed into the pad."
+              },
+              {
+                "exerciseId": "machine-chest-press",
+                "name": "Machine Chest Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and your shoulders pulled back and down."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows and pull the bar down to your upper chest."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement, especially as you let the weight back up."
+              },
+              {
+                "exerciseId": "machine-shoulder-press",
+                "name": "Machine Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press overhead without arching your lower back. Keep your core tight."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-60 seconds. Keep a straight line from your head to your heels."
+              }
+            ]
+          },
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "shoulders",
+              "abs"
+            ],
+            "durationMinutes": 38,
+            "exercises": [
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Push through your mid-foot, keeping your lower back pressed into the pad."
+              },
+              {
+                "exerciseId": "machine-chest-press",
+                "name": "Machine Chest Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your chest up and your shoulders pulled back and down."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows and pull the bar down to your upper chest."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement, especially as you let the weight back up."
+              },
+              {
+                "exerciseId": "machine-shoulder-press",
+                "name": "Machine Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press overhead without arching your lower back. Keep your core tight."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-60 seconds. Keep a straight line from your head to your heels."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "community-intermediate",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 51857,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 2310,
+          "outputTokens": 3941,
+          "thinkingTokens": 4359,
+          "totalTokens": 10610
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "4 days for frequency 4"
+        },
+        "sessionLength": {
+          "pass": false,
+          "detail": "asked 60 min; day 2 ~41 min; day 4 ~41 min"
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "freeWeightCompound": {
+          "pass": true,
+          "detail": ""
+        },
+        "focusVolume": {
+          "pass": true,
+          "detail": "target sets shoulders 12, back 12; other muscles avg 7.0"
+        }
+      },
+      "plan": {
+        "title": "Upper / Lower by Movement Pattern",
+        "summary": "4 days · ~44 min · Focus on specific movement patterns daily",
+        "notes": [],
+        "days": [
+          {
+            "day": "Upper: Horizontal Focus",
+            "focus": [
+              "chest",
+              "back",
+              "shoulders",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 46,
+            "exercises": [
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your shoulder blades retracted and down."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Pull the dumbbell towards your hip, not straight up."
+              },
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Press up and slightly back, over your upper chest."
+              },
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Focus on squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows, keeping them slightly bent."
+              },
+              {
+                "exerciseId": "cable-curl",
+                "name": "Cable Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pinned to your sides."
+              },
+              {
+                "exerciseId": "cable-pushdown",
+                "name": "Cable Triceps Pushdown",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Lock your elbows at your sides; only your forearms move."
+              }
+            ]
+          },
+          {
+            "day": "Lower: Squat Focus",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 41,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and elbows inside your knees."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Push your hips back with a slight bend in your knees."
+              },
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Drive through your front foot to stand up."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Control the weight on the way up (the eccentric)."
+              },
+              {
+                "exerciseId": "leg-press-calf-raise",
+                "name": "Leg Press Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Get a full stretch at the bottom of each rep."
+              },
+              {
+                "exerciseId": "hanging-knee-raise",
+                "name": "Hanging Knee Raise",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Avoid swinging; control the movement with your abs."
+              }
+            ]
+          },
+          {
+            "day": "Upper: Vertical Focus",
+            "focus": [
+              "shoulders",
+              "back",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 47,
+            "exercises": [
+              {
+                "exerciseId": "pull-up",
+                "name": "Pull-Up",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 120,
+                "notes": "Pull your chest to the bar, leading with your elbows."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Press overhead until your biceps are near your ears."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Pull the bar to your upper chest, squeezing your lats."
+              },
+              {
+                "exerciseId": "cable-lateral-raise",
+                "name": "Cable Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your arm straight but not locked out."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Pull the rope towards your face, aiming for your ears."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Let your arms hang straight down to get a full stretch."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your upper arms stationary next to your head."
+              }
+            ]
+          },
+          {
+            "day": "Lower: Hinge Focus",
+            "focus": [
+              "quads",
+              "calves",
+              "hamstrings",
+              "glutes"
+            ],
+            "durationMinutes": 41,
+            "exercises": [
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 90,
+                "notes": "Drive through your heels; don't let your lower back round."
+              },
+              {
+                "exerciseId": "single-leg-rdl",
+                "name": "Single-Leg Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Keep your back flat and hips square to the floor."
+              },
+              {
+                "exerciseId": "reverse-lunge",
+                "name": "Reverse Lunge",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Take a controlled step back and lower your back knee."
+              },
+              {
+                "exerciseId": "leg-extension",
+                "name": "Leg Extension",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Squeeze your quads at the top for a one-second pause."
+              },
+              {
+                "exerciseId": "hip-thrust-machine",
+                "name": "Machine Hip Thrust",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Drive through your heels and squeeze your glutes at the top."
+              },
+              {
+                "exerciseId": "seated-calf-raise",
+                "name": "Seated Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 45,
+                "notes": "Pause at the top and get a full stretch at the bottom."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "community-pro",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 56063,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 2466,
+          "outputTokens": 4317,
+          "thinkingTokens": 4251,
+          "totalTokens": 11034
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "5 days for frequency 5"
+        },
+        "sessionLength": {
+          "pass": false,
+          "detail": "asked 90 min; day 1 ~53 min; day 2 ~49 min; day 3 ~54 min; day 4 ~47 min (+1 more)"
+        },
+        "volume": {
+          "pass": false,
+          "detail": "day 1: 6 exercises; Seated Dumbbell Shoulder Press: 3 sets; One-Arm Dumbbell Row: 3 sets; Weighted Dip: 3 sets (+14 more)"
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Strength & Hypertrophy U/L/P",
+        "summary": "5 days · ~50 min · Upper/Lower/Power split, 2x frequency",
+        "notes": [],
+        "days": [
+          {
+            "day": "Upper Body Strength",
+            "focus": [
+              "chest",
+              "back",
+              "shoulders",
+              "biceps"
+            ],
+            "durationMinutes": 53,
+            "exercises": [
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 4,
+                "reps": "6-8",
+                "restSeconds": 120,
+                "notes": "Keep your shoulder blades retracted and down throughout the press."
+              },
+              {
+                "exerciseId": "weighted-pull-up",
+                "name": "Weighted Pull-Up",
+                "sets": 4,
+                "reps": "6-8",
+                "restSeconds": 120,
+                "notes": "Lead with your chest and pull your elbows down and back."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Press overhead until elbows are fully extended but not locked."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 3,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Pull the dumbbell towards your hip, keeping your back straight."
+              },
+              {
+                "exerciseId": "weighted-dip",
+                "name": "Weighted Dip",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Lean your torso slightly forward to emphasize the chest."
+              },
+              {
+                "exerciseId": "hammer-curl",
+                "name": "Hammer Curl",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your palms facing each other throughout the movement."
+              }
+            ]
+          },
+          {
+            "day": "Lower Body Strength",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 49,
+            "exercises": [
+              {
+                "exerciseId": "hack-squat",
+                "name": "Hack Squat",
+                "sets": 4,
+                "reps": "6-8",
+                "restSeconds": 150,
+                "notes": "Control the descent and drive through your entire foot on the way up."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 120,
+                "notes": "Hinge at your hips, keeping a slight bend in your knees and a flat back."
+              },
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Keep your front foot flat and your torso upright."
+              },
+              {
+                "exerciseId": "hanging-leg-raise",
+                "name": "Hanging Leg Raise",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Control the movement; avoid swinging. Focus on tilting your pelvis up."
+              },
+              {
+                "exerciseId": "machine-calf-raise",
+                "name": "Machine Calf Raise",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Pause at the top and get a full stretch at the bottom of each rep."
+              }
+            ]
+          },
+          {
+            "day": "Full Body Power",
+            "focus": [
+              "back",
+              "quads",
+              "glutes",
+              "shoulders"
+            ],
+            "durationMinutes": 54,
+            "exercises": [
+              {
+                "exerciseId": "box-jump",
+                "name": "Box Jump",
+                "sets": 5,
+                "reps": "5",
+                "restSeconds": 90,
+                "notes": "Land softly on the box in a squat position. Step down, don't jump down."
+              },
+              {
+                "exerciseId": "med-ball-slam",
+                "name": "Medicine Ball Slam",
+                "sets": 4,
+                "reps": "8",
+                "restSeconds": 90,
+                "notes": "Use your whole body to slam the ball down with maximum force."
+              },
+              {
+                "exerciseId": "db-thruster",
+                "name": "Dumbbell Thruster",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 120,
+                "notes": "Use the momentum from your squat to drive the dumbbells overhead."
+              },
+              {
+                "exerciseId": "pull-up",
+                "name": "Pull-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Focus on driving your elbows down to engage your lats."
+              },
+              {
+                "exerciseId": "farmers-carry",
+                "name": "Farmer's Carry",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 120,
+                "notes": "Walk for max distance. Stay tall, shoulders back, core tight."
+              }
+            ]
+          },
+          {
+            "day": "Upper Body Hypertrophy",
+            "focus": [
+              "back",
+              "chest",
+              "shoulders",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 47,
+            "exercises": [
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 4,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Set the bench to a 30-45 degree angle to target the upper chest."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 4,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Pull the bar to your upper chest, squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "cable-lateral-raise",
+                "name": "Cable Lateral Raise",
+                "sets": 4,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows and keep a slight bend in your arm."
+              },
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Focus on squeezing your back muscles to pull the weights up."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Allow your arms to hang straight down to get a full stretch on the bicep."
+              },
+              {
+                "exerciseId": "cable-overhead-extension",
+                "name": "Cable Overhead Triceps Extension",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Keep your upper arms stationary next to your head as you extend."
+              }
+            ]
+          },
+          {
+            "day": "Lower Body Hypertrophy",
+            "focus": [
+              "quads",
+              "glutes",
+              "hamstrings",
+              "calves"
+            ],
+            "durationMinutes": 46,
+            "exercises": [
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 90,
+                "notes": "Don't lock out your knees at the top of the movement."
+              },
+              {
+                "exerciseId": "lying-leg-curl",
+                "name": "Lying Leg Curl",
+                "sets": 4,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Control the weight on the way down (eccentric) for a better contraction."
+              },
+              {
+                "exerciseId": "leg-extension",
+                "name": "Leg Extension",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Squeeze your quads at the top of the movement for a one-second pause."
+              },
+              {
+                "exerciseId": "hip-thrust-machine",
+                "name": "Machine Hip Thrust",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Drive through your heels and squeeze your glutes hard at the top."
+              },
+              {
+                "exerciseId": "hip-abduction-machine",
+                "name": "Hip Abduction Machine",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Control the movement, especially as your legs come back together."
+              },
+              {
+                "exerciseId": "seated-calf-raise",
+                "name": "Seated Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Pause and squeeze at the top of each rep."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "commercial-beginner",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 28560,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1727,
+          "outputTokens": 2885,
+          "thinkingTokens": 1739,
+          "totalTokens": 6351
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "3 days for frequency 3"
+        },
+        "sessionLength": {
+          "pass": false,
+          "detail": "asked 60 min; day 1 ~38 min; day 2 ~38 min; day 3 ~38 min"
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "beginnerCommon": {
+          "pass": true,
+          "detail": ""
+        },
+        "noAdvancedForBeginner": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Beginner Full Body",
+        "summary": "3 days · ~38 min · Total body strength 3x per week",
+        "notes": [],
+        "days": [
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "shoulders",
+              "abs"
+            ],
+            "durationMinutes": 38,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and back straight, squatting as low as you comfortably can."
+              },
+              {
+                "exerciseId": "machine-chest-press",
+                "name": "Machine Chest Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your back flat against the pad and control the weight on the way down."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Pull the bar down to your upper chest, leading with your elbows."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement, avoiding using momentum to lift the weight."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press the dumbbells overhead without arching your lower back."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-60 seconds. Keep your body in a straight line from head to heels."
+              }
+            ]
+          },
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "shoulders",
+              "abs"
+            ],
+            "durationMinutes": 38,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and back straight, squatting as low as you comfortably can."
+              },
+              {
+                "exerciseId": "machine-chest-press",
+                "name": "Machine Chest Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your back flat against the pad and control the weight on the way down."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Pull the bar down to your upper chest, leading with your elbows."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement, avoiding using momentum to lift the weight."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press the dumbbells overhead without arching your lower back."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-60 seconds. Keep your body in a straight line from head to heels."
+              }
+            ]
+          },
+          {
+            "day": "Full Body",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "shoulders",
+              "abs"
+            ],
+            "durationMinutes": 38,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and back straight, squatting as low as you comfortably can."
+              },
+              {
+                "exerciseId": "machine-chest-press",
+                "name": "Machine Chest Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your back flat against the pad and control the weight on the way down."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Pull the bar down to your upper chest, leading with your elbows."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement, avoiding using momentum to lift the weight."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press the dumbbells overhead without arching your lower back."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-60 seconds. Keep your body in a straight line from head to heels."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "commercial-intermediate",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 44399,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 2787,
+          "outputTokens": 3821,
+          "thinkingTokens": 3023,
+          "totalTokens": 9631
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "4 days for frequency 4"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "freeWeightCompound": {
+          "pass": true,
+          "detail": ""
+        },
+        "focusVolume": {
+          "pass": false,
+          "detail": "target sets quadriceps 13, hamstrings 6, glutes 6, calves 7; other muscles avg 7.8"
+        }
+      },
+      "plan": {
+        "title": "Upper/Lower Strength Focus",
+        "summary": "4 days · ~47 min · Twice-a-week frequency for all muscles",
+        "notes": [],
+        "days": [
+          {
+            "day": "Upper Strength",
+            "focus": [
+              "back",
+              "shoulders",
+              "chest",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 56,
+            "exercises": [
+              {
+                "exerciseId": "barbell-bench-press",
+                "name": "Barbell Bench Press",
+                "sets": 4,
+                "reps": "5-8",
+                "restSeconds": 120,
+                "notes": "Keep your shoulder blades pulled back and down."
+              },
+              {
+                "exerciseId": "barbell-row",
+                "name": "Barbell Bent-Over Row",
+                "sets": 4,
+                "reps": "5-8",
+                "restSeconds": 120,
+                "notes": "Pull the bar to your lower chest, keeping your back straight."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "6-10",
+                "restSeconds": 90,
+                "notes": "Press overhead without arching your lower back excessively."
+              },
+              {
+                "exerciseId": "pull-up",
+                "name": "Pull-Up",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Lead with your chest and pull your elbows down and back."
+              },
+              {
+                "exerciseId": "ez-bar-curl",
+                "name": "EZ-Bar Curl",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pinned to your sides."
+              },
+              {
+                "exerciseId": "skull-crusher",
+                "name": "EZ-Bar Skull Crusher",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lower the bar to your forehead, keeping upper arms still."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Pull the ropes towards your face, aiming for external rotation."
+              }
+            ]
+          },
+          {
+            "day": "Lower Strength",
+            "focus": [
+              "quads",
+              "calves",
+              "hamstrings",
+              "abs"
+            ],
+            "durationMinutes": 42,
+            "exercises": [
+              {
+                "exerciseId": "barbell-back-squat",
+                "name": "Barbell Back Squat",
+                "sets": 4,
+                "reps": "5-8",
+                "restSeconds": 120,
+                "notes": "Keep your chest up and drive through your heels."
+              },
+              {
+                "exerciseId": "barbell-rdl",
+                "name": "Barbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "6-10",
+                "restSeconds": 90,
+                "notes": "Hinge at your hips with a slight knee bend, keeping a flat back."
+              },
+              {
+                "exerciseId": "walking-lunge",
+                "name": "Dumbbell Walking Lunge",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Step forward and lower your back knee until it almost touches the floor."
+              },
+              {
+                "exerciseId": "machine-calf-raise",
+                "name": "Machine Calf Raise",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Pause at the top and get a full stretch at the bottom."
+              },
+              {
+                "exerciseId": "hanging-knee-raise",
+                "name": "Hanging Knee Raise",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement; avoid swinging."
+              }
+            ]
+          },
+          {
+            "day": "Upper Hypertrophy",
+            "focus": [
+              "back",
+              "chest",
+              "shoulders",
+              "triceps",
+              "biceps",
+              "abs"
+            ],
+            "durationMinutes": 46,
+            "exercises": [
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Press the dumbbells up and slightly inwards over your upper chest."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Pull the bar to your upper chest, squeezing your lats."
+              },
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Squeeze your shoulder blades together at the top of the movement."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows, raising arms to shoulder height."
+              },
+              {
+                "exerciseId": "cable-pushdown",
+                "name": "Cable Triceps Pushdown",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows tucked in at your sides."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Allow your arms to hang straight down to get a full stretch."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Keep a straight line from your head to your heels. Hold for 30-60s."
+              }
+            ]
+          },
+          {
+            "day": "Lower Hypertrophy",
+            "focus": [
+              "quads",
+              "glutes",
+              "hamstrings",
+              "calves"
+            ],
+            "durationMinutes": 42,
+            "exercises": [
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 90,
+                "notes": "Drive through your heels and avoid locking out your knees at the top."
+              },
+              {
+                "exerciseId": "lying-leg-curl",
+                "name": "Lying Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Control the weight on the way down (eccentric)."
+              },
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your torso upright and lower straight down."
+              },
+              {
+                "exerciseId": "barbell-hip-thrust",
+                "name": "Barbell Hip Thrust",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Drive through your heels and squeeze your glutes hard at the top."
+              },
+              {
+                "exerciseId": "hip-abduction-machine",
+                "name": "Hip Abduction Machine",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Control the movement, especially on the way back in."
+              },
+              {
+                "exerciseId": "seated-calf-raise",
+                "name": "Seated Calf Raise",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Get a full range of motion on each rep."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "commercial-pro",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 68171,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 3267,
+          "outputTokens": 6001,
+          "thinkingTokens": 5287,
+          "totalTokens": 14555
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "6 days for frequency 6"
+        },
+        "sessionLength": {
+          "pass": false,
+          "detail": "asked 90 min; day 4 ~54 min; day 5 ~55 min; day 6 ~57 min"
+        },
+        "volume": {
+          "pass": false,
+          "detail": "day 1: 6 exercises; Weighted Dip: 3 sets; EZ-Bar Skull Crusher: 3 sets; day 2: 6 exercises (+17 more)"
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "proWeeklySets": {
+          "pass": false,
+          "detail": "chest 24, back 29 (range 10-22)"
+        }
+      },
+      "plan": {
+        "title": "PPL Strength/Hypertrophy",
+        "summary": "6 days · ~61 min · Push/Pull/Legs, twice per week",
+        "notes": [],
+        "days": [
+          {
+            "day": "Push 1 - Strength",
+            "focus": [
+              "chest",
+              "shoulders",
+              "triceps"
+            ],
+            "durationMinutes": 65,
+            "exercises": [
+              {
+                "exerciseId": "barbell-bench-press",
+                "name": "Barbell Bench Press",
+                "sets": 4,
+                "reps": "4-6",
+                "restSeconds": 180,
+                "notes": "Keep your shoulder blades retracted and down."
+              },
+              {
+                "exerciseId": "db-incline-press",
+                "name": "Incline Dumbbell Press",
+                "sets": 4,
+                "reps": "6-8",
+                "restSeconds": 120,
+                "notes": "Control the negative and press explosively."
+              },
+              {
+                "exerciseId": "barbell-ohp",
+                "name": "Barbell Overhead Press",
+                "sets": 4,
+                "reps": "5-8",
+                "restSeconds": 150,
+                "notes": "Brace your core and glutes to stay stable."
+              },
+              {
+                "exerciseId": "weighted-dip",
+                "name": "Weighted Dip",
+                "sets": 3,
+                "reps": "6-10",
+                "restSeconds": 120,
+                "notes": "Lean your torso forward to emphasize the chest."
+              },
+              {
+                "exerciseId": "cable-lateral-raise",
+                "name": "Cable Lateral Raise",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows, keeping them slightly bent."
+              },
+              {
+                "exerciseId": "skull-crusher",
+                "name": "EZ-Bar Skull Crusher",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Keep your upper arms stationary throughout the movement."
+              }
+            ]
+          },
+          {
+            "day": "Pull 1 - Strength",
+            "focus": [
+              "back",
+              "glutes",
+              "hamstrings",
+              "shoulders",
+              "biceps"
+            ],
+            "durationMinutes": 68,
+            "exercises": [
+              {
+                "exerciseId": "conventional-deadlift",
+                "name": "Barbell Deadlift",
+                "sets": 4,
+                "reps": "3-5",
+                "restSeconds": 240,
+                "notes": "Maintain a flat back; drive the floor away."
+              },
+              {
+                "exerciseId": "weighted-pull-up",
+                "name": "Weighted Pull-Up",
+                "sets": 4,
+                "reps": "5-8",
+                "restSeconds": 150,
+                "notes": "Drive your elbows down and back to pull up."
+              },
+              {
+                "exerciseId": "pendlay-row",
+                "name": "Pendlay Row",
+                "sets": 4,
+                "reps": "6-8",
+                "restSeconds": 120,
+                "notes": "Explode from a dead stop on the floor each rep."
+              },
+              {
+                "exerciseId": "seated-cable-row",
+                "name": "Seated Cable Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Squeeze your shoulder blades together at the peak."
+              },
+              {
+                "exerciseId": "face-pull",
+                "name": "Cable Face Pull",
+                "sets": 4,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Pull the rope towards your face, aiming for external rotation."
+              },
+              {
+                "exerciseId": "barbell-curl",
+                "name": "Barbell Curl",
+                "sets": 3,
+                "reps": "8-10",
+                "restSeconds": 75,
+                "notes": "Avoid swinging; control the weight on the way down."
+              }
+            ]
+          },
+          {
+            "day": "Legs 1 - Strength",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 64,
+            "exercises": [
+              {
+                "exerciseId": "barbell-back-squat",
+                "name": "Barbell Back Squat",
+                "sets": 4,
+                "reps": "4-6",
+                "restSeconds": 180,
+                "notes": "Keep your chest up and drive through your mid-foot."
+              },
+              {
+                "exerciseId": "barbell-rdl",
+                "name": "Barbell Romanian Deadlift",
+                "sets": 4,
+                "reps": "6-8",
+                "restSeconds": 120,
+                "notes": "Hinge at your hips with a slight knee bend; keep back flat."
+              },
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 3,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Control the descent and don't lock out your knees at the top."
+              },
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "8-10",
+                "restSeconds": 90,
+                "notes": "Focus on dropping your back knee straight down."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement and squeeze your hamstrings at the top."
+              },
+              {
+                "exerciseId": "standing-calf-raise",
+                "name": "Standing Calf Raise",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Pause at the top and get a full stretch at the bottom."
+              },
+              {
+                "exerciseId": "hanging-leg-raise",
+                "name": "Hanging Leg Raise",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 90,
+                "notes": "Focus on tilting your pelvis up; avoid swinging."
+              }
+            ]
+          },
+          {
+            "day": "Push 2 - Hypertrophy",
+            "focus": [
+              "chest",
+              "shoulders",
+              "triceps"
+            ],
+            "durationMinutes": 54,
+            "exercises": [
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Press overhead without arching your lower back excessively."
+              },
+              {
+                "exerciseId": "incline-barbell-bench-press",
+                "name": "Incline Barbell Bench Press",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Touch the bar to your upper chest and press up."
+              },
+              {
+                "exerciseId": "pec-deck",
+                "name": "Pec Deck Fly",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Focus on squeezing your chest muscles together."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 4,
+                "reps": "12-20",
+                "restSeconds": 60,
+                "notes": "Imagine pouring two pitchers of water out at the top."
+              },
+              {
+                "exerciseId": "cable-fly",
+                "name": "Cable Fly",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep a slight bend in your elbows and stretch the pecs."
+              },
+              {
+                "exerciseId": "cable-overhead-extension",
+                "name": "Cable Overhead Triceps Extension",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Get a full stretch at the bottom of the movement."
+              },
+              {
+                "exerciseId": "push-up",
+                "name": "Push-Up",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Keep a straight line from your head to your heels."
+              }
+            ]
+          },
+          {
+            "day": "Pull 2 - Hypertrophy",
+            "focus": [
+              "back",
+              "biceps",
+              "shoulders"
+            ],
+            "durationMinutes": 55,
+            "exercises": [
+              {
+                "exerciseId": "pull-up",
+                "name": "Pull-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 120,
+                "notes": "Initiate the pull with your lats, not your arms."
+              },
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 4,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Pull the dumbbells towards your hips, squeezing your back."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Drive your elbows down to engage the lats."
+              },
+              {
+                "exerciseId": "straight-arm-pulldown",
+                "name": "Straight-Arm Cable Pulldown",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your arms straight and focus on the lats."
+              },
+              {
+                "exerciseId": "reverse-pec-deck",
+                "name": "Reverse Pec Deck",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Squeeze your rear delts and upper back."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Allow a full stretch at the bottom of each rep."
+              },
+              {
+                "exerciseId": "preacher-curl",
+                "name": "EZ-Bar Preacher Curl",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep the back of your arm against the pad."
+              }
+            ]
+          },
+          {
+            "day": "Legs 2 - Hypertrophy",
+            "focus": [
+              "quads",
+              "glutes",
+              "hamstrings",
+              "calves"
+            ],
+            "durationMinutes": 57,
+            "exercises": [
+              {
+                "exerciseId": "front-squat",
+                "name": "Barbell Front Squat",
+                "sets": 4,
+                "reps": "8-10",
+                "restSeconds": 120,
+                "notes": "Keep your elbows high and chest up throughout."
+              },
+              {
+                "exerciseId": "walking-lunge",
+                "name": "Dumbbell Walking Lunge",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 90,
+                "notes": "Take controlled steps, keeping your front knee over your ankle."
+              },
+              {
+                "exerciseId": "lying-leg-curl",
+                "name": "Lying Leg Curl",
+                "sets": 4,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Flex your hamstrings hard at the top of the curl."
+              },
+              {
+                "exerciseId": "leg-extension",
+                "name": "Leg Extension",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Squeeze your quads at the top for a one-second pause."
+              },
+              {
+                "exerciseId": "barbell-hip-thrust",
+                "name": "Barbell Hip Thrust",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 90,
+                "notes": "Drive through your heels and squeeze your glutes at the top."
+              },
+              {
+                "exerciseId": "hip-abduction-machine",
+                "name": "Hip Abduction Machine",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Control the weight on the way in and out."
+              },
+              {
+                "exerciseId": "seated-calf-raise",
+                "name": "Seated Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Focus on a full range of motion for each rep."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-pro-home-dumbbells-only",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 38786,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1391,
+          "outputTokens": 3769,
+          "thinkingTokens": 2426,
+          "totalTokens": 7586
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "4 days for frequency 4"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": false,
+          "detail": "day 1: 6 exercises; Dumbbell Lateral Raise: 3 sets; Dumbbell Curl: 3 sets; Overhead Dumbbell Triceps Extension: 3 sets (+14 more)"
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Upper / Lower Split",
+        "summary": "4 days · ~45 min · Hypertrophy & Strength Focus",
+        "notes": [],
+        "days": [
+          {
+            "day": "Upper A - Strength",
+            "focus": [
+              "shoulders",
+              "chest",
+              "biceps",
+              "triceps"
+            ],
+            "durationMinutes": 45,
+            "exercises": [
+              {
+                "exerciseId": "handstand-push-up",
+                "name": "Handstand Push-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Control the negative; keep your core tight and elbows tucked."
+              },
+              {
+                "exerciseId": "push-up",
+                "name": "Push-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Maintain a straight line from head to heels. Chest to floor."
+              },
+              {
+                "exerciseId": "rear-delt-db-fly",
+                "name": "Bent-Over Dumbbell Rear Delt Fly",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep a flat back and a slight bend in your elbows. Squeeze shoulder blades."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with the elbows, raising arms to shoulder height."
+              },
+              {
+                "exerciseId": "db-curl",
+                "name": "Dumbbell Curl",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pinned to your sides. Avoid swinging."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep upper arms stationary and close to your head."
+              }
+            ]
+          },
+          {
+            "day": "Lower A - Strength",
+            "focus": [
+              "quads",
+              "hamstrings",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 48,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up, back straight, and push your knees out."
+              },
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Hinge at the hips with a flat back. Keep a slight bend in the knees."
+              },
+              {
+                "exerciseId": "walking-lunge",
+                "name": "Dumbbell Walking Lunge",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 75,
+                "notes": "Step forward and lower your hips until both knees are bent at a 90-degree angle."
+              },
+              {
+                "exerciseId": "nordic-curl",
+                "name": "Nordic Hamstring Curl",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Lower your torso towards the floor as slowly as possible, using your hamstrings."
+              },
+              {
+                "exerciseId": "deficit-calf-raise",
+                "name": "Deficit Single-Leg Calf Raise",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Stand on an elevated surface to get a deeper stretch in the calf."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 60 seconds. Keep your body in a straight line, engaging your core and glutes."
+              }
+            ]
+          },
+          {
+            "day": "Upper B - Hypertrophy",
+            "focus": [
+              "triceps",
+              "shoulders",
+              "back",
+              "biceps",
+              "abs"
+            ],
+            "durationMinutes": 43,
+            "exercises": [
+              {
+                "exerciseId": "pike-push-up",
+                "name": "Pike Push-Up",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Keep your hips high in a downward dog position. Lower the top of your head to the floor."
+              },
+              {
+                "exerciseId": "diamond-push-up",
+                "name": "Diamond Push-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Form a diamond shape with your hands. Keep elbows tucked in."
+              },
+              {
+                "exerciseId": "superman",
+                "name": "Superman Hold",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-45 seconds. Lift your arms, chest, and legs off the floor."
+              },
+              {
+                "exerciseId": "hammer-curl",
+                "name": "Hammer Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep palms facing each other throughout the movement."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Focus on a full stretch at the bottom and a strong squeeze at the top."
+              },
+              {
+                "exerciseId": "ab-wheel",
+                "name": "Ab Wheel Rollout",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Roll out as far as you can without arching your lower back."
+              }
+            ]
+          },
+          {
+            "day": "Lower B - Hypertrophy",
+            "focus": [
+              "quads",
+              "glutes",
+              "hamstrings",
+              "back",
+              "shoulders",
+              "calves",
+              "abs"
+            ],
+            "durationMinutes": 45,
+            "exercises": [
+              {
+                "exerciseId": "pistol-squat",
+                "name": "Pistol Squat",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Focus on balance and control. Use assistance if needed to maintain form."
+              },
+              {
+                "exerciseId": "single-leg-rdl",
+                "name": "Single-Leg Dumbbell Romanian Deadlift",
+                "sets": 4,
+                "reps": "8-12",
+                "restSeconds": 75,
+                "notes": "Hinge at the hip, keeping your back straight and core engaged. Move slowly."
+              },
+              {
+                "exerciseId": "single-leg-glute-bridge",
+                "name": "Single-Leg Glute Bridge",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Drive through your heel and squeeze your glute at the top."
+              },
+              {
+                "exerciseId": "box-jump",
+                "name": "Box Jump",
+                "sets": 3,
+                "reps": "5-8",
+                "restSeconds": 90,
+                "notes": "Focus on explosive power and landing softly on the box. Step down."
+              },
+              {
+                "exerciseId": "pogo-jump",
+                "name": "Pogo Jumps",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Stay on the balls of your feet, keeping legs stiff. Minimize knee bend."
+              },
+              {
+                "exerciseId": "suitcase-carry",
+                "name": "Suitcase Carry",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Walk for 20-30 meters. Stand tall and resist leaning to the side."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-intermediate-apartment-light-dumbbells",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 45632,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1605,
+          "outputTokens": 2880,
+          "thinkingTokens": 3721,
+          "totalTokens": 8206
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "3 days for frequency 3"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "freeWeightCompound": {
+          "pass": true,
+          "detail": ""
+        },
+        "focusVolume": {
+          "pass": true,
+          "detail": "target sets chest 8, shoulders 12, quadriceps 7; other muscles avg 6.0"
+        }
+      },
+      "plan": {
+        "title": "Full Body Hypertrophy",
+        "summary": "3 days · ~43 min · High frequency for muscle growth",
+        "notes": [],
+        "days": [
+          {
+            "day": "Full Body A",
+            "focus": [
+              "chest",
+              "back",
+              "quads",
+              "shoulders",
+              "biceps",
+              "abs"
+            ],
+            "durationMinutes": 42,
+            "exercises": [
+              {
+                "exerciseId": "bulgarian-split-squat",
+                "name": "Bulgarian Split Squat",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your torso upright and lower until your front thigh is parallel to the floor."
+              },
+              {
+                "exerciseId": "db-bench-press",
+                "name": "Dumbbell Bench Press",
+                "sets": 4,
+                "reps": "12-20",
+                "restSeconds": 75,
+                "notes": "Lower the dumbbells to your chest with elbows at a 45-degree angle."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Pull the dumbbell towards your hip, keeping your back straight."
+              },
+              {
+                "exerciseId": "arnold-press",
+                "name": "Arnold Press",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Start with palms facing you, rotate as you press overhead."
+              },
+              {
+                "exerciseId": "incline-db-curl",
+                "name": "Incline Dumbbell Curl",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pinned to your sides as you curl."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 45-60 seconds. Keep a straight line from head to heels."
+              }
+            ]
+          },
+          {
+            "day": "Full Body B",
+            "focus": [
+              "chest",
+              "back",
+              "hamstrings",
+              "shoulders",
+              "triceps",
+              "abs"
+            ],
+            "durationMinutes": 42,
+            "exercises": [
+              {
+                "exerciseId": "single-leg-rdl",
+                "name": "Single-Leg Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Hinge at your hips, keeping your back flat and rear leg extended."
+              },
+              {
+                "exerciseId": "decline-push-up",
+                "name": "Decline Push-Up",
+                "sets": 4,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Elevate your feet on a stable surface. Keep your core tight."
+              },
+              {
+                "exerciseId": "chest-supported-db-row",
+                "name": "Chest-Supported Dumbbell Row",
+                "sets": 4,
+                "reps": "12-15",
+                "restSeconds": 75,
+                "notes": "Set a bench to an incline. Squeeze your shoulder blades at the top."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Raise the weights to shoulder height with a slight bend in your elbows."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your upper arms stationary next to your head as you lower the weight."
+              },
+              {
+                "exerciseId": "dead-bug",
+                "name": "Dead Bug",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Lower opposite arm and leg slowly while keeping your lower back on the floor."
+              }
+            ]
+          },
+          {
+            "day": "Full Body C",
+            "focus": [
+              "shoulders",
+              "quads",
+              "back",
+              "biceps",
+              "glutes"
+            ],
+            "durationMinutes": 44,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 4,
+                "reps": "15-20",
+                "restSeconds": 75,
+                "notes": "Keep your chest up and elbows inside your knees at the bottom."
+              },
+              {
+                "exerciseId": "pike-push-up",
+                "name": "Pike Push-Up",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 75,
+                "notes": "Form an inverted V with your body. Lower the top of your head towards the floor."
+              },
+              {
+                "exerciseId": "db-row",
+                "name": "One-Arm Dumbbell Row",
+                "sets": 4,
+                "reps": "10-15",
+                "restSeconds": 75,
+                "notes": "Focus on pulling with your back muscles, not your arm."
+              },
+              {
+                "exerciseId": "rear-delt-db-fly",
+                "name": "Bent-Over Dumbbell Rear Delt Fly",
+                "sets": 3,
+                "reps": "15-20",
+                "restSeconds": 60,
+                "notes": "Hinge at the hips with a flat back. Lead with your elbows."
+              },
+              {
+                "exerciseId": "hammer-curl",
+                "name": "Hammer Curl",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Keep your palms facing each other throughout the movement."
+              },
+              {
+                "exerciseId": "farmers-carry",
+                "name": "Farmer's Carry",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 90,
+                "notes": "Walk 20-30 meters. Stay tall and keep your core braced."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-beginner-home-bad-knee",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 39520,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1010,
+          "outputTokens": 2381,
+          "thinkingTokens": 3674,
+          "totalTokens": 7065
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "3 days for frequency 3"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "beginnerCommon": {
+          "pass": true,
+          "detail": ""
+        },
+        "noAdvancedForBeginner": {
+          "pass": true,
+          "detail": ""
+        },
+        "injurySafe": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Full Body A/B Split",
+        "summary": "3 days · ~28 min · Varied workouts for balanced fitness",
+        "notes": [],
+        "days": [
+          {
+            "day": "Full Body A",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "abs",
+              "shoulders"
+            ],
+            "durationMinutes": 28,
+            "exercises": [
+              {
+                "exerciseId": "bodyweight-squat",
+                "name": "Bodyweight Squat",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Lower your hips only to a pain-free depth."
+              },
+              {
+                "exerciseId": "incline-push-up",
+                "name": "Incline Push-Up",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your body in a straight line from head to heels."
+              },
+              {
+                "exerciseId": "superman",
+                "name": "Superman Hold",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 45,
+                "notes": "Lift your arms, chest, and legs off the floor slowly."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 2,
+                "reps": "12-15",
+                "restSeconds": 45,
+                "notes": "Lead with your elbows, keeping a slight bend in them."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 45,
+                "notes": "Hold for 30-45 seconds. Don't let your hips sag."
+              }
+            ]
+          },
+          {
+            "day": "Full Body B",
+            "focus": [
+              "hamstrings",
+              "glutes",
+              "triceps",
+              "abs",
+              "biceps"
+            ],
+            "durationMinutes": 28,
+            "exercises": [
+              {
+                "exerciseId": "db-rdl",
+                "name": "Dumbbell Romanian Deadlift",
+                "sets": 3,
+                "reps": "10-12",
+                "restSeconds": 60,
+                "notes": "Keep a slight bend in your knees and push your hips back."
+              },
+              {
+                "exerciseId": "glute-bridge",
+                "name": "Glute Bridge",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Squeeze your glutes at the top of the movement."
+              },
+              {
+                "exerciseId": "overhead-db-extension",
+                "name": "Overhead Dumbbell Triceps Extension",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your upper arms stationary next to your head."
+              },
+              {
+                "exerciseId": "hammer-curl",
+                "name": "Hammer Curl",
+                "sets": 2,
+                "reps": "10-15",
+                "restSeconds": 45,
+                "notes": "Keep palms facing each other throughout the lift."
+              },
+              {
+                "exerciseId": "dead-bug",
+                "name": "Dead Bug",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 45,
+                "notes": "Lower opposite arm and leg slowly, keeping your low back flat."
+              }
+            ]
+          },
+          {
+            "day": "Full Body A",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "abs",
+              "shoulders"
+            ],
+            "durationMinutes": 28,
+            "exercises": [
+              {
+                "exerciseId": "bodyweight-squat",
+                "name": "Bodyweight Squat",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Lower your hips only to a pain-free depth."
+              },
+              {
+                "exerciseId": "incline-push-up",
+                "name": "Incline Push-Up",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your body in a straight line from head to heels."
+              },
+              {
+                "exerciseId": "superman",
+                "name": "Superman Hold",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 45,
+                "notes": "Lift your arms, chest, and legs off the floor slowly."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 2,
+                "reps": "12-15",
+                "restSeconds": 45,
+                "notes": "Lead with your elbows, keeping a slight bend in them."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 45,
+                "notes": "Hold for 30-45 seconds. Don't let your hips sag."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "edge-beginner-commercial-lower-back",
+      "ok": true,
+      "meta": {
+        "model": "gemini-2.5-pro",
+        "promptVersion": "v1-proposal-2026-11-17.3",
+        "attempts": 1,
+        "latencyMs": 32770,
+        "finishReason": "STOP",
+        "usage": {
+          "inputTokens": 1729,
+          "outputTokens": 1968,
+          "thinkingTokens": 2844,
+          "totalTokens": 6541
+        }
+      },
+      "checks": {
+        "schema": {
+          "pass": true,
+          "detail": "validated by the app plan builder"
+        },
+        "dayCount": {
+          "pass": true,
+          "detail": "2 days for frequency 2"
+        },
+        "sessionLength": {
+          "pass": true,
+          "detail": ""
+        },
+        "volume": {
+          "pass": true,
+          "detail": ""
+        },
+        "catalogCoverage": {
+          "pass": true,
+          "detail": "100% matched",
+          "value": 1
+        },
+        "equipment": {
+          "pass": true,
+          "detail": ""
+        },
+        "beginnerCommon": {
+          "pass": true,
+          "detail": ""
+        },
+        "noAdvancedForBeginner": {
+          "pass": true,
+          "detail": ""
+        },
+        "injurySafe": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "plan": {
+        "title": "Full Body Foundation",
+        "summary": "2 days · ~36 min · Safe, balanced, full-body workouts",
+        "notes": [],
+        "days": [
+          {
+            "day": "Full Body A",
+            "focus": [
+              "quads",
+              "chest",
+              "back",
+              "hamstrings",
+              "abs",
+              "shoulders"
+            ],
+            "durationMinutes": 36,
+            "exercises": [
+              {
+                "exerciseId": "leg-press",
+                "name": "Leg Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Drive through your heels and keep your lower back pressed into the pad."
+              },
+              {
+                "exerciseId": "machine-chest-press",
+                "name": "Machine Chest Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Keep your shoulders down and back, away from your ears."
+              },
+              {
+                "exerciseId": "lat-pulldown",
+                "name": "Lat Pulldown",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Pull the bar to your upper chest, leading with your elbows."
+              },
+              {
+                "exerciseId": "seated-leg-curl",
+                "name": "Seated Leg Curl",
+                "sets": 3,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Control the movement on the way up; don't let the weight slam."
+              },
+              {
+                "exerciseId": "lateral-raise",
+                "name": "Dumbbell Lateral Raise",
+                "sets": 2,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Lead with your elbows, raising arms only to shoulder height."
+              },
+              {
+                "exerciseId": "plank",
+                "name": "Plank",
+                "sets": 3,
+                "reps": "max",
+                "restSeconds": 60,
+                "notes": "Hold for 30-45 seconds. Keep a straight line from head to heels, don't let hips sag."
+              }
+            ]
+          },
+          {
+            "day": "Full Body B",
+            "focus": [
+              "quads",
+              "shoulders",
+              "back",
+              "glutes",
+              "abs",
+              "biceps"
+            ],
+            "durationMinutes": 36,
+            "exercises": [
+              {
+                "exerciseId": "goblet-squat",
+                "name": "Goblet Squat",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 90,
+                "notes": "Keep your chest up and core tight. Sit back between your knees."
+              },
+              {
+                "exerciseId": "db-shoulder-press",
+                "name": "Seated Dumbbell Shoulder Press",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Press overhead without arching your lower back. Keep your back flat on the bench."
+              },
+              {
+                "exerciseId": "seated-cable-row",
+                "name": "Seated Cable Row",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Pull the handle to your stomach, squeezing your shoulder blades together."
+              },
+              {
+                "exerciseId": "glute-bridge",
+                "name": "Glute Bridge",
+                "sets": 3,
+                "reps": "12-15",
+                "restSeconds": 60,
+                "notes": "Drive through your heels and squeeze your glutes at the top."
+              },
+              {
+                "exerciseId": "db-curl",
+                "name": "Dumbbell Curl",
+                "sets": 2,
+                "reps": "10-15",
+                "restSeconds": 60,
+                "notes": "Keep your elbows pinned to your sides; don't use momentum."
+              },
+              {
+                "exerciseId": "dead-bug",
+                "name": "Dead Bug",
+                "sets": 3,
+                "reps": "8-12",
+                "restSeconds": 60,
+                "notes": "Lower opposite arm and leg slowly. Keep your lower back pressed to the floor."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -2,11 +2,17 @@
 // Automatic checks for one generated plan against its persona (RYR-11).
 // Each check returns { pass, detail } or null when it doesn't apply.
 //
-// Exercise names are matched to the catalog (lib/catalog). Names that don't
-// match are checked for equipment with a keyword list, and otherwise reported
-// as unmatched: catalog coverage is itself a reported number.
+// Exercises carry a catalog id (the app's generator) or only a name (the
+// website's generator); names are matched to the catalog (lib/catalog). Names
+// that don't match are checked for equipment with a keyword list, and
+// otherwise reported as unmatched: catalog coverage is itself a reported number.
+//
+// Equipment: with persona.appEquipment (app generator) it's judged the way the
+// app does (its 10 coarse equipment types, lib/v1/vocab canDoWith); otherwise
+// against the catalog's own equipment ids.
 import { generatedPlanSchema, describePlanIssues } from '@/lib/planSchema'
-import { matchExercise, difficultyRank, EXERCISES } from '@/lib/catalog'
+import { matchExercise, difficultyRank, EXERCISES, EXERCISES_BY_ID } from '@/lib/catalog'
+import { canDoWith, toAppExercise } from '@/lib/v1/vocab'
 
 // Volume per session, from the level guidelines in lib/workoutPrompt.js.
 // RYR-14 will move these into code as level templates.
@@ -44,8 +50,13 @@ const EQUIPMENT_KEYWORDS = [
   [/\bpec deck\b|\bmachine fly\b/, 'pec_deck'],
   [/\bmedicine ball\b|\bmed ball\b/, 'medicine_ball'],
   [/\bbox jump\b/, 'plyo_box'],
+  [/\b(dumbbells?|db)\b/, 'dumbbells'],
   [/\bmachine\b/, '__machine'], // some machine: only fine if they have any machine
 ]
+// Machine-only keywords that don't apply when the name says it's done with
+// free weights or bands ("Dumbbell Hamstring Curl" needs no leg-curl machine).
+const MACHINE_KEYWORD_IDS = new Set(['leg_curl', 'leg_extension', 'pec_deck', 'hack_squat', 'leg_press', 'cable_machine', '__machine'])
+const FREE_WEIGHT_WORDS = /\b(dumbbells?|db|bands?|banded|kettlebells?|bodyweight)\b/
 const MACHINE_IDS = new Set(EXERCISES.filter(e => e.equipmentType === 'machine_cable').flatMap(e => e.equipment))
 
 // Exercises to avoid per injury area.
@@ -59,7 +70,8 @@ const COMPOUND_PATTERNS = new Set(['squat', 'hinge', 'lunge', 'horizontal_push',
 
 function keywordEquipment(name) {
   const n = name.toLowerCase()
-  const ids = EQUIPMENT_KEYWORDS.filter(([re]) => re.test(n)).map(([, id]) => id)
+  let ids = EQUIPMENT_KEYWORDS.filter(([re]) => re.test(n)).map(([, id]) => id)
+  if (FREE_WEIGHT_WORDS.test(n)) ids = ids.filter(id => !MACHINE_KEYWORD_IDS.has(id))
   // "machine" only matters when no specific machine was recognised.
   return ids.length > 1 ? ids.filter(id => id !== '__machine') : ids
 }
@@ -68,7 +80,10 @@ function keywordEquipment(name) {
 export function annotatePlan(plan) {
   return (plan?.days || []).map(day => ({
     ...day,
-    exercises: (day.exercises || []).map(ex => ({ ...ex, match: matchExercise(ex.name) })),
+    exercises: (day.exercises || []).map(ex => ({
+      ...ex,
+      match: ex.exerciseId ? EXERCISES_BY_ID.get(ex.exerciseId) || null : matchExercise(ex.name),
+    })),
   }))
 }
 
@@ -98,9 +113,16 @@ export function runChecks(persona, plan) {
   const matched = all.filter(ex => ex.match)
   const results = {}
 
-  // 1. Plan schema (RYR-6)
-  const schema = generatedPlanSchema({ frequency: persona.frequency }).safeParse(plan)
-  results.schema = { pass: schema.success, detail: schema.success ? '' : describePlanIssues(schema.error) }
+  // 1. Plan schema. The website's plans use the RYR-6 schema. The app's plans
+  //    are checked by its own plan builder (lib/v1/generation checkProposal)
+  //    before they exist, against the app contract (which, e.g., doesn't cap
+  //    the focus list at 6 muscles), so a generated app plan has passed it.
+  if (persona.appEquipment) {
+    results.schema = { pass: true, detail: 'validated by the app plan builder' }
+  } else {
+    const schema = generatedPlanSchema({ frequency: persona.frequency }).safeParse(plan)
+    results.schema = { pass: schema.success, detail: schema.success ? '' : describePlanIssues(schema.error) }
+  }
 
   // 2. Day count
   results.dayCount = { pass: days.length === persona.frequency, detail: `${days.length} days for frequency ${persona.frequency}` }
@@ -137,6 +159,14 @@ export function runChecks(persona, plan) {
   const hasMachine = [...have].some(e => MACHINE_IDS.has(e))
   const equipmentIssues = []
   for (const ex of all) {
+    if (persona.appEquipment) {
+      // The app's rule: every piece of kit is on the user's list (bodyweight always is).
+      if (!ex.match) equipmentIssues.push(`${ex.name} is not in the catalog`)
+      else if (!canDoWith(toAppExercise(ex.match), persona.appEquipment)) {
+        equipmentIssues.push(`${ex.name} needs ${toAppExercise(ex.match).equipment.filter(e => e !== 'bodyweight' && !persona.appEquipment.includes(e)).join(', ')}`)
+      }
+      continue
+    }
     const needed = ex.match ? ex.match.equipment : keywordEquipment(ex.name)
     const missing = needed.filter(e => (e === '__machine' ? !hasMachine : !have.has(e)))
     if (missing.length) equipmentIssues.push(`${ex.name} needs ${missing.join(', ').replace('__machine', 'a machine')}`)

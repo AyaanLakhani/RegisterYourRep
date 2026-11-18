@@ -9,6 +9,11 @@
 //   npm run eval -- --only home-beginner,commercial-pro
 //   npm run eval -- --mock              no Gemini calls: plans built from the catalog
 //                                       (tests the harness and checks, costs nothing)
+//   npm run eval -- --generator website the website's older free-text generator
+//                                       (default: the app's catalog-based plan builder)
+//   npm run eval -- --rescore evals/baseline.json [--save-baseline]
+//                                       re-run the checks on a saved run's plans
+//                                       (after changing the checks; no Gemini calls)
 //
 // Real runs make one Gemini call per persona and cost real money (see the cost
 // line in the summary). Run locally, not in CI. Reads GEMINI_API_KEY from
@@ -29,14 +34,19 @@ const option = name => {
   const i = argv.indexOf(`--${name}`)
   return i >= 0 ? argv[i + 1] : undefined
 }
+const rescoreFile = option('rescore')
+const rescored = rescoreFile ? JSON.parse(readFileSync(path.resolve(rescoreFile), 'utf8')) : null
 const mock = flag('mock')
+// app: the phone app's plan builder (lib/v1/generation, RYR-37), what users get.
+// website: the older website generator (lib/apiHelpers), kept for comparison.
+const generator = rescored ? (rescored.generator || 'website') : option('generator') === 'website' ? 'website' : 'app'
 const saveBaseline = flag('save-baseline')
 const only = option('only')?.split(',').map(s => s.trim()).filter(Boolean)
 const concurrency = Math.max(1, Number(option('concurrency')) || 3)
 if (option('model')) process.env.GEMINI_MODEL = option('model')
 
 nextEnv.loadEnvConfig(path.resolve(EVAL_DIR, '..'))
-if (!mock && !process.env.GEMINI_API_KEY) {
+if (!mock && !rescored && !process.env.GEMINI_API_KEY) {
   console.error('GEMINI_API_KEY is not set (expected in .env.local). Use --mock to test without Gemini.')
   process.exit(1)
 }
@@ -45,7 +55,10 @@ if (!mock && !process.env.GEMINI_API_KEY) {
 const { GYM_PRESETS, filterExercises, validateCatalog } = await import('@/lib/catalog')
 const { generatePlanWithGemini } = await import('@/lib/apiHelpers')
 const { getModelName } = await import('@/lib/geminiClient')
-const { PROMPT_VERSION } = await import('@/lib/workoutPrompt')
+const { PROMPT_VERSION: WEBSITE_PROMPT_VERSION } = await import('@/lib/workoutPrompt')
+const { generateProposal, PROPOSAL_PROMPT_VERSION } = await import('@/lib/v1/generation')
+const { toAppEquipmentList } = await import('@/lib/v1/vocab')
+const PROMPT_VERSION = generator === 'app' ? PROPOSAL_PROMPT_VERSION : WEBSITE_PROMPT_VERSION
 const { runChecks, VOLUME } = await import('./checks.mjs')
 
 // Approximate USD per 1M tokens (thinking tokens bill as output). Check
@@ -68,6 +81,7 @@ const { personas: allPersonas } = JSON.parse(readFileSync(path.join(EVAL_DIR, 'p
 const personas = allPersonas
   .filter(p => !only || only.includes(p.id))
   .map(p => ({ ...p, equipment: p.equipment || GYM_PRESETS[p.gymType] }))
+  .map(p => (generator === 'app' ? { ...p, appEquipment: toAppEquipmentList(p.equipment) } : p))
 if (!personas.length) {
   console.error('No personas match --only.')
   process.exit(1)
@@ -93,6 +107,48 @@ function mockPlan(persona) {
   return { plan: { title: 'Mock plan', summary: '', days, notes: [] }, meta: { model: 'mock', promptVersion: PROMPT_VERSION, attempts: 0, latencyMs: 0, usage: null } }
 }
 
+// ---- App generator: personas as the app's profile ----
+const TRAINING_DAYS = {
+  1: ['wed'], 2: ['mon', 'thu'], 3: ['mon', 'wed', 'fri'], 4: ['mon', 'tue', 'thu', 'fri'],
+  5: ['mon', 'tue', 'wed', 'fri', 'sat'], 6: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'], 7: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+}
+const APP_LEVEL = { beginner: 'beginner', intermediate: 'intermediate', professional: 'pro' }
+const APP_HISTORY = { under_6_months: 'under_6_months', '6_to_24_months': 'six_months_to_2_years', over_2_years: 'over_2_years' }
+const APP_GYM = { home: 'home', apartment: 'apartment_gym', community: 'community_center', commercial: 'commercial_gym' }
+
+function toAppProfile(persona) {
+  const limitations = [(persona.injuries || []).join(', '), persona.injuryNotes, persona.preferences].filter(Boolean).join('. ')
+  return {
+    version: 1,
+    level: APP_LEVEL[persona.fitnessLevel] || 'beginner',
+    goals: [persona.goal],
+    trainingDays: TRAINING_DAYS[persona.frequency] || TRAINING_DAYS[3],
+    sessionMinutes: persona.sessionDuration,
+    gymType: APP_GYM[persona.gymType],
+    equipment: persona.appEquipment,
+    trainingHistory: APP_HISTORY[persona.trainingHistory],
+    familiarExerciseIds: persona.familiarExercises || [],
+    limitations,
+  }
+}
+
+// A proposal option in the plan shape the checks read (ids kept for matching).
+function optionToPlan(option) {
+  return {
+    title: option.name,
+    summary: option.summary,
+    notes: [],
+    days: option.days.map(d => ({
+      day: d.name,
+      focus: d.focus,
+      durationMinutes: d.estimatedMinutes,
+      exercises: d.exercises.map(e => ({
+        exerciseId: e.exerciseId, name: e.name, sets: e.sets, reps: e.reps, restSeconds: e.restSeconds, notes: e.formCue || '',
+      })),
+    })),
+  }
+}
+
 async function evaluate(persona) {
   const input = {
     fitnessLevel: persona.fitnessLevel,
@@ -109,7 +165,14 @@ async function evaluate(persona) {
     familiarExercises: persona.familiarExercises,
   }
   try {
-    const { plan, meta } = mock ? mockPlan(persona) : await generatePlanWithGemini(input, { deadline: Date.now() + 120_000 })
+    let plan, meta
+    if (mock) ({ plan, meta } = mockPlan(persona))
+    else if (generator === 'app') {
+      // The app's builder returns two options; the coach's recommendation is checked.
+      const proposal = await generateProposal(toAppProfile(persona), { deadline: Date.now() + 180_000 })
+      plan = optionToPlan(proposal.recommended)
+      meta = proposal.meta
+    } else ({ plan, meta } = await generatePlanWithGemini(input, { deadline: Date.now() + 120_000 }))
     return { id: persona.id, ok: true, meta, checks: runChecks(persona, plan), plan }
   } catch (err) {
     return { id: persona.id, ok: false, error: err.message, meta: err.meta || null, checks: {} }
@@ -187,29 +250,47 @@ function printSummary(summary, baseline) {
   }
   if (summary.avgLatencyMs !== null) console.log(`Latency per plan (avg): ${(summary.avgLatencyMs / 1000).toFixed(1)}s, retries: ${summary.retries}`)
   if (summary.approxCostUsd !== null) console.log(`Approx. cost of this run: $${summary.approxCostUsd}`)
-  if (b) console.log(`\nBaseline: ${baseline.model} / prompt ${baseline.promptVersion} / ${baseline.ranAt}`)
+  if (b) {
+    console.log(`\nBaseline: ${baseline.generator || 'website'} generator / ${baseline.model} / prompt ${baseline.promptVersion} / ${baseline.ranAt}`)
+    if ((baseline.generator || 'website') !== generator) {
+      console.log('Note: the baseline used a different generator, so this compares generators.')
+    }
+  }
 }
 
 // ---- Main ----
-const model = mock ? 'mock' : getModelName()
-console.log(`Evaluating ${personas.length} persona(s) with ${model}, prompt ${PROMPT_VERSION}${mock ? ' (mock: no Gemini calls)' : ''}...`)
+const model = rescored ? rescored.model : mock ? 'mock' : getModelName()
+const promptVersion = rescored ? rescored.promptVersion : PROMPT_VERSION
+console.log(rescored
+  ? `Rescoring ${rescoreFile} (${generator} generator, ${model}, prompt ${promptVersion}, run ${rescored.ranAt}): no Gemini calls...`
+  : `Evaluating ${personas.length} persona(s): ${generator} generator, ${model}, prompt ${promptVersion}${mock ? ' (mock: no Gemini calls)' : ''}...`)
 const started = Date.now()
-const results = await runAll(personas, evaluate)
+// --rescore: same plans, same generation stats, checks run again.
+const results = rescored
+  ? rescored.results.map(r => {
+      const persona = personas.find(p => p.id === r.id)
+      return r.ok && persona && r.plan ? { ...r, checks: runChecks(persona, r.plan) } : r
+    })
+  : await runAll(personas, evaluate)
 const summary = summarize(results)
 const baseline = existsSync(BASELINE_FILE) ? JSON.parse(readFileSync(BASELINE_FILE, 'utf8')) : null
 printSummary(summary, baseline)
 
+// A rescore keeps the original run's identity and adds when it was rescored.
 const record = {
-  ranAt: new Date().toISOString(),
+  ranAt: rescored ? rescored.ranAt : new Date().toISOString(),
+  ...(rescored ? { rescoredAt: new Date().toISOString() } : {}),
+  generator,
   model,
-  promptVersion: PROMPT_VERSION,
-  personas: personas.map(p => p.id),
-  durationMs: Date.now() - started,
+  promptVersion,
+  personas: rescored ? rescored.personas : personas.map(p => p.id),
+  durationMs: rescored ? rescored.durationMs : Date.now() - started,
   summary,
   results,
 }
 mkdirSync(RESULTS_DIR, { recursive: true })
-const file = path.join(RESULTS_DIR, `${record.ranAt.replace(/[:.]/g, '-')}_${model}_${PROMPT_VERSION}.json`)
+const stamp = (record.rescoredAt || record.ranAt).replace(/[:.]/g, '-')
+const file = path.join(RESULTS_DIR, `${stamp}_${rescored ? 'rescore_' : ''}${generator}_${model}_${promptVersion}.json`)
 writeFileSync(file, JSON.stringify(record, null, 2))
 console.log(`\nFull results: ${path.relative(process.cwd(), file)}`)
 
