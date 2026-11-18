@@ -32,6 +32,9 @@ export default withAuth({
       note: `Accepted the ${recommended ? 'recommended' : 'as-asked'} plan`,
       profileVersion: proposal.profileVersion,
       blockStart: today,
+      model: proposal.model,
+      promptVersion: proposal.promptVersion,
+      generatedAt: proposal.generatedAt,
     })
     await syncActiveWeek(privyUserId, program, today)
     res.json(toProgram(program))
