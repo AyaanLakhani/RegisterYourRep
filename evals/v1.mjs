@@ -1,0 +1,64 @@
+// evals/v1.mjs
+// Runs the eval personas through the mobile app's generator (lib/v1/generation.js,
+// behind /api/v1) instead of the older web one (RYR-16). Personas are written
+// in the web vocabulary, so they're translated into a v1 profile here, and the
+// "recommended" option is turned back into the plan shape the checks read.
+import { EQUIPMENT_IDS, EXERCISES_BY_ID } from '@/lib/catalog'
+import { INJURY_AREAS } from '@/lib/intake'
+import { toAppEquipment } from '@/lib/v1/vocab'
+
+const LEVEL = { beginner: 'beginner', intermediate: 'intermediate', professional: 'pro', unsure: 'beginner' }
+const GYM = { home: 'home', apartment: 'apartment_gym', community: 'community_center', commercial: 'commercial_gym' }
+const HISTORY = { under_6_months: 'under_6_months', '6_to_24_months': 'six_months_to_2_years', over_2_years: 'over_2_years' }
+// Training days for a weekly frequency, spread across the week.
+const DAYS = {
+  1: ['mon'],
+  2: ['mon', 'thu'],
+  3: ['mon', 'wed', 'fri'],
+  4: ['mon', 'tue', 'thu', 'fri'],
+  5: ['mon', 'tue', 'wed', 'fri', 'sat'],
+  6: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+  7: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+}
+
+/** v1 level name for a persona's fitnessLevel. */
+export const v1Level = fitnessLevel => LEVEL[fitnessLevel] || 'beginner'
+
+/** A persona as a v1 ProfileVersion. `equipment` must already be resolved (preset or override). */
+export function personaToProfile(persona) {
+  const equipment = [...new Set((persona.equipment || []).filter(e => EQUIPMENT_IDS.includes(e)).map(toAppEquipment))]
+  const injuries = (persona.injuries || []).map(id => INJURY_AREAS[id]).filter(Boolean)
+  const limitations = [
+    injuries.length ? `Injuries: ${injuries.join(', ')}.` : '',
+    persona.injuryNotes || '',
+    persona.preferences || '',
+  ].filter(Boolean).join(' ')
+  return {
+    version: 1,
+    level: v1Level(persona.fitnessLevel),
+    goals: [persona.goal || 'general_fitness'],
+    trainingDays: DAYS[Math.min(7, Math.max(1, persona.frequency || 3))],
+    sessionMinutes: Math.max(15, persona.sessionDuration || 45),
+    gymType: GYM[persona.gymType] || 'commercial_gym',
+    equipment: [...equipment, 'bodyweight'],
+    trainingHistory: HISTORY[persona.trainingHistory] || 'under_6_months',
+    familiarExerciseIds: (persona.familiarExercises || []).filter(id => EXERCISES_BY_ID.has(id)),
+    limitations,
+    focusMuscles: (persona.targetMuscles || []).filter(m => m !== 'full_body'),
+  }
+}
+
+/** A v1 proposal option as the plan shape evals/checks.mjs reads. */
+export function optionToPlan(option, coachNote = '') {
+  return {
+    title: option.name,
+    summary: option.summary,
+    days: option.days.map(d => ({
+      day: d.name,
+      focus: d.focus.slice(0, 6),
+      durationMinutes: Math.max(5, d.estimatedMinutes),
+      exercises: d.exercises.map(e => ({ name: e.name, sets: e.sets, reps: e.reps, restSeconds: e.restSeconds, notes: e.formCue || '' })),
+    })),
+    notes: coachNote ? [coachNote.slice(0, 300)] : [],
+  }
+}
