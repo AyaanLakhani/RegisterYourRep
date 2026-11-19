@@ -1,21 +1,22 @@
-// Colour tokens from the RegisterYourRep app design (Components board).
-// Dark theme only. Red means "do this next", never "you failed".
+// Colour tokens for the RegisterYourRep app.
+// Dark theme only: cool graphite surfaces with one electric-blue accent.
+// Blue means "do this next", green means done, amber means needs attention.
 export const colors = {
-  background: '#0F0F0F',
-  surface: '#1A1A1A',
-  surfaceSunken: '#141414',
-  raised: '#222222',
-  raisedHigh: '#2E2E2E', // selected segment, swipe Swap action
-  surfaceMuted: '#1F1F1F', // disabled buttons, rest-day pills
-  tabBar: '#121212',
-  border: '#2A2A2A',
-  borderStrong: '#3A3A3A',
+  background: '#0B0D12',
+  surface: '#151820',
+  surfaceSunken: '#10131A',
+  raised: '#1C2029',
+  raisedHigh: '#2A303B', // selected segment, swipe Swap action
+  surfaceMuted: '#191C24', // disabled buttons, rest-day pills
+  tabBar: '#0E1016',
+  border: '#252A35',
+  borderStrong: '#353C49',
 
-  accent: '#F45D0F', // text, icons, active tab
-  accentText: '#F7834A', // links and tags on dark
-  accentSoft: '#2E1A0E', // selected chip and day backgrounds
-  accentFill: '#CA1712', // primary buttons
-  accentTextLight: '#FAA57A', // labels on accentSoft (set tracker)
+  accent: '#4C8DFF', // text, icons, active tab
+  accentText: '#7AABFF', // links and tags on dark
+  accentSoft: '#13223D', // selected chip and day backgrounds
+  accentFill: '#2F6BFF', // primary buttons (white text)
+  accentTextLight: '#A9C8FF', // labels on accentSoft (set tracker)
   coach: '#F7A21B', // the coach's dumbbell icon
   coachSoft: '#3D2412', // background behind the coach icon
 
@@ -25,13 +26,13 @@ export const colors = {
   attention: '#F3BC3F',
   attentionSoft: '#2A2410', // moved/pending pill backgrounds
   attentionStrong: '#3A2C0C', // swipe Skip action background
-  skipped: '#6B6B6B',
+  skipped: '#6B7280',
 
   text: '#FFFFFF',
-  textMuted: '#DDDDDD',
-  textSubtle: '#BBBBBB', // skipped/declined pill text, form cues
-  textSecondary: '#A3A3A3',
-  textTertiary: '#8A8A8A',
+  textMuted: '#E2E5EB',
+  textSubtle: '#BEC3CC', // skipped/declined pill text, form cues
+  textSecondary: '#A3A9B5',
+  textTertiary: '#8A909C',
 } as const;
 
 export type ColorToken = keyof typeof colors;

@@ -10,9 +10,14 @@
 // bubble, the coach's question, answer chips, then Continue. Answers live in
 // one state object so going back keeps them. The last step saves a structured
 // Profile and starts plan generation.
-import { router } from 'expo-router';
+//
+// Opened with ?edit=1 (from Profile, "Update training setup"), it starts on the
+// review step with the saved answers filled in. Finishing builds a new plan
+// proposal; the current plan stays until the user accepts the new one.
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
+  ActivityIndicator,
   BackHandler,
   Keyboard,
   KeyboardAvoidingView,
@@ -39,6 +44,7 @@ import {
   type Goal,
   type GymType,
   type Level,
+  type Profile,
   type ProfileInput,
   type TrainingHistory,
   type Weekday,
@@ -46,98 +52,25 @@ import {
 } from '../api';
 import { rememberOnboardingFinished } from '../auth/onboardingMemory';
 import { Button, ChatBubble, Chip, CoachAvatar, Icon, IconButton, StepProgress } from '../components';
+import {
+  EQUIPMENT,
+  FOCUS_MUSCLES,
+  FULL_BODY,
+  GOALS,
+  GYM_TYPES,
+  HISTORY,
+  labelOf,
+  LEVELS,
+  LIMIT_AREAS,
+  SESSION_MINUTES,
+  WEEKDAYS,
+} from '../features/onboarding/options';
 import { colors, fonts, radius, screenGutter, sizes } from '../theme';
 
 const TOTAL_STEPS = 8;
 // The last step confirms the level and lists every answer so it can be changed.
 const LEVEL_STEP = TOTAL_STEPS - 1;
 const STEP = { schedule: 0, focus: 1, gym: 2, equipment: 3, history: 4, familiarity: 5, limits: 6, level: 7 } as const;
-
-// --- Answer options (UI labels for the ProfileInput enums) -------------------
-
-const GOALS: { value: Goal; label: string }[] = [
-  { value: 'build_muscle', label: 'Build muscle' },
-  { value: 'get_stronger', label: 'Get stronger' },
-  { value: 'lose_fat', label: 'Lose fat' },
-  { value: 'general_fitness', label: 'General fitness' },
-  { value: 'endurance', label: 'Build endurance' },
-];
-
-const WEEKDAYS: { value: Weekday; label: string }[] = [
-  { value: 'mon', label: 'Mon' },
-  { value: 'tue', label: 'Tue' },
-  { value: 'wed', label: 'Wed' },
-  { value: 'thu', label: 'Thu' },
-  { value: 'fri', label: 'Fri' },
-  { value: 'sat', label: 'Sat' },
-  { value: 'sun', label: 'Sun' },
-];
-
-const SESSION_MINUTES = [30, 45, 60, 75, 90];
-
-// "Which muscles do you most want to improve?" Full body stands on its own.
-const FOCUS_MUSCLES: { value: FocusMuscle; label: string }[] = [
-  { value: 'chest', label: 'Chest' },
-  { value: 'triceps', label: 'Triceps' },
-  { value: 'back', label: 'Back' },
-  { value: 'biceps', label: 'Biceps' },
-  { value: 'legs', label: 'Legs & glutes' },
-  { value: 'shoulders', label: 'Shoulders' },
-  { value: 'core', label: 'Core' },
-];
-const FULL_BODY: { value: FocusMuscle; label: string } = { value: 'full_body', label: 'Full body' };
-
-// Picking a gym type pre-ticks its preset equipment (api/level.ts) on the next
-// step, where the user unticks what theirs lacks.
-const GYM_TYPES: { value: GymType; label: string; equipmentHelper: string }[] = [
-  {
-    value: 'home',
-    label: 'Home',
-    equipmentHelper: "Home setups vary a lot, so tick what you own. Bodyweight moves are always on the table.",
-  },
-  {
-    value: 'apartment_gym',
-    label: 'Apartment gym',
-    equipmentHelper: "Apartment gyms usually have these. Untick anything yours doesn't, and tick anything extra.",
-  },
-  {
-    value: 'community_center',
-    label: 'Community center',
-    equipmentHelper: "Community centers usually have these. Untick anything yours doesn't, and tick anything extra.",
-  },
-  {
-    value: 'commercial_gym',
-    label: 'Commercial gym',
-    equipmentHelper: "Commercial gyms usually have all of this. Untick anything yours doesn't.",
-  },
-];
-
-const EQUIPMENT: { value: Equipment; label: string }[] = [
-  { value: 'barbell', label: 'Barbell' },
-  { value: 'dumbbell', label: 'Dumbbells' },
-  { value: 'bench', label: 'Bench' },
-  { value: 'cable', label: 'Cable machine' },
-  { value: 'machine', label: 'Weight machines' },
-  { value: 'smith_machine', label: 'Smith machine' },
-  { value: 'pullup_bar', label: 'Pull-up bar' },
-  { value: 'kettlebell', label: 'Kettlebells' },
-  { value: 'band', label: 'Resistance bands' },
-  { value: 'bodyweight', label: 'Bodyweight' },
-];
-
-const HISTORY: { value: TrainingHistory; label: string }[] = [
-  { value: 'under_6_months', label: 'Under 6 months' },
-  { value: 'six_months_to_2_years', label: '6 months to 2 years' },
-  { value: 'over_2_years', label: '2+ years' },
-];
-
-const LEVELS: { value: Level; label: string }[] = [
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'pro', label: 'Pro' },
-];
-
-const LIMIT_AREAS = ['Knees', 'Lower back', 'Shoulders', 'Wrists', 'Hips', 'Neck'];
 
 // --- Answers -----------------------------------------------------------------
 
@@ -159,11 +92,30 @@ type Answers = {
 
 const EMPTY: Answers = { days: [], focus: [], equipment: [], familiar: [], limitAreas: [], limitText: '' };
 
+// The saved profile as answers, for editing. Limitations were saved as
+// "Knees, Wrists. free text" (limitationsText below): known areas first.
+function answersFromProfile(p: Profile): Answers {
+  const [first = '', ...rest] = p.limitations.split('. ');
+  const areas = first.split(', ').filter(Boolean);
+  const allKnown = areas.length > 0 && areas.every((a) => LIMIT_AREAS.includes(a));
+  return {
+    goal: p.goals[0],
+    days: p.trainingDays,
+    minutes: p.sessionMinutes,
+    // Profiles saved before the focus step have none (editing asks for it first).
+    focus: p.focusMuscles ?? [],
+    gymType: p.gymType,
+    equipment: p.equipment,
+    history: p.trainingHistory,
+    familiar: p.familiarExerciseIds,
+    limitAreas: allKnown ? areas : [],
+    limitText: allKnown ? rest.join('. ') : p.limitations,
+    levelChoice: p.level !== p.suggestedLevel ? p.level : undefined,
+  };
+}
+
 const toggle = <T,>(list: T[], value: T): T[] =>
   list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
-
-const labelOf = <T extends string>(options: { value: T; label: string }[], value: T | undefined) =>
-  options.find((o) => o.value === value)?.label ?? '';
 
 function minutesPhrase(m: number) {
   if (m === 60) return 'about an hour';
@@ -268,10 +220,28 @@ function isStepValid(step: number, a: Answers) {
 // --- Screen ------------------------------------------------------------------
 
 export default function OnboardingScreen() {
+  const editing = useLocalSearchParams<{ edit?: string }>().edit === '1';
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>(EMPTY);
+
+  // Editing: fill in the saved answers once, then start on the review step.
+  const saved = useQuery(() => (editing ? api.getProfile() : Promise.resolve(null)), [editing]);
+  const [prefilled, setPrefilled] = useState(!editing);
   // Set when the user jumps from the review step to change one answer.
   const [editingFromReview, setEditingFromReview] = useState(false);
+  if (!prefilled && saved.data) {
+    // State set during render (not in an effect), so the first frame already has the answers.
+    const prefill = answersFromProfile(saved.data);
+    setPrefilled(true);
+    setAnswers(prefill);
+    if (prefill.focus.length === 0) {
+      // Saved before the focus question existed: ask it, then go to the review step.
+      setEditingFromReview(true);
+      setStep(STEP.focus);
+    } else {
+      setStep(LEVEL_STEP);
+    }
+  }
   const [demo, setDemo] = useState<ExerciseCatalogEntry | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>();
@@ -305,15 +275,20 @@ export default function OnboardingScreen() {
     // Nothing can change while the answers are being saved.
     if (saving) return;
     Keyboard.dismiss();
-    setEditingFromReview(false);
-    if (step > 0) setStep(step - 1);
+    // Editing from Profile: the review step is the start, so back leaves.
+    const leaves = step === 0 || (editing && step === LEVEL_STEP && !editingFromReview);
+    if (editingFromReview) {
+      // Back from a single changed answer returns to the review step.
+      setEditingFromReview(false);
+      setStep(LEVEL_STEP);
+    } else if (!leaves) setStep(step - 1);
     else if (router.canGoBack()) router.back();
   };
 
   // Android hardware back steps through the interview first.
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (step === 0) return false;
+      if (step === 0 || (editing && step === LEVEL_STEP && !editingFromReview)) return false;
       goBack();
       return true;
     });
@@ -629,7 +604,24 @@ export default function OnboardingScreen() {
       break;
   }
 
-  const continueLabel = step === LEVEL_STEP ? (saving ? 'Saving…' : 'Build my plan') : 'Continue';
+  const continueLabel =
+    step === LEVEL_STEP ? (saving ? 'Saving…' : editing ? 'Build a new plan' : 'Build my plan') : 'Continue';
+
+  if (!prefilled) {
+    return (
+      <SafeAreaView style={[styles.root, styles.loading]} edges={['top', 'bottom']}>
+        {saved.error ? (
+          <>
+            <Text style={styles.errorText}>I couldn&apos;t load your answers.</Text>
+            <Button label="Try again" variant="secondary" onPress={saved.refetch} />
+            <Button label="Back" variant="text" onPress={() => router.back()} />
+          </>
+        ) : (
+          <ActivityIndicator color={colors.accent} />
+        )}
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
@@ -777,6 +769,7 @@ function DemoSheet({ exercise, onClose }: { exercise: ExerciseCatalogEntry | nul
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
+  loading: { alignItems: 'center', justifyContent: 'center', gap: 12, paddingHorizontal: screenGutter },
   flex: { flex: 1 },
 
   header: {
