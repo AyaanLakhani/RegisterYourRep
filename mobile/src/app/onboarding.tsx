@@ -507,7 +507,7 @@ export default function OnboardingScreen() {
       heading = 'Which of these are you comfortable doing?';
       helper = "Tick any you can do with good form. I'll build your plan around them.";
       body = familiarity.data && familiarity.data.length === 0 ? (
-        <Text style={styles.hint}>None of my check-in lifts fit your equipment, so I'll start you with simple moves and teach them as we go.</Text>
+        <Text style={styles.hint}>None of my check-in lifts fit your equipment, so I&apos;ll start you with simple moves and teach them as we go.</Text>
       ) : familiarity.data ? (
         <>
           <ChipRow>
@@ -526,7 +526,7 @@ export default function OnboardingScreen() {
         </>
       ) : familiarity.error ? (
         <View style={styles.inlineError}>
-          <Text style={styles.errorText}>I couldn't load the exercise list.</Text>
+          <Text style={styles.errorText}>I couldn&apos;t load the exercise list.</Text>
           <Button label="Try again" variant="secondary" size="sm" onPress={familiarity.refetch} />
         </View>
       ) : (
@@ -750,11 +750,10 @@ const muscleName = (m: string) => m.replace('_', ' ');
 // Press-and-hold demo. No design yet: a bottom sheet with the name and a form cue.
 function DemoSheet({ exercise, onClose }: { exercise: ExerciseCatalogEntry | null; onClose: () => void }) {
   const insets = useSafeAreaInsets();
-  // Keep the last exercise while the sheet fades out.
+  // Keep the last exercise while the sheet fades out (updated during render,
+  // React's pattern for state that follows a prop).
   const [shown, setShown] = useState(exercise);
-  useEffect(() => {
-    if (exercise) setShown(exercise);
-  }, [exercise]);
+  if (exercise && exercise !== shown) setShown(exercise);
 
   return (
     <Modal visible={!!exercise} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
