@@ -1,12 +1,12 @@
 // Onboarding coach interview (RYR-20).
 //
-// Seven steps on one layout (updated Nov 15, Questions & Decisions: "How does
-// the coach tell beginner, intermediate and pro apart?"):
-//   1 goal, days, session length   2 where you train (gym type)
-//   3 confirm equipment (preset from the gym type)   4 training history
-//   5 exercise familiarity (only what the equipment allows)
-//   6 injuries and limitations     7 suggested starting level, confirmed
-// Each step: back + "Step N of 7", the previous answer echoed as a muted chat
+// Eight steps on one layout (updated Nov 15, Questions & Decisions: "How does
+// the coach tell beginner, intermediate and pro apart?"; step 2 added Nov 18):
+//   1 goal, days, session length   2 focus muscles (1-3, or Full body alone)
+//   3 where you train (gym type)   4 confirm equipment (preset from the gym type)
+//   5 training history             6 exercise familiarity (only what the equipment allows)
+//   7 injuries and limitations     8 suggested starting level, confirmed
+// Each step: back + "Step N of 8", the previous answer echoed as a muted chat
 // bubble, the coach's question, answer chips, then Continue. Answers live in
 // one state object so going back keeps them. The last step saves a structured
 // Profile and starts plan generation.
@@ -32,8 +32,10 @@ import {
   GYM_TYPE_PRESETS,
   suggestLevel,
   useQuery,
+  MAX_FOCUS_MUSCLES,
   type Equipment,
   type ExerciseCatalogEntry,
+  type FocusMuscle,
   type Goal,
   type GymType,
   type Level,
@@ -46,10 +48,10 @@ import { rememberOnboardingFinished } from '../auth/onboardingMemory';
 import { Button, ChatBubble, Chip, CoachAvatar, Icon, IconButton, StepProgress } from '../components';
 import { colors, fonts, radius, screenGutter, sizes } from '../theme';
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 // The last step confirms the level and lists every answer so it can be changed.
 const LEVEL_STEP = TOTAL_STEPS - 1;
-const STEP = { schedule: 0, gym: 1, equipment: 2, history: 3, familiarity: 4, limits: 5, level: 6 } as const;
+const STEP = { schedule: 0, focus: 1, gym: 2, equipment: 3, history: 4, familiarity: 5, limits: 6, level: 7 } as const;
 
 // --- Answer options (UI labels for the ProfileInput enums) -------------------
 
@@ -72,6 +74,18 @@ const WEEKDAYS: { value: Weekday; label: string }[] = [
 ];
 
 const SESSION_MINUTES = [30, 45, 60, 75, 90];
+
+// "Which muscles do you most want to improve?" Full body stands on its own.
+const FOCUS_MUSCLES: { value: FocusMuscle; label: string }[] = [
+  { value: 'chest', label: 'Chest' },
+  { value: 'triceps', label: 'Triceps' },
+  { value: 'back', label: 'Back' },
+  { value: 'biceps', label: 'Biceps' },
+  { value: 'legs', label: 'Legs & glutes' },
+  { value: 'shoulders', label: 'Shoulders' },
+  { value: 'core', label: 'Core' },
+];
+const FULL_BODY: { value: FocusMuscle; label: string } = { value: 'full_body', label: 'Full body' };
 
 // Picking a gym type pre-ticks its preset equipment (api/level.ts) on the next
 // step, where the user unticks what theirs lacks.
@@ -131,6 +145,8 @@ type Answers = {
   goal?: Goal;
   days: Weekday[];
   minutes?: number;
+  /** 1-3 muscle groups, or ['full_body'] alone. */
+  focus: FocusMuscle[];
   gymType?: GymType;
   equipment: Equipment[];
   history?: TrainingHistory;
@@ -141,7 +157,7 @@ type Answers = {
   levelChoice?: Level;
 };
 
-const EMPTY: Answers = { days: [], equipment: [], familiar: [], limitAreas: [], limitText: '' };
+const EMPTY: Answers = { days: [], focus: [], equipment: [], familiar: [], limitAreas: [], limitText: '' };
 
 const toggle = <T,>(list: T[], value: T): T[] =>
   list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -166,6 +182,21 @@ function scheduleSummary(a: Answers) {
 
 function goalAndSchedule(a: Answers) {
   return [labelOf(GOALS, a.goal), scheduleSummary(a)].filter(Boolean).join(' · ');
+}
+
+// Tapping Full body clears the muscles; tapping a muscle clears Full body.
+// A fourth muscle can't be added (its chip is disabled).
+function toggleFocus(current: FocusMuscle[], value: FocusMuscle): FocusMuscle[] {
+  if (value === 'full_body') return current.includes('full_body') ? [] : ['full_body'];
+  const muscles = current.filter((m) => m !== 'full_body');
+  if (muscles.includes(value)) return muscles.filter((m) => m !== value);
+  return muscles.length < MAX_FOCUS_MUSCLES ? [...muscles, value] : muscles;
+}
+
+function focusSummary(a: Answers) {
+  if (a.focus.includes('full_body')) return 'Full body, no particular focus';
+  const names = FOCUS_MUSCLES.filter((m) => a.focus.includes(m.value)).map((m) => m.label);
+  return names.length ? `Focus on ${names.join(', ').toLowerCase()}` : '';
 }
 
 function equipmentList(a: Answers) {
@@ -213,6 +244,7 @@ function toProfileInput(a: Answers, options: ExerciseCatalogEntry[] | undefined)
     trainingHistory: a.history ?? 'under_6_months',
     familiarExerciseIds: familiarStillOffered(a, options),
     limitations: limitationsText(a).slice(0, 1000),
+    focusMuscles: a.focus,
     suggestedLevel,
     level: a.levelChoice ?? suggestedLevel,
   };
@@ -222,6 +254,8 @@ function isStepValid(step: number, a: Answers) {
   switch (step) {
     case STEP.schedule:
       return !!a.goal && a.days.length > 0 && !!a.minutes;
+    case STEP.focus:
+      return a.focus.length > 0;
     case STEP.gym:
       return !!a.gymType;
     case STEP.history:
@@ -379,8 +413,47 @@ export default function OnboardingScreen() {
       );
       break;
 
-    case STEP.gym:
+    case STEP.focus: {
       echo = goalAndSchedule(answers);
+      heading = 'Which muscles do you most want to improve?';
+      helper = "Pick up to 3 and I'll give them extra work. Or choose Full body for a balanced plan.";
+      const muscleCount = answers.focus.filter((m) => m !== 'full_body').length;
+      body = (
+        <>
+          <ChipRow>
+            {FOCUS_MUSCLES.map((m) => {
+              const selected = answers.focus.includes(m.value);
+              return (
+                <Chip
+                  key={m.value}
+                  label={m.label}
+                  selected={selected}
+                  // Full of muscles: the others wait until one is unticked.
+                  disabled={!selected && muscleCount >= MAX_FOCUS_MUSCLES}
+                  onPress={() => update({ focus: toggleFocus(answers.focus, m.value) })}
+                />
+              );
+            })}
+          </ChipRow>
+          <Group label="Or">
+            <ChipRow>
+              <Chip
+                label={FULL_BODY.label}
+                selected={answers.focus.includes('full_body')}
+                onPress={() => update({ focus: toggleFocus(answers.focus, 'full_body') })}
+              />
+            </ChipRow>
+          </Group>
+          <Text style={styles.hint}>
+            {muscleCount >= MAX_FOCUS_MUSCLES ? `That's ${MAX_FOCUS_MUSCLES}. Untick one to pick another.` : 'You can change this later.'}
+          </Text>
+        </>
+      );
+      break;
+    }
+
+    case STEP.gym:
+      echo = focusSummary(answers) || goalAndSchedule(answers);
       heading = 'Where do you train?';
       helper = "Pick the closest match. You'll confirm the equipment next.";
       body = (
@@ -434,7 +507,7 @@ export default function OnboardingScreen() {
       heading = 'Which of these are you comfortable doing?';
       helper = "Tick any you can do with good form. I'll build your plan around them.";
       body = familiarity.data && familiarity.data.length === 0 ? (
-        <Text style={styles.hint}>None of my check-in lifts fit your equipment, so I'll start you with simple moves and teach them as we go.</Text>
+        <Text style={styles.hint}>None of my check-in lifts fit your equipment, so I&apos;ll start you with simple moves and teach them as we go.</Text>
       ) : familiarity.data ? (
         <>
           <ChipRow>
@@ -453,7 +526,7 @@ export default function OnboardingScreen() {
         </>
       ) : familiarity.error ? (
         <View style={styles.inlineError}>
-          <Text style={styles.errorText}>I couldn't load the exercise list.</Text>
+          <Text style={styles.errorText}>I couldn&apos;t load the exercise list.</Text>
           <Button label="Try again" variant="secondary" size="sm" onPress={familiarity.refetch} />
         </View>
       ) : (
@@ -540,6 +613,7 @@ export default function OnboardingScreen() {
           <Group label="Your answers">
             <View style={styles.review}>
               <ReviewRow label="Goal and schedule" value={goalAndSchedule(answers)} disabled={saving} onPress={() => editStep(STEP.schedule)} />
+              <ReviewRow label="Focus" value={focusSummary(answers)} disabled={saving} onPress={() => editStep(STEP.focus)} />
               <ReviewRow label="Where you train" value={equipmentSummary(answers)} disabled={saving} onPress={() => editStep(STEP.gym)} />
               <ReviewRow label="Training history" value={labelOf(HISTORY, answers.history)} disabled={saving} onPress={() => editStep(STEP.history)} />
               <ReviewRow
@@ -676,11 +750,10 @@ const muscleName = (m: string) => m.replace('_', ' ');
 // Press-and-hold demo. No design yet: a bottom sheet with the name and a form cue.
 function DemoSheet({ exercise, onClose }: { exercise: ExerciseCatalogEntry | null; onClose: () => void }) {
   const insets = useSafeAreaInsets();
-  // Keep the last exercise while the sheet fades out.
+  // Keep the last exercise while the sheet fades out (updated during render,
+  // React's pattern for state that follows a prop).
   const [shown, setShown] = useState(exercise);
-  useEffect(() => {
-    if (exercise) setShown(exercise);
-  }, [exercise]);
+  if (exercise && exercise !== shown) setShown(exercise);
 
   return (
     <Modal visible={!!exercise} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>

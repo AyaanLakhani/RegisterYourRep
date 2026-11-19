@@ -132,6 +132,7 @@ async function main() {
     trainingHistory: 'six_months_to_2_years',
     familiarExerciseIds: ['squat', 'bench-press'],
     limitations: 'Left knee is sore on deep squats',
+    focusMuscles: ['chest', 'legs'],
     suggestedLevel: 'intermediate',
     level: 'beginner',
   }));
