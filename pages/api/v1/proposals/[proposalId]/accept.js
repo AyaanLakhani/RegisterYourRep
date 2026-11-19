@@ -1,11 +1,13 @@
 // pages/api/v1/proposals/[proposalId]/accept.js (RYR-37, contract #7)
 //   POST /api/v1/proposals/:proposalId/accept  { choice }  -> the new current Program
-// Creates a new program version (a new training block) and this week's
-// sessions from today on.
+// Creates a new program version and this week's sessions from today on. A
+// rebuilt plan at the same level keeps the current training block, so
+// Progress doesn't drop to zero (RYR-27); a first plan or a level change
+// starts a new block.
 import { withAuth } from '@/lib/apiHandler'
 import { ProgramProposal } from '@/lib/v1/models'
 import { acceptProposalBody } from '@/lib/v1/schemas'
-import { addProgramVersion, syncActiveWeek, toProgram } from '@/lib/v1/programs'
+import { addProgramVersion, blockStartFor, syncActiveWeek, toProgram } from '@/lib/v1/programs'
 import { timeZoneOf, todayIn } from '@/lib/v1/dates'
 
 export default withAuth({
@@ -31,7 +33,7 @@ export default withAuth({
       name: option.name,
       note: `Accepted the ${recommended ? 'recommended' : 'as-asked'} plan`,
       profileVersion: proposal.profileVersion,
-      blockStart: today,
+      blockStart: await blockStartFor(privyUserId, proposal.profileVersion, today),
     })
     await syncActiveWeek(privyUserId, program, today)
     res.json(toProgram(program))
