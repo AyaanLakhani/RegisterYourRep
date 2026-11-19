@@ -17,6 +17,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { api, ApiError, useQuery, usingMocks, type DayDate, type Session, type Week } from '../../api';
 import { mockDataSource } from '../../api/mock';
+import { initialsOf, useAccount } from '../../auth/account';
 import { Badge, Button, Card, Icon, IconButton, MissedWeekPrompt } from '../../components';
 import { MonthGoalCard } from '../../features/home/MonthGoalCard';
 import {
@@ -43,6 +44,7 @@ const REST_TIP = 'Rest is part of the plan: muscles rebuild on days off. A walk 
 export default function HomeScreen() {
   const today = useQuery(() => api.getToday(), []);
   const profile = useQuery(() => api.getProfile(), []);
+  const account = useAccount();
   // Onboarded but no program yet (the server answers 404): is a built plan
   // waiting to be started? Then go back to it rather than building a new one.
   const noProgram = Boolean(profile.data) && today.error instanceof ApiError && today.error.status === 404;
@@ -204,12 +206,14 @@ export default function HomeScreen() {
             </Text>
           </View>
           <Pressable
-            onPress={() => Alert.alert('Profile and settings', 'Coming soon.')}
+            onPress={() => router.push('/profile')}
             accessibilityRole="button"
             accessibilityLabel="Profile and settings"
             style={({ pressed }) => [styles.avatar, pressed && styles.pressed]}
           >
-            <Text style={styles.avatarText}>{initials(profile.data?.displayName)}</Text>
+            <Text style={styles.avatarText}>
+              {initialsOf(account.name ?? profile.data?.displayName ?? account.email)}
+            </Text>
           </Pressable>
         </View>
 
@@ -235,14 +239,6 @@ export default function HomeScreen() {
       </ScrollView>
     </SafeAreaView>
   );
-}
-
-function initials(name: string | undefined): string {
-  const parts = (name ?? '').trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return 'Me';
-  const first = parts[0][0];
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (first + last).toUpperCase();
 }
 
 // --- Week calendar -----------------------------------------------------------

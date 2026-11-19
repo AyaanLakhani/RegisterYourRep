@@ -7,12 +7,13 @@
 //
 // Privy is loaded with require() only when login is enabled, so Expo Go never
 // loads its native modules.
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { setTokenProvider, usingMocks } from '../api';
 import { mockDataSource } from '../api/mock';
 import { colors } from '../theme';
+import { AccountContext, type Account } from './account';
 import { loginEnabled, loginOffReason, PRIVY_APP_ID, PRIVY_CLIENT_ID } from './config';
 import { LoginScreen } from './LoginScreen';
 import { hasFinishedOnboarding, setCurrentUser } from './onboardingMemory';
@@ -38,7 +39,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 function LoginGate({ children }: { children: ReactNode }) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy, see AuthProvider
   const { usePrivy } = require('@privy-io/expo') as PrivyModule;
-  const { user, isReady, getAccessToken } = usePrivy();
+  const { user, isReady, getAccessToken, logout } = usePrivy();
+
+  // Name, email and sign-in method from the account's linked logins.
+  const account = useMemo<Account>(() => {
+    const linked = user?.linked_accounts ?? [];
+    const google = linked.find((a) => a.type === 'google_oauth');
+    const email = linked.find((a) => a.type === 'email');
+    return {
+      name: google?.name ?? undefined,
+      email: google?.email ?? email?.address,
+      method: google ? 'google' : email ? 'email' : undefined,
+      signOut: logout,
+    };
+  }, [user, logout]);
 
   // Requests carry the token while someone is logged in. getAccessToken
   // refreshes it when it's close to expiring, so it's called per request.
@@ -72,7 +86,7 @@ function LoginGate({ children }: { children: ReactNode }) {
     );
   }
   if (!user) return <LoginScreen />;
-  return <>{children}</>;
+  return <AccountContext.Provider value={account}>{children}</AccountContext.Provider>;
 }
 
 const styles = StyleSheet.create({
