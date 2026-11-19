@@ -2,14 +2,24 @@
 // Automatic checks for one generated plan against its persona (RYR-11).
 // Each check returns { pass, detail } or null when it doesn't apply.
 //
-// Exercise names are matched to the catalog (lib/catalog). Names that don't
-// match are checked for equipment with a keyword list, and otherwise reported
-// as unmatched: catalog coverage is itself a reported number.
+// Exercises carry a catalog id (the app's generator) or only a name (the
+// website's generator); names are matched to the catalog (lib/catalog). Names
+// that don't match are checked for equipment with a keyword list, and
+// otherwise reported as unmatched: catalog coverage is itself a reported number.
+//
+// Equipment: with persona.appEquipment (app generator) it's judged the way the
+// app does (its 10 coarse equipment types, lib/v1/vocab canDoWith); otherwise
+// against the catalog's own equipment ids. App runs also report
+// exactEquipment, judged against the catalog ids: where the app's coarse list
+// lets through kit the user may not have (RYR-43).
 import { generatedPlanSchema, describePlanIssues } from '@/lib/planSchema'
-import { matchExercise, difficultyRank, EXERCISES } from '@/lib/catalog'
+import { matchExercise, difficultyRank, EXERCISES, EXERCISES_BY_ID } from '@/lib/catalog'
+import { canDoWith, toAppExercise } from '@/lib/v1/vocab'
+import { TEMPLATES } from '@/lib/v1/templates'
 
-// Volume per session, from the level guidelines in lib/workoutPrompt.js.
-// RYR-14 will move these into code as level templates.
+// Volume per session for the web generator, from the level guidelines in
+// lib/workoutPrompt.js. The mobile (v1) generator uses the level templates in
+// lib/v1/templates.js instead (RYR-14): see v1Rules().
 export const VOLUME = {
   beginner: { exercises: [5, 6], sets: [2, 3] },
   intermediate: { exercises: [6, 8], sets: [3, 4] },
@@ -17,9 +27,19 @@ export const VOLUME = {
 }
 const EXERCISE_TOLERANCE = 1 // one exercise either side is still in range
 
-// Weekly hard sets per target muscle for pros. A placeholder range until the
-// level templates (RYR-14) define it.
+// Weekly hard sets per target muscle for pros, for the web generator. The v1
+// generator's range comes from its pro template.
 export const PRO_WEEKLY_SETS = [10, 22]
+
+/**
+ * Check rules for the v1 generator: volume and the pro weekly range from the
+ * level templates (lib/v1/templates.js), so the checks hold the generator to
+ * its own numbers. `level` is the v1 level (beginner / intermediate / pro).
+ */
+export function v1Rules(level) {
+  const t = TEMPLATES[level] || TEMPLATES.beginner
+  return { volume: { exercises: t.exercises, sets: t.sets }, proWeeklySets: TEMPLATES.pro.weeklySets }
+}
 
 // Session length estimate: each set takes ~45s of work plus its rest, plus
 // 5 minutes of warm-up. Must land within this share of sessionDuration.
@@ -44,8 +64,13 @@ const EQUIPMENT_KEYWORDS = [
   [/\bpec deck\b|\bmachine fly\b/, 'pec_deck'],
   [/\bmedicine ball\b|\bmed ball\b/, 'medicine_ball'],
   [/\bbox jump\b/, 'plyo_box'],
+  [/\b(dumbbells?|db)\b/, 'dumbbells'],
   [/\bmachine\b/, '__machine'], // some machine: only fine if they have any machine
 ]
+// Machine-only keywords that don't apply when the name says it's done with
+// free weights or bands ("Dumbbell Hamstring Curl" needs no leg-curl machine).
+const MACHINE_KEYWORD_IDS = new Set(['leg_curl', 'leg_extension', 'pec_deck', 'hack_squat', 'leg_press', 'cable_machine', '__machine'])
+const FREE_WEIGHT_WORDS = /\b(dumbbells?|db|bands?|banded|kettlebells?|bodyweight)\b/
 const MACHINE_IDS = new Set(EXERCISES.filter(e => e.equipmentType === 'machine_cable').flatMap(e => e.equipment))
 
 // Exercises to avoid per injury area.
@@ -59,7 +84,8 @@ const COMPOUND_PATTERNS = new Set(['squat', 'hinge', 'lunge', 'horizontal_push',
 
 function keywordEquipment(name) {
   const n = name.toLowerCase()
-  const ids = EQUIPMENT_KEYWORDS.filter(([re]) => re.test(n)).map(([, id]) => id)
+  let ids = EQUIPMENT_KEYWORDS.filter(([re]) => re.test(n)).map(([, id]) => id)
+  if (FREE_WEIGHT_WORDS.test(n)) ids = ids.filter(id => !MACHINE_KEYWORD_IDS.has(id))
   // "machine" only matters when no specific machine was recognised.
   return ids.length > 1 ? ids.filter(id => id !== '__machine') : ids
 }
@@ -68,7 +94,10 @@ function keywordEquipment(name) {
 export function annotatePlan(plan) {
   return (plan?.days || []).map(day => ({
     ...day,
-    exercises: (day.exercises || []).map(ex => ({ ...ex, match: matchExercise(ex.name) })),
+    exercises: (day.exercises || []).map(ex => ({
+      ...ex,
+      match: ex.exerciseId ? EXERCISES_BY_ID.get(ex.exerciseId) || null : matchExercise(ex.name),
+    })),
   }))
 }
 
@@ -89,7 +118,7 @@ const list = items => items.slice(0, 4).join('; ') + (items.length > 4 ? ` (+${i
  * Runs every check for one persona's plan. `persona.equipment` must already be
  * resolved (preset or override).
  */
-export function runChecks(persona, plan) {
+export function runChecks(persona, plan, rules = {}) {
   const level = persona.fitnessLevel
   const have = new Set(persona.equipment)
   const familiar = new Set(persona.familiarExercises || [])
@@ -98,9 +127,16 @@ export function runChecks(persona, plan) {
   const matched = all.filter(ex => ex.match)
   const results = {}
 
-  // 1. Plan schema (RYR-6)
-  const schema = generatedPlanSchema({ frequency: persona.frequency }).safeParse(plan)
-  results.schema = { pass: schema.success, detail: schema.success ? '' : describePlanIssues(schema.error) }
+  // 1. Plan schema. The website's plans use the RYR-6 schema. The app's plans
+  //    are checked by its own plan builder (lib/v1/generation checkProposal)
+  //    before they exist, against the app contract (which, e.g., doesn't cap
+  //    the focus list at 6 muscles), so a generated app plan has passed it.
+  if (persona.appEquipment) {
+    results.schema = { pass: true, detail: 'validated by the app plan builder' }
+  } else {
+    const schema = generatedPlanSchema({ frequency: persona.frequency }).safeParse(plan)
+    results.schema = { pass: schema.success, detail: schema.success ? '' : describePlanIssues(schema.error) }
+  }
 
   // 2. Day count
   results.dayCount = { pass: days.length === persona.frequency, detail: `${days.length} days for frequency ${persona.frequency}` }
@@ -117,7 +153,7 @@ export function runChecks(persona, plan) {
   }
 
   // 4. Volume for the level
-  const range = VOLUME[level] || VOLUME.beginner
+  const range = rules.volume || VOLUME[level] || VOLUME.beginner
   const exRange = [range.exercises[0] - EXERCISE_TOLERANCE, range.exercises[1] + EXERCISE_TOLERANCE]
   const volumeIssues = []
   days.forEach((day, i) => {
@@ -136,12 +172,24 @@ export function runChecks(persona, plan) {
   // 6. Equipment: nothing the persona's gym doesn't have
   const hasMachine = [...have].some(e => MACHINE_IDS.has(e))
   const equipmentIssues = []
+  const exactIssues = []
   for (const ex of all) {
     const needed = ex.match ? ex.match.equipment : keywordEquipment(ex.name)
     const missing = needed.filter(e => (e === '__machine' ? !hasMachine : !have.has(e)))
-    if (missing.length) equipmentIssues.push(`${ex.name} needs ${missing.join(', ').replace('__machine', 'a machine')}`)
+    const exact = missing.length ? `${ex.name} needs ${missing.join(', ').replace('__machine', 'a machine')}` : null
+    if (persona.appEquipment) {
+      // The app's rule: every piece of kit is on the user's list (bodyweight always is).
+      if (!ex.match) equipmentIssues.push(`${ex.name} is not in the catalog`)
+      else if (!canDoWith(toAppExercise(ex.match), persona.appEquipment)) {
+        equipmentIssues.push(`${ex.name} needs ${toAppExercise(ex.match).equipment.filter(e => e !== 'bodyweight' && !persona.appEquipment.includes(e)).join(', ')}`)
+      }
+      if (exact) exactIssues.push(exact)
+      continue
+    }
+    if (exact) equipmentIssues.push(exact)
   }
   results.equipment = { pass: equipmentIssues.length === 0, detail: list(equipmentIssues) }
+  if (persona.appEquipment) results.exactEquipment = { pass: exactIssues.length === 0, detail: list(exactIssues) }
 
   // 7-8. Beginners: common exercises only, nothing advanced they didn't tick
   if (level === 'beginner') {
@@ -177,10 +225,11 @@ export function runChecks(persona, plan) {
     const targets = persona.targetMuscles.filter(m => m !== 'full_body')
     if (targets.length) {
       const sets = weeklySetsByMuscle(days)
-      const out = targets.filter(m => !inRange(sets[m] || 0, PRO_WEEKLY_SETS))
+      const weekly = rules.proWeeklySets || PRO_WEEKLY_SETS
+      const out = targets.filter(m => !inRange(sets[m] || 0, weekly))
       results.proWeeklySets = {
         pass: out.length === 0,
-        detail: `${targets.map(m => `${m} ${sets[m] || 0}`).join(', ')} (range ${PRO_WEEKLY_SETS.join('-')})`,
+        detail: `${targets.map(m => `${m} ${sets[m] || 0}`).join(', ')} (range ${weekly.join('-')})`,
       }
     }
   }

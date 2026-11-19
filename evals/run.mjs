@@ -9,6 +9,15 @@
 //   npm run eval -- --only home-beginner,commercial-pro
 //   npm run eval -- --mock              no Gemini calls: plans built from the catalog
 //                                       (tests the harness and checks, costs nothing)
+//   npm run eval -- --generator website the website's older free-text generator
+//                                       (default: the app's catalog-based plan builder)
+//   npm run eval -- --rescore evals/baseline.json [--save-baseline]
+//                                       re-run the checks on a saved run's plans
+//                                       (after changing the checks; no Gemini calls)
+//
+// Results are summarised overall and per level (beginner / intermediate / pro),
+// since the app can use a different model per level (RYR-16). Each generator
+// has its own baseline: baseline.json (app), baseline-website.json (website).
 //
 // Real runs make one Gemini call per persona and cost real money (see the cost
 // line in the summary). Run locally, not in CI. Reads GEMINI_API_KEY from
@@ -19,7 +28,6 @@ import { fileURLToPath } from 'node:url'
 import nextEnv from '@next/env'
 
 const EVAL_DIR = path.dirname(fileURLToPath(import.meta.url))
-const BASELINE_FILE = path.join(EVAL_DIR, 'baseline.json')
 const RESULTS_DIR = path.join(EVAL_DIR, 'results')
 
 // ---- Arguments ----
@@ -29,14 +37,28 @@ const option = name => {
   const i = argv.indexOf(`--${name}`)
   return i >= 0 ? argv[i + 1] : undefined
 }
+const rescoreFile = option('rescore')
+const rescored = rescoreFile ? JSON.parse(readFileSync(path.resolve(rescoreFile), 'utf8')) : null
 const mock = flag('mock')
+// app: the phone app's plan builder (lib/v1/generation, RYR-37), what users get.
+// website: the older website generator (lib/apiHelpers), kept for comparison.
+// (--generator v1 / web are accepted as older names for app / website.)
+const GENERATORS = { app: 'app', v1: 'app', website: 'website', web: 'website' }
+const generator = rescored
+  ? GENERATORS[rescored.generator] || 'website'
+  : GENERATORS[option('generator') || 'app']
+if (!generator) {
+  console.error('--generator must be "app" or "website".')
+  process.exit(1)
+}
+const BASELINE_FILE = path.join(EVAL_DIR, generator === 'app' ? 'baseline.json' : 'baseline-website.json')
 const saveBaseline = flag('save-baseline')
 const only = option('only')?.split(',').map(s => s.trim()).filter(Boolean)
 const concurrency = Math.max(1, Number(option('concurrency')) || 3)
 if (option('model')) process.env.GEMINI_MODEL = option('model')
 
 nextEnv.loadEnvConfig(path.resolve(EVAL_DIR, '..'))
-if (!mock && !process.env.GEMINI_API_KEY) {
+if (!mock && !rescored && !process.env.GEMINI_API_KEY) {
   console.error('GEMINI_API_KEY is not set (expected in .env.local). Use --mock to test without Gemini.')
   process.exit(1)
 }
@@ -44,9 +66,15 @@ if (!mock && !process.env.GEMINI_API_KEY) {
 // Imported after the environment is set, since the Gemini config reads it.
 const { GYM_PRESETS, filterExercises, validateCatalog } = await import('@/lib/catalog')
 const { generatePlanWithGemini } = await import('@/lib/apiHelpers')
-const { getModelName } = await import('@/lib/geminiClient')
-const { PROMPT_VERSION } = await import('@/lib/workoutPrompt')
-const { runChecks, VOLUME } = await import('./checks.mjs')
+const { getModelName, generationModelFor } = await import('@/lib/geminiClient')
+const { PROMPT_VERSION: WEBSITE_PROMPT_VERSION } = await import('@/lib/workoutPrompt')
+const { generateProposal, PROPOSAL_PROMPT_VERSION, PROPOSAL_BUDGET_MS } = await import('@/lib/v1/generation')
+const { toAppEquipmentList } = await import('@/lib/v1/vocab')
+const PROMPT_VERSION = generator === 'app' ? PROPOSAL_PROMPT_VERSION : WEBSITE_PROMPT_VERSION
+const { runChecks, VOLUME, v1Rules } = await import('./checks.mjs')
+const { personaToProfile, optionToPlan, v1Level } = await import('./v1.mjs')
+// App plans are held to the app's level templates (RYR-14); website plans to its prompt's numbers.
+const rulesFor = persona => (generator === 'app' ? v1Rules(v1Level(persona.fitnessLevel)) : {})
 
 // Approximate USD per 1M tokens (thinking tokens bill as output). Check
 // https://ai.google.dev/pricing when comparing models; prompts here are
@@ -68,6 +96,7 @@ const { personas: allPersonas } = JSON.parse(readFileSync(path.join(EVAL_DIR, 'p
 const personas = allPersonas
   .filter(p => !only || only.includes(p.id))
   .map(p => ({ ...p, equipment: p.equipment || GYM_PRESETS[p.gymType] }))
+  .map(p => (generator === 'app' ? { ...p, appEquipment: toAppEquipmentList(p.equipment) } : p))
 if (!personas.length) {
   console.error('No personas match --only.')
   process.exit(1)
@@ -93,7 +122,23 @@ function mockPlan(persona) {
   return { plan: { title: 'Mock plan', summary: '', days, notes: [] }, meta: { model: 'mock', promptVersion: PROMPT_VERSION, attempts: 0, latencyMs: 0, usage: null } }
 }
 
+// ---- App generator ----
+// Personas become the app's profile (evals/v1.mjs); the builder returns two
+// options and the coach's recommendation is checked. --mock builds the plan
+// without Gemini (mockModelAnswer), through the same code.
+async function evaluateApp(persona) {
+  try {
+    const profile = personaToProfile(persona)
+    const proposal = await generateProposal(profile, { mock, deadline: Date.now() + PROPOSAL_BUDGET_MS })
+    const plan = optionToPlan(proposal.recommended, proposal.coachNote)
+    return { id: persona.id, level: persona.fitnessLevel, ok: true, meta: proposal.meta, checks: runChecks(persona, plan, rulesFor(persona)), plan }
+  } catch (err) {
+    return { id: persona.id, level: persona.fitnessLevel, ok: false, error: err.message, meta: err.meta || null, checks: {} }
+  }
+}
+
 async function evaluate(persona) {
+  if (generator === 'app') return evaluateApp(persona)
   const input = {
     fitnessLevel: persona.fitnessLevel,
     targetMuscles: persona.targetMuscles,
@@ -110,9 +155,9 @@ async function evaluate(persona) {
   }
   try {
     const { plan, meta } = mock ? mockPlan(persona) : await generatePlanWithGemini(input, { deadline: Date.now() + 120_000 })
-    return { id: persona.id, ok: true, meta, checks: runChecks(persona, plan), plan }
+    return { id: persona.id, level: persona.fitnessLevel, ok: true, meta, checks: runChecks(persona, plan), plan }
   } catch (err) {
-    return { id: persona.id, ok: false, error: err.message, meta: err.meta || null, checks: {} }
+    return { id: persona.id, level: persona.fitnessLevel, ok: false, error: err.message, meta: err.meta || null, checks: {} }
   }
 }
 
@@ -147,14 +192,18 @@ function summarize(results) {
   }
   const metas = results.map(r => r.meta).filter(m => m?.usage)
   const sum = key => metas.reduce((a, m) => a + (m.usage[key] || 0), 0)
-  const price = PRICES[getModelName()]
-  const cost = price && metas.length
-    ? (sum('inputTokens') * price.input + (sum('outputTokens') + sum('thinkingTokens')) * price.output) / 1e6
+  // Priced per call by the model that made it (the v1 generator can use a different model per level).
+  const priced = metas.filter(m => PRICES[m.model])
+  const cost = priced.length
+    ? priced.reduce((a, m) => a + (m.usage.inputTokens * PRICES[m.model].input + (m.usage.outputTokens + m.usage.thinkingTokens) * PRICES[m.model].output), 0) / 1e6
     : null
+  const allChecks = Object.values(checks).reduce((a, c) => ({ passed: a.passed + c.passed, total: a.total + c.total }), { passed: 0, total: 0 })
   const latencies = results.map(r => r.meta?.latencyMs).filter(n => n > 0)
   return {
     generation: { succeeded: results.filter(r => r.ok).length, total: results.length },
     checks,
+    allChecks: { ...allChecks, rate: allChecks.total ? allChecks.passed / allChecks.total : null },
+    avgTotalTokens: metas.length ? Math.round(sum('totalTokens') / metas.length) : null,
     tokens: metas.length ? {
       avgInput: Math.round(sum('inputTokens') / metas.length),
       avgOutput: Math.round(sum('outputTokens') / metas.length),
@@ -187,29 +236,73 @@ function printSummary(summary, baseline) {
   }
   if (summary.avgLatencyMs !== null) console.log(`Latency per plan (avg): ${(summary.avgLatencyMs / 1000).toFixed(1)}s, retries: ${summary.retries}`)
   if (summary.approxCostUsd !== null) console.log(`Approx. cost of this run: $${summary.approxCostUsd}`)
-  if (b) console.log(`\nBaseline: ${baseline.model} / prompt ${baseline.promptVersion} / ${baseline.ranAt}`)
+  if (summary.byLevel) printByLevel(summary.byLevel, b?.byLevel)
+  if (b) {
+    const was = GENERATORS[baseline.generator] || 'website'
+    console.log(`\nBaseline: ${was} generator / ${baseline.model} / prompt ${baseline.promptVersion} / ${baseline.ranAt}`)
+    if (was !== generator) console.log('Note: the baseline used a different generator, so this compares generators.')
+  }
+}
+
+// Per level (RYR-16): models are compared level by level, since a cheaper
+// model may be enough for the tightly templated beginner and intermediate plans.
+const LEVELS = ['beginner', 'intermediate', 'professional']
+function summarizeByLevel(results) {
+  const out = {}
+  for (const level of LEVELS) {
+    const group = results.filter(r => r.level === level)
+    if (group.length) out[level] = summarize(group)
+  }
+  return out
+}
+
+function printByLevel(byLevel, before) {
+  console.log(`\nPer level${before ? ' (vs baseline)' : ''}:`)
+  console.log(`  ${'level'.padEnd(13)} ${'plans'.padStart(5)} ${'checks'.padStart(7)}  ${'rate'.padStart(5)}${before ? '     ' : ''}  ${'tokens'.padStart(7)}  ${'latency'.padStart(7)}  ${'cost'.padStart(8)}  failed checks`)
+  for (const [level, s] of Object.entries(byLevel)) {
+    const failed = Object.entries(s.checks).filter(([, c]) => c.passed < c.total).map(([k, c]) => `${k} ${c.passed}/${c.total}`)
+    const was = before?.[level]?.allChecks?.rate
+    console.log(`  ${level.padEnd(13)} ${`${s.generation.succeeded}/${s.generation.total}`.padStart(5)} ${`${s.allChecks.passed}/${s.allChecks.total}`.padStart(7)}  ${pct(s.allChecks.rate)}${before ? ` ${delta(s.allChecks.rate, was)}` : ''}  ${String(s.avgTotalTokens ?? '-').padStart(7)}  ${(s.avgLatencyMs === null ? '-' : `${(s.avgLatencyMs / 1000).toFixed(1)}s`).padStart(7)}  ${(s.approxCostUsd === null ? '-' : `$${s.approxCostUsd}`).padStart(8)}  ${failed.join(', ') || '-'}`)
+  }
 }
 
 // ---- Main ----
-const model = mock ? 'mock' : getModelName()
-console.log(`Evaluating ${personas.length} persona(s) with ${model}, prompt ${PROMPT_VERSION}${mock ? ' (mock: no Gemini calls)' : ''}...`)
+// The app picks a model per level unless --model / GEMINI_MODEL overrides it.
+const appModels = [...new Set(personas.map(p => generationModelFor(v1Level(p.fitnessLevel))))]
+const model = rescored ? rescored.model : mock ? 'mock' : generator === 'app' ? appModels.join('+') : getModelName()
+const promptVersion = rescored ? rescored.promptVersion : PROMPT_VERSION
+console.log(rescored
+  ? `Rescoring ${rescoreFile} (${generator} generator, ${model}, prompt ${promptVersion}, run ${rescored.ranAt}): no Gemini calls...`
+  : `Evaluating ${personas.length} persona(s): ${generator} generator, ${model}, prompt ${promptVersion}${mock ? ' (mock: no Gemini calls)' : ''}...`)
 const started = Date.now()
-const results = await runAll(personas, evaluate)
+// --rescore: same plans, same generation stats, checks run again.
+const results = rescored
+  ? rescored.results.map(r => {
+      const persona = personas.find(p => p.id === r.id)
+      const level = r.level || persona?.fitnessLevel
+      return r.ok && persona && r.plan ? { ...r, level, checks: runChecks(persona, r.plan, rulesFor(persona)) } : { ...r, level }
+    })
+  : await runAll(personas, evaluate)
 const summary = summarize(results)
+summary.byLevel = summarizeByLevel(results)
 const baseline = existsSync(BASELINE_FILE) ? JSON.parse(readFileSync(BASELINE_FILE, 'utf8')) : null
 printSummary(summary, baseline)
 
+// A rescore keeps the original run's identity and adds when it was rescored.
 const record = {
-  ranAt: new Date().toISOString(),
+  ranAt: rescored ? rescored.ranAt : new Date().toISOString(),
+  ...(rescored ? { rescoredAt: new Date().toISOString() } : {}),
+  generator,
   model,
-  promptVersion: PROMPT_VERSION,
-  personas: personas.map(p => p.id),
-  durationMs: Date.now() - started,
+  promptVersion,
+  personas: rescored ? rescored.personas : personas.map(p => p.id),
+  durationMs: rescored ? rescored.durationMs : Date.now() - started,
   summary,
   results,
 }
 mkdirSync(RESULTS_DIR, { recursive: true })
-const file = path.join(RESULTS_DIR, `${record.ranAt.replace(/[:.]/g, '-')}_${model}_${PROMPT_VERSION}.json`)
+const stamp = (record.rescoredAt || record.ranAt).replace(/[:.]/g, '-')
+const file = path.join(RESULTS_DIR, `${stamp}_${rescored ? 'rescore_' : ''}${generator}_${model}_${promptVersion}.json`)
 writeFileSync(file, JSON.stringify(record, null, 2))
 console.log(`\nFull results: ${path.relative(process.cwd(), file)}`)
 

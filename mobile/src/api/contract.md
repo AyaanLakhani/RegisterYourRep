@@ -127,7 +127,7 @@ The mobile side is already in place: `setTokenProvider()` in `client.ts` supplie
 
 | Today (`lib/models/index.js`) | New | Notes |
 |---|---|---|
-| `User` fields `fitnessLevel`, `targetMuscles`, `frequency`, `sessionDuration`, `preferences` | `Profile` (versioned) | `frequency` → `trainingDays` (actual weekdays); `sessionDuration` → `sessionMinutes`; `fitnessLevel` → `level` (suggested by the app, confirmed by the user) plus `suggestedLevel` and `trainingHistory`; `targetMuscles` + `preferences` → `goals` + `limitations`; new: `gymType`, `equipment` (the confirmed list), `trainingHistory`, `familiarExerciseIds`, `suggestedLevel`. `User` keeps identity (`privyUserId`, `email`, `onboardingComplete`). |
+| `User` fields `fitnessLevel`, `targetMuscles`, `frequency`, `sessionDuration`, `preferences` | `Profile` (versioned) | `frequency` → `trainingDays` (actual weekdays); `sessionDuration` → `sessionMinutes`; `fitnessLevel` → `level` (suggested by the app, confirmed by the user) plus `suggestedLevel` and `trainingHistory`; `targetMuscles` + `preferences` → `goals` + `limitations`; new: `gymType`, `equipment` (the confirmed list), `trainingHistory`, `familiarExerciseIds`, `suggestedLevel`, `focusMuscles` (Nov 18). `User` keeps identity (`privyUserId`, `email`, `onboardingComplete`). |
 | `WorkoutPlan` | `Program` (versioned) | `generatedPlan` (Mixed) becomes typed `days[]` with catalog ids; `status: draft/generating/ready/failed` splits into `GenerationJob.status` (pending/running/done/failed) and `Program.status` (current/archived). `name` stays; new: `version`, `note`, `profileVersion`. The fitness fields copied onto each plan move to `Profile`. |
 | (implicit in `WorkoutPlan.status` + `GenerationLog`) | `GenerationJob`, `ProgramProposal` | `GenerationLog` stays as the rate-limit log. The proposal holds both options until one is accepted. |
 | `Workcard` | `Session` | `date`, `weekday`, `dayLabel` → `name`, `focus`, `exercises` (now with `exerciseId`, `formCue`; `notes` → `formCue`). `checked[]` + `completedCount` / `totalCount` / `score` are replaced by `logs` (derived counts). `status: pending/submitted` → `scheduled/done/skipped/moved/carried_over`; `submittedAt` → `finishedAt`. `planId` → `programId` + `programVersion`. |
@@ -154,6 +154,30 @@ From Questions & Decisions, "How does the coach tell beginner, intermediate and 
   familiarity ticks (`suggestLevel`), shows "we'll start you as …", and the user confirms or changes it. The profile
   stores both `suggestedLevel` and the confirmed `level`; plans use `level`. There is no plain level dropdown.
 - Pro users still get a generated plan, which they tweak through Plan and Ask Coach.
+
+## Focus muscles (onboarding step 2, Nov 18)
+
+"Which muscles do you most want to improve?" saves `focusMuscles` on the profile (RYR-20, used by RYR-14).
+
+- Values: `chest`, `triceps`, `back`, `biceps`, `legs` (quads, hamstrings, glutes and calves), `shoulders`, `core`,
+  or `full_body`. Pick **1-3 groups**, or `full_body` **on its own** (= no particular focus, a balanced plan).
+- Optional in `ProfileInput`, so profiles saved before the step existed still work; the server returns `[]` for
+  them, which plans treat like `full_body`.
+- Plan generation gives focus muscles extra exercises across the week (all levels) and extra sets (intermediate and
+  pro). Ask Coach sees them too. Changing them later saves a new profile version; the next plan build uses it.
+
+## Training cycles: rest days, deloads, rotation (RYR-14, Nov 19)
+
+The server applies the level templates' cycle rules; the app only shows the result.
+
+- **Pro rest day:** when a pro picks all seven days, the `recommended` option trains six (the extra full-body day
+  becomes a rest day). The `as_asked` option keeps all seven.
+- **Pro deload weeks:** weeks 5, 10, … of a training block (counted from when the plan at this level started) are
+  lighter: the same exercises at about 60% of the sets (at least 2). Those sessions have `deload: true` and a name
+  ending in "· Deload". Future weeks show them ahead of time.
+- **Intermediate accessory rotation:** at the start of weeks 6, 11, … the accessories (non-compound exercises) change
+  to others for the same muscles; compound lifts stay. This is a new program version with a note like
+  "Week 6: new accessory exercises", so it shows in the version history.
 
 ## Monthly goal on Home (design update, Nov 15)
 

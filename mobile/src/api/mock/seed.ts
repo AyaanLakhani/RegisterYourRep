@@ -201,6 +201,7 @@ export function createSeed(): MockState {
     equipment: ['barbell', 'dumbbell', 'cable', 'machine', 'bench', 'pullup_bar'],
     familiarExerciseIds: ['squat', 'bench-press', 'lat-pulldown', 'dumbbell-row', 'overhead-press', 'pull-up'],
     limitations: '',
+    focusMuscles: ['chest', 'back'],
     displayName: 'Yara Tan',
     trainingHistory: 'six_months_to_2_years',
     suggestedLevel: 'intermediate',
