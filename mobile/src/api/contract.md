@@ -166,6 +166,19 @@ From Questions & Decisions, "How does the coach tell beginner, intermediate and 
 - Plan generation gives focus muscles extra exercises across the week (all levels) and extra sets (intermediate and
   pro). Ask Coach sees them too. Changing them later saves a new profile version; the next plan build uses it.
 
+## Training cycles: rest days, deloads, rotation (RYR-14, Nov 19)
+
+The server applies the level templates' cycle rules; the app only shows the result.
+
+- **Pro rest day:** when a pro picks all seven days, the `recommended` option trains six (the extra full-body day
+  becomes a rest day). The `as_asked` option keeps all seven.
+- **Pro deload weeks:** weeks 5, 10, … of a training block (counted from when the plan at this level started) are
+  lighter: the same exercises at about 60% of the sets (at least 2). Those sessions have `deload: true` and a name
+  ending in "· Deload". Future weeks show them ahead of time.
+- **Intermediate accessory rotation:** at the start of weeks 6, 11, … the accessories (non-compound exercises) change
+  to others for the same muscles; compound lifts stay. This is a new program version with a note like
+  "Week 6: new accessory exercises", so it shows in the version history.
+
 ## Monthly goal on Home (design update, Nov 15)
 
 `Today.monthGoal` drives Home's "<Month> goal" card: `sessionsDone` of `sessionsGoal` for the month, a pace badge

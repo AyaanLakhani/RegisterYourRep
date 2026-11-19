@@ -354,6 +354,8 @@ export const SessionSchema = z.object({
   finishedAt: IsoDateTimeSchema.optional(),
   /** For moved / carried_over sessions: the date it was originally planned for. */
   movedFrom: DayDateSchema.optional(),
+  /** Pro deload week: the same exercises with fewer sets (RYR-14). */
+  deload: z.boolean().optional(),
 });
 export type Session = z.infer<typeof SessionSchema>;
 
