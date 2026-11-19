@@ -14,6 +14,7 @@ import { loginEnabled } from '../auth/config';
 import { Button, Card, Screen, ScreenHeader, SectionTitle } from '../components';
 import {
   EQUIPMENT,
+  FOCUS_MUSCLES,
   GOALS,
   GYM_TYPES,
   HISTORY,
@@ -31,6 +32,14 @@ function scheduleText(p: Profile) {
 function equipmentText(p: Profile) {
   const names = EQUIPMENT.filter((e) => p.equipment.includes(e.value)).map((e) => e.label);
   return names.length ? names.join(', ') : 'None';
+}
+
+function focusText(p: Profile) {
+  const focus = p.focusMuscles ?? [];
+  if (focus.length === 0 || focus.includes('full_body')) return 'Full body';
+  return FOCUS_MUSCLES.filter((m) => focus.includes(m.value))
+    .map((m) => m.label)
+    .join(', ');
 }
 
 function levelText(p: Profile) {
@@ -99,6 +108,7 @@ export default function ProfileScreen() {
           <View>
             <Row label="Goal" value={labelOf(GOALS, profile.data.goals[0])} />
             <Row label="Schedule" value={scheduleText(profile.data)} />
+            <Row label="Focus" value={focusText(profile.data)} />
             <Row label="Where you train" value={labelOf(GYM_TYPES, profile.data.gymType)} />
             <Row label="Equipment" value={equipmentText(profile.data)} />
             <Row label="Training history" value={labelOf(HISTORY, profile.data.trainingHistory)} />

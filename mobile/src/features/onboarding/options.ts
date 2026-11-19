@@ -1,6 +1,6 @@
 // Answer options for the training profile: UI labels for the ProfileInput
 // enums. Shared by onboarding (the questions) and Profile (the summary).
-import type { Equipment, Goal, GymType, Level, TrainingHistory, Weekday } from '../../api';
+import type { Equipment, FocusMuscle, Goal, GymType, Level, TrainingHistory, Weekday } from '../../api';
 
 export const GOALS: { value: Goal; label: string }[] = [
   { value: 'build_muscle', label: 'Build muscle' },
@@ -21,6 +21,18 @@ export const WEEKDAYS: { value: Weekday; label: string }[] = [
 ];
 
 export const SESSION_MINUTES = [30, 45, 60, 75, 90];
+
+// "Which muscles do you most want to improve?" Full body stands on its own.
+export const FOCUS_MUSCLES: { value: FocusMuscle; label: string }[] = [
+  { value: 'chest', label: 'Chest' },
+  { value: 'triceps', label: 'Triceps' },
+  { value: 'back', label: 'Back' },
+  { value: 'biceps', label: 'Biceps' },
+  { value: 'legs', label: 'Legs & glutes' },
+  { value: 'shoulders', label: 'Shoulders' },
+  { value: 'core', label: 'Core' },
+];
+export const FULL_BODY: { value: FocusMuscle; label: string } = { value: 'full_body', label: 'Full body' };
 
 // Picking a gym type pre-ticks its preset equipment (api/level.ts) on the next
 // step, where the user unticks what theirs lacks.
